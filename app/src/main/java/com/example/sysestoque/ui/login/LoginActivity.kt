@@ -1,7 +1,6 @@
 package com.example.sysestoque.ui.login
 
 import android.app.Activity
-import android.os.Build
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -15,7 +14,6 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.example.sysestoque.databinding.ActivityLoginBinding
 
@@ -137,8 +135,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     //Atualiza a interface do usuário após um login bem-sucedido, mostrando uma mensagem de boas-vindas.
-    private fun updateUiWithUser(model: LoggedInUserView) {
-        val sexo = "M"; //retorno da API
+    private fun updateUiWithUser() {
+        val sexo = "M" //retorno da API
         val saudacao = if (sexo == "M") getString(R.string.welcome_male) else getString(R.string.welcome_female)
 
         val user = binding.edtUsername.text.toString()
