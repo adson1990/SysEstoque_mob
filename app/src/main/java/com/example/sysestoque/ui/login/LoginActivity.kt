@@ -1,6 +1,7 @@
 package com.example.sysestoque.ui.login
 
 import android.app.Activity
+import android.os.Build
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -14,6 +15,8 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.example.sysestoque.databinding.ActivityLoginBinding
 
 import com.example.sysestoque.R
@@ -23,6 +26,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
 
+   // @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -43,13 +47,32 @@ class LoginActivity : AppCompatActivity() {
             forgotPass.startAnimation(scaleAnimation)
         }
 
+        register.setOnClickListener{
+            register.startAnimation(scaleAnimation)
+        }
+
+       remember.setOnCheckedChangeListener { _, isChecked ->
+           val colorResId = if (isChecked) R.color.green_500 else R.color.blue_600
+           val colorStateList = ContextCompat.getColorStateList(this, colorResId)
+           if (isChecked) {
+               remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.green_500)
+               remember.setTextColor(colorStateList)
+           } else {
+               remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.blue_600)
+               remember.setTextColor(colorStateList)
+           }
+       }
+
+
+       //Cria uma instância do ViewModel, que gerencia a lógica de negócios e os dados da UI.
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
 
+        //Observa mudanças no estado do formulário de login, como validação de campos.
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
             val loginState = it ?: return@Observer
 
-            // disable login button unless both username / password is valid
+            // botão de login só ficará habilitado se os dados do formulário de login forem considerados válidos.
             login.isEnabled = loginState.isDataValid
 
             if (loginState.usernameError != null) {
@@ -60,6 +83,7 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
+        //Observa o resultado da tentativa de login (sucesso ou erro).
         loginViewModel.loginResult.observe(this@LoginActivity, Observer {
             val loginResult = it ?: return@Observer
 
@@ -76,6 +100,7 @@ class LoginActivity : AppCompatActivity() {
             finish()
         })
 
+        //Verifica se o texto do campo de usuário foi alterado e atualiza o estado do formulário para usuário e senha.
         username.afterTextChanged {
             loginViewModel.loginDataChanged(
                 username.text.toString(),
@@ -91,10 +116,11 @@ class LoginActivity : AppCompatActivity() {
                 )
             }
 
-            setOnEditorActionListener { _, actionId, _ ->
+            //istener para ações específicas do teclado virtual (IME)
+            setOnEditorActionListener { _, actionId, _ -> //param => 1- é o TextView associado, mas foi ignorado, 2- indica a ação do user, 3- Este parâmetro é um KeyEvent, representando o evento de tecla específico
                 when (actionId) {
                     EditorInfo.IME_ACTION_DONE ->
-                        loginViewModel.login(
+                        loginViewModel.login( // chamar o endpoint de login para validar entrada no sistema
                             username.text.toString(),
                             password.text.toString()
                         )
@@ -102,6 +128,7 @@ class LoginActivity : AppCompatActivity() {
                 false
             }
 
+            //Define o que acontece quando o botão de login é clicado. Chama o método login do ViewModel com os valores inseridos pelo usuário.
             login.setOnClickListener {
                 loading.visibility = View.VISIBLE
                 loginViewModel.login(username.text.toString(), password.text.toString())
@@ -109,17 +136,22 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    //Atualiza a interface do usuário após um login bem-sucedido, mostrando uma mensagem de boas-vindas.
     private fun updateUiWithUser(model: LoggedInUserView) {
-        val welcome = getString(R.string.welcome_male)
-        val displayName = model.displayName
+        val sexo = "M"; //retorno da API
+        val saudacao = if (sexo == "M") getString(R.string.welcome_male) else getString(R.string.welcome_female)
+
+        val user = binding.edtUsername.text.toString()
+        val nome = user.substringBefore("@").uppercase()
         // TODO : initiate successful logged in experience
         Toast.makeText(
             applicationContext,
-            "$welcome $displayName",
+            "$saudacao $nome",
             Toast.LENGTH_LONG
         ).show()
     }
 
+    //Exibe uma mensagem de erro se o login falhar.
     private fun showLoginFailed(@StringRes errorString: Int) {
         Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
     }

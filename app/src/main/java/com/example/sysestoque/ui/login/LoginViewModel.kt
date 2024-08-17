@@ -41,15 +41,20 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
     // A placeholder username validation check
     private fun isUserNameValid(username: String): Boolean {
-        return if (username.contains('@')) {
+     /*   return if (username.contains('@') && username.contains(".com")) {
             Patterns.EMAIL_ADDRESS.matcher(username).matches()
         } else {
             username.isNotBlank()
-        }
+        }*/
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()
     }
 
     // A placeholder password validation check
     private fun isPasswordValid(password: String): Boolean {
-        return password.length > 5
+        val passwordPattern = """^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&+-.;></)(])[A-Za-z\d@$!%*?&+-.;></)(]{6,}$"""
+        val passwordMatcher = Regex(passwordPattern)
+
+        return passwordMatcher.matches(password)
+
     }
 }

@@ -3,7 +3,7 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Register</string>
+    <string name="action_sign_in"><u>Register</u></string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="welcome_male">"Welcome !"</string>
     <string name="welcome_female">"Welcome!"</string>
