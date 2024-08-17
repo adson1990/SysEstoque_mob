@@ -135,7 +135,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     //Atualiza a interface do usuário após um login bem-sucedido, mostrando uma mensagem de boas-vindas.
-    private fun updateUiWithUser() {
+    private fun updateUiWithUser(success: LoggedInUserView) {
         val sexo = "M" //retorno da API
         val saudacao = if (sexo == "M") getString(R.string.welcome_male) else getString(R.string.welcome_female)
 
