@@ -1,0 +1,57 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- DP -->
+    <dimen name="size_5dp">5dp</dimen>
+    <dimen name="size_8dp">8dp</dimen>
+    <dimen name="size_10dp">10dp</dimen>
+    <dimen name="size_15dp">15dp</dimen>
+    <dimen name="size_20dp">20dp</dimen>
+    <dimen name="size_25dp">25dp</dimen>
+    <dimen name="size_30dp">30dp</dimen>
+    <dimen name="size_35dp">35dp</dimen>
+    <dimen name="size_40dp">40dp</dimen>
+    <dimen name="size_45dp">45dp</dimen>
+    <dimen name="size_50dp">50dp</dimen>
+    <dimen name="size_55dp">55dp</dimen>
+    <dimen name="size_60dp">60dp</dimen>
+    <dimen name="size_65dp">65dp</dimen>
+    <dimen name="size_70dp">70dp</dimen>
+    <dimen name="size_75dp">75dp</dimen>
+
+    <!-- PX -->
+    <dimen name="size_5px">5px</dimen>
+    <dimen name="size_10px">10px</dimen>
+    <dimen name="size_15px">15px</dimen>
+    <dimen name="size_20px">20px</dimen>
+    <dimen name="size_25px">25px</dimen>
+    <dimen name="size_30px">30px</dimen>
+    <dimen name="size_35px">35px</dimen>
+    <dimen name="size_40px">40px</dimen>
+    <dimen name="size_45px">45px</dimen>
+    <dimen name="size_50px">50px</dimen>
+    <dimen name="size_55px">55px</dimen>
+    <dimen name="size_60px">60px</dimen>
+    <dimen name="size_65px">65px</dimen>
+    <dimen name="size_70px">70px</dimen>
+    <dimen name="size_75px">75px</dimen>
+
+    <!-- SP -->
+    <dimen name="size_5sp">5sp</dimen>
+    <dimen name="size_10sp">10sp</dimen>
+    <dimen name="size_15sp">15sp</dimen>
+    <dimen name="size_20sp">20sp</dimen>
+    <dimen name="size_25sp">25sp</dimen>
+    <dimen name="size_30sp">30sp</dimen>
+    <dimen name="size_35sp">35sp</dimen>
+    <dimen name="size_40sp">40sp</dimen>
+    <dimen name="size_45sp">45sp</dimen>
+    <dimen name="size_50sp">50sp</dimen>
+    <dimen name="size_55sp">55sp</dimen>
+    <dimen name="size_60sp">60sp</dimen>
+    <dimen name="size_65sp">65sp</dimen>
+    <dimen name="size_70sp">70sp</dimen>
+    <dimen name="size_75sp">75sp</dimen>
+</resources>
