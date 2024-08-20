@@ -3,5 +3,5 @@
     <!-- Estado pressionado -->
     <item android:state_pressed="true" android:color="@color/gray_500"/>
     <!-- Estado padrão -->
-    <item android:color="@color/blue_800"/>
+    <item android:color="@color/blue_400"/>
 </selector>
