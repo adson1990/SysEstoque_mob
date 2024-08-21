@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_400"
+    tools:context=".RegistroActivity">
+
+
+    <TextView
+        android:id="@+id/nomeApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/size_20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="29dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/app_name"
+        android:textColor="@color/blue_600"
+        android:textSize="@dimen/size_30sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tituloPagina"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_20dp"
+        android:text="@string/sign_in_new_user"
+        android:textColor="@color/blue_600"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nomeApp" />
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tituloPagina">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <!-- Nome do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                android:text="@string/full_name"
+                android:labelFor="@+id/edtNomeCompleto"/>
+            <EditText
+                android:id="@+id/edtNomeCompleto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="NomeCompleto"
+                android:inputType="textCapCharacters"
+                android:textStyle="normal"
+                android:textSize="@dimen/size_20sp"
+                android:textColor="@color/black"
+                android:fontFamily="serif-monospace" />
+
+            <!-- E-mail do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                android:text="@string/email"
+                android:labelFor="@+id/edtEmail"
+                />
+            <EditText
+                android:id="@+id/edtEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="NomeCompleto"
+                android:inputType="textEmailAddress"
+                android:textStyle="normal"
+                android:textSize="@dimen/size_20sp"
+                android:textColor="@color/black"
+                android:fontFamily="serif-monospace" />
+
+            <!-- CPF do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                android:text="@string/CPF"
+                android:labelFor="@+id/edtCPF"
+                />
+            <EditText
+                android:id="@+id/edtCPF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="NomeCompleto"
+                android:inputType="number"
+                android:textStyle="normal"
+                android:textSize="@dimen/size_20sp"
+                android:textColor="@color/black"
+                android:fontFamily="serif-monospace" />
+        </LinearLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

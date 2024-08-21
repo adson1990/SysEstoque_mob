@@ -1,6 +1,7 @@
 package com.example.sysestoque.ui.login
 
 import android.app.Activity
+import android.content.Intent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -18,6 +19,7 @@ import androidx.core.content.ContextCompat
 import com.example.sysestoque.databinding.ActivityLoginBinding
 
 import com.example.sysestoque.R
+import com.example.sysestoque.RegistroActivity
 
 class LoginActivity : AppCompatActivity() {
 
@@ -50,13 +52,13 @@ class LoginActivity : AppCompatActivity() {
         }
 
        remember.setOnCheckedChangeListener { _, isChecked ->
-           val colorResId = if (isChecked) R.color.green_500 else R.color.blue_600
+           val colorResId = if (isChecked) R.color.green_500 else R.color.gray_50
            val colorStateList = ContextCompat.getColorStateList(this, colorResId)
            if (isChecked) {
                remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.green_500)
                remember.setTextColor(colorStateList)
            } else {
-               remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.blue_600)
+               remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.gray_50)
                remember.setTextColor(colorStateList)
            }
        }
@@ -132,6 +134,16 @@ class LoginActivity : AppCompatActivity() {
                 loginViewModel.login(username.text.toString(), password.text.toString())
             }
         }
+
+       register.setOnClickListener(){
+           abrirRegistroDeCliente(Bundle())
+       }
+
+    }
+
+    fun abrirRegistroDeCliente(bundle: Bundle? = null){
+        val intent = Intent(this, RegistroActivity::class.java)
+        startActivity(intent)
     }
 
     //Atualiza a interface do usuário após um login bem-sucedido, mostrando uma mensagem de boas-vindas.
