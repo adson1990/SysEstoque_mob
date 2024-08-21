@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="countries_array">
+        <item>@string/us</item>
+        <item>@string/br</item>
+        <item>@string/ca</item>
+        <item>@string/ge</item>
+        <item>@string/fr</item>
+        <item>@string/jp</item>
+    </string-array>
+
+    <string-array name="tipo_telefone">
+        <item>@string/num_pessoal</item>
+        <item>@string/num_profissional</item>
+        <item>@string/num_residencial</item>
+    </string-array>
+</resources>

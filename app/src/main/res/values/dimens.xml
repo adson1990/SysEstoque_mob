@@ -39,6 +39,7 @@
     <dimen name="size_65px">65px</dimen>
     <dimen name="size_70px">70px</dimen>
     <dimen name="size_75px">75px</dimen>
+    <dimen name="size_175px">175px</dimen>
 
     <!-- SP -->
     <dimen name="size_5sp">5sp</dimen>

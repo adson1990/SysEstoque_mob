@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.CheckBox
@@ -52,10 +53,10 @@ class LoginActivity : AppCompatActivity() {
         }
 
        remember.setOnCheckedChangeListener { _, isChecked ->
-           val colorResId = if (isChecked) R.color.green_500 else R.color.gray_50
+           val colorResId = if (isChecked) R.color.pink_200 else R.color.gray_50
            val colorStateList = ContextCompat.getColorStateList(this, colorResId)
            if (isChecked) {
-               remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.green_500)
+               remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.pink_200)
                remember.setTextColor(colorStateList)
            } else {
                remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.gray_50)
@@ -79,6 +80,7 @@ class LoginActivity : AppCompatActivity() {
                 username.error = getString(loginState.usernameError)
             }
             if (loginState.passwordError != null) {
+                Log.w("ValidationPassword","Password inválido")
                 password.error = getString(loginState.passwordError)
             }
         })
@@ -89,6 +91,7 @@ class LoginActivity : AppCompatActivity() {
 
             loading.visibility = View.GONE
             if (loginResult.error != null) {
+                Log.w("ValidationLogin", "Tentativa de login fracassada!")
                 showLoginFailed(loginResult.error)
             }
             if (loginResult.success != null) {

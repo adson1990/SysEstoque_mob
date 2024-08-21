@@ -50,6 +50,10 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
     // A placeholder password validation check
     private fun isPasswordValid(password: String): Boolean {
+                            //^começo da string
+                           //?= positive lookahead  verifica se uma determinada sequência de caracteres é encontrada à frente da posição atual
+                           //mas não consome esses caracteres na correspondência
+                           //$ indica o final da string
         val passwordPattern = """^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&+-.;></)(])[A-Za-z\d@$!%*?&+-.;></)(]{6,}$"""
         val passwordMatcher = Regex(passwordPattern)
 

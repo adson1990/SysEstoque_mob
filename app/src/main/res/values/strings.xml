@@ -16,4 +16,34 @@
     <string name="forgot_pass"><u>"Forgot Password"</u></string>
     <string name="full_name">"Full Name:"</string>
     <string name="CPF">"CPF:"</string>
+    <string name="password">Password:</string>
+    <string name="alert_password">Must contain uppercase, lowercase, digit, special character and a minimum of 6 characters</string>
+    <string name="error">Error</string>
+    <string name="sex">Sex:</string>
+    <string name="Male">Male</string>
+    <string name="Female">Female</string>
+    <string name="Income">Income:</string>
+    <string name="sifrao">US$</string>
+    <string name="Birth">Date of birth:</string>
+    <string name="Address">Address:</string>
+    <string name="Celphone">Celphone:</string>
+    <string name="full_adress">Enter your address</string>
+    <string name="neighborhood">Neighborhood</string>
+    <string name="num_adress">Nº</string>
+    <string name="postal_code">Postal code</string>
+    <string name="city">City</string>
+    <string name="state">State</string>
+    <string name="number">Number</string>
+    <string name="add_phoneNumber">Add number</string>
+    <!-- Paises do array de endereço -->
+    <string name="us">United States</string>
+    <string name="br">Brazil</string>
+    <string name="ca">Canada</string>
+    <string name="ge">Germany</string>
+    <string name="jp">Japan</string>
+    <string name="fr">France</string>
+    <!-- Tipos de números de telefone -->
+    <string name="num_pessoal">Pes</string>
+    <string name="num_profissional">Prof</string>
+    <string name="num_residencial">Res</string>
 </resources>

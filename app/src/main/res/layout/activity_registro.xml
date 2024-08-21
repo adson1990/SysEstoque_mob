@@ -23,7 +23,8 @@
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/scrollView2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TextContrastCheck"/>
 
     <TextView
         android:id="@+id/tituloPagina"
@@ -35,7 +36,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nomeApp" />
+        app:layout_constraintTop_toBottomOf="@+id/nomeApp"
+        tools:ignore="TextContrastCheck"/>
 
     <ScrollView
         android:id="@+id/scrollView2"
@@ -50,72 +52,370 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <!-- Nome do usuário -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/size_5dp"
                 android:layout_marginStart="@dimen/size_5dp"
-                android:textSize="@dimen/size_20sp"
-                android:textStyle="bold"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:labelFor="@+id/edtNomeCompleto"
                 android:text="@string/full_name"
-                android:labelFor="@+id/edtNomeCompleto"/>
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold" />
+
             <EditText
                 android:id="@+id/edtNomeCompleto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="NomeCompleto"
-                android:inputType="textCapCharacters"
-                android:textStyle="normal"
-                android:textSize="@dimen/size_20sp"
+                android:fontFamily="serif-monospace"
+                android:inputType="textCapCharacters|textPersonName"
                 android:textColor="@color/black"
-                android:fontFamily="serif-monospace" />
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="normal" />
 
             <!-- E-mail do usuário -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/size_5dp"
                 android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:labelFor="@+id/edtEmail"
+                android:text="@string/email"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                android:text="@string/email"
-                android:labelFor="@+id/edtEmail"
-                />
+                tools:ignore="TextContrastCheck"/>
+
             <EditText
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="NomeCompleto"
+                android:autofillHints="Email"
+                android:fontFamily="serif-monospace"
                 android:inputType="textEmailAddress"
-                android:textStyle="normal"
-                android:textSize="@dimen/size_20sp"
                 android:textColor="@color/black"
-                android:fontFamily="serif-monospace" />
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="normal" />
 
             <!-- CPF do usuário -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/size_5dp"
                 android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:labelFor="@+id/edtCPF"
+                android:text="@string/CPF"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                android:text="@string/CPF"
-                android:labelFor="@+id/edtCPF"
-                />
+                tools:ignore="TextContrastCheck"/>
+
             <EditText
                 android:id="@+id/edtCPF"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="NomeCompleto"
+                android:autofillHints="CPF"
+                android:fontFamily="serif-monospace"
                 android:inputType="number"
-                android:textStyle="normal"
-                android:textSize="@dimen/size_20sp"
                 android:textColor="@color/black"
-                android:fontFamily="serif-monospace" />
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="normal" />
+
+            <!-- Senha do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:labelFor="@+id/edtSenha"
+                android:text="@string/password"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                tools:ignore="TextContrastCheck"/>
+
+            <EditText
+                android:id="@+id/edtSenha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="Senha"
+                android:fontFamily="serif-monospace"
+                android:inputType="textPassword"
+                android:textColor="@color/black"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="normal"
+                android:tooltipText="@string/alert_password" />
+
+            <!-- Sexo do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:labelFor="@+id/rgSexo"
+                android:text="@string/sex"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                tools:ignore="TextContrastCheck"/>
+
+            <RadioGroup
+                android:id="@+id/rgSexo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbMasculino"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/size_15dp"
+                        android:text="@string/Male"
+                        tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+                    <!-- Adiciona um View para criar um espaço flexível entre os RadioButtons -->
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <RadioButton
+                        android:id="@+id/rbFeminino"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/size_15dp"
+                        android:text="@string/Female"
+                        tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+
+            </RadioGroup>
+
+            <!-- Salário do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_10dp"
+                android:labelFor="@+id/edtSalario"
+                android:text="@string/Income"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                tools:ignore="TextContrastCheck"/>
+
+            <EditText
+                android:id="@+id/edtSalario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="Salario"
+                android:fontFamily="serif-monospace"
+                android:inputType="numberDecimal"
+                android:textColor="@color/black"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="normal" />
+
+            <!-- Nascimento do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_10dp"
+                android:labelFor="@+id/edtNascimento"
+                android:text="@string/Birth"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                tools:ignore="TextContrastCheck"/>
+
+            <EditText
+                android:id="@+id/edtNascimento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="Nascimento"
+                android:fontFamily="serif-monospace"
+                android:inputType="date"
+                android:textColor="@color/black"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="normal" />
+
+            <!-- Endereço do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:labelFor="@+id/edtEndereco"
+                android:text="@string/Address"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                tools:ignore="TextContrastCheck"/>
+
+            <EditText
+                android:id="@+id/edtEndereco"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="Endereco"
+                android:fontFamily="serif-monospace"
+                android:hint="@string/full_adress"
+                android:inputType="text"
+                android:textColor="@color/black"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="normal"
+                tools:ignore="TextContrastCheck"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edtBairro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:autofillHints="Bairro"
+                    android:fontFamily="serif-monospace"
+                    android:hint="@string/neighborhood"
+                    android:inputType="text"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/size_20sp"
+                    android:textStyle="normal"
+                    tools:ignore="TextContrastCheck"/>
+
+                <EditText
+                    android:id="@+id/edtNumCasa"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.15"
+                    android:autofillHints="NumeroCasa"
+                    android:fontFamily="serif-monospace"
+                    android:hint="@string/num_adress"
+                    android:inputType="number"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/size_20sp"
+                    android:textStyle="normal"
+                    tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
+
+                <EditText
+                    android:id="@+id/edtCEP"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.35"
+                    android:autofillHints="CEP"
+                    android:fontFamily="serif-monospace"
+                    android:hint="@string/postal_code"
+                    android:inputType="textPostalAddress"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/size_20sp"
+                    android:textStyle="normal"
+                    tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtCidade"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:autofillHints="Cidade"
+                    android:fontFamily="serif-monospace"
+                    android:hint="@string/city"
+                    android:inputType="text"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/size_20sp"
+                    android:textStyle="normal"
+                    tools:ignore="TextContrastCheck"/>
+
+                <EditText
+                    android:id="@+id/edtEstado"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:autofillHints="Estado"
+                    android:fontFamily="serif-monospace"
+                    android:hint="@string/state"
+                    android:inputType="text"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/size_20sp"
+                    android:textStyle="normal"
+                    tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+            </LinearLayout>
+
+            <Spinner
+                android:id="@+id/spinnerCountry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="@dimen/size_10dp"
+                android:layout_marginEnd="16dp"
+                android:entries="@array/countries_array"
+                tools:ignore="TooWide,TouchTargetSizeCheck"/>
+
+            <!-- Telefones do usuário -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:labelFor="@+id/Telefone"
+                android:text="@string/Celphone"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
+                tools:ignore="TextContrastCheck"/>
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="@dimen/size_175px"
+                android:layout_height="@dimen/size_175px"
+                android:layout_marginTop="@dimen/size_5dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:srcCompat="@android:drawable/ic_input_add"
+                android:contentDescription="@string/add_phoneNumber"/>
+
+            <LinearLayout
+                android:id="@+id/linearLayoutPhoneNumbers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/size_8dp"
+                    tools:ignore="UselessParent">
+
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.2"
+                        android:inputType="number"
+                        android:autofillHints="DDD do número"
+                        android:layout_marginStart="@dimen/size_5dp"
+                        android:hint="DDD"
+                        tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.6"
+                        android:inputType="phone"
+                        android:autofillHints="Numero de telefone"
+                        android:layout_marginStart="@dimen/size_5dp"
+                        android:hint="@string/number"
+                        tools:ignore="TooWide,TouchTargetSizeCheck, TextContrastCheck"/>
+
+                    <Spinner
+                        android:id="@+id/spinnerTipoNumero"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.2"
+                        android:layout_marginStart="@dimen/size_5dp"
+                        android:layout_marginEnd="@dimen/size_5dp"
+                        android:entries="@array/tipo_telefone"
+                        tools:ignore="TooWide,TouchTargetSizeCheck"/>
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
