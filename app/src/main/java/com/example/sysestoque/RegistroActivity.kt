@@ -338,6 +338,14 @@ class RegistroActivity : AppCompatActivity() {
             }
         }
 
+        val adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.tipo_telefone,
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        tipoPhoneNumberSpinner.adapter = adapter
+
         newLinearLayout.addView(dddEditText)
         newLinearLayout.addView(phoneNumberEditText)
         newLinearLayout.addView(tipoPhoneNumberSpinner)

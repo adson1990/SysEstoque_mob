@@ -13,6 +13,9 @@
         android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait">
@@ -25,13 +28,11 @@
         <activity
             android:name=".RegistroActivity"
             android:exported="false" />
-
-
         <activity
             android:name=".MainActivity"
             android:exported="false"
             android:label="main_actvity"
-            android:theme="@style/Theme.SysEstoque"/>
+            android:theme="@style/Theme.SysEstoque" />
 
         <meta-data
             android:name="preloaded_fonts"

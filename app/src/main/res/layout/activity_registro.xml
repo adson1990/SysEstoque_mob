@@ -389,6 +389,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
                         android:inputType="number"
+                        android:maxLength="2"
                         android:autofillHints="DDD do número"
                         android:layout_marginStart="@dimen/size_5dp"
                         android:hint="DDD"
