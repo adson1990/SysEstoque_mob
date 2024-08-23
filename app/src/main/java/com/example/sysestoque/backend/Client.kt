@@ -9,5 +9,7 @@ data class Client(
     val birthDate: Instant,
     val sexo: Char,
     val email: String,
-    val senha: String
+    val senha: String,
+    val celphones: List<Celphone>,
+    val enderecos: List<Enderecos>
 )

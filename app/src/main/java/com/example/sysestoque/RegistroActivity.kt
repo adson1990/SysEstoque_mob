@@ -1,38 +1,50 @@
 package com.example.sysestoque
 
 import android.os.Build
-import retrofit2.Callback
+import android.os.Handler
+import android.os.Looper
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
-import android.widget.EditText
-import android.widget.Toast
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.RadioButton
-import android.widget.Spinner
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.RadioGroup
+import android.widget.ProgressBar
+import android.widget.RadioButton
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.appcompat.app.AlertDialog
+import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Celphone
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.Enderecos
+import com.example.sysestoque.backend.LoginResponse
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.delay
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import java.time.Instant
-
 
 class RegistroActivity : AppCompatActivity() {
 
     private lateinit var clientRepository: ClientRepository
+    private lateinit var progressBar: ProgressBar
+    private val delayMillis: Long = 5000
+
+    private var authToken: String? = null
 
     private lateinit var edtCPF: EditText
     private lateinit var edtSenha: EditText
@@ -42,6 +54,7 @@ class RegistroActivity : AppCompatActivity() {
     private lateinit var spinnerCelphone: Spinner
     private var phoneNumberCount = 1
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -180,6 +193,12 @@ class RegistroActivity : AppCompatActivity() {
         }
 
         clientRepository = ClientRepository()
+        progressBar = findViewById(R.id.requestLogin)
+
+        val btnRegistrar : Button = findViewById(R.id.btnCadastrar)
+        btnRegistrar.setOnClickListener{
+            onRegisterButtonClicked()
+        }
 
         // fim oncreate
     }
@@ -327,6 +346,7 @@ class RegistroActivity : AppCompatActivity() {
                 marginStart = resources.getDimensionPixelSize(R.dimen.size_5dp)
             }
             hint = "DDD"
+            inputType = InputType.TYPE_CLASS_NUMBER
         }
 
         // Cria o EditText para o número de telefone
@@ -339,6 +359,7 @@ class RegistroActivity : AppCompatActivity() {
                 marginStart = resources.getDimensionPixelSize(R.dimen.size_5dp)
             }
             hint = getString(R.string.number)
+            inputType = InputType.TYPE_CLASS_PHONE
         }
 
         // Cria o Spinner para o tipo de número
@@ -369,8 +390,46 @@ class RegistroActivity : AppCompatActivity() {
         Log.i("AddNewPhone","Novo número adicionado")
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onRegisterButtonClicked() {
+
+        progressBar.visibility = View.VISIBLE
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            Log.i("Cadastro1", "Início do processo de cadastro de cliente.")
+            authenticateAndRegister()
+        }, delayMillis)
+    }
+
+    private fun authenticateAndRegister() {
+        val authRepository = AuthRepository()
+        Log.i("Login", "Login para garantir um Token.")
+        authRepository.login("ADMIN", "123456", object : Callback<LoginResponse> {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                if (response.isSuccessful) {
+                    Log.i("Validação", "Login validade, token recuperado..")
+                    authToken = response.body()?.token
+                    // Após obter o token, fazer o cadastro do cliente
+                    registerClient()
+                } else {
+                    // Tratar falha no login
+                    Log.e("Falha_Login", "Login mal sucedido.")
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@RegistroActivity, "Falha no login", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                // Tratar falha na comunicação
+                progressBar.visibility = View.GONE
+                Log.wtf("Fatal_error", "Erro ao tentar conectar com a API.")
+                Toast.makeText(this@RegistroActivity, "Erro de comunicação", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun registerClient() {
         val nome = findViewById<EditText>(R.id.edtNomeCompleto).text.toString()
         val email = findViewById<EditText>(R.id.edtEmail).text.toString()
         val cpf = findViewById<EditText>(R.id.edtCPF).text.toString()
@@ -396,22 +455,19 @@ class RegistroActivity : AppCompatActivity() {
         celphones.add(Celphone(ddd = ddd, number = numCel, tipo = tipoNum))
 
         val enderecos = mutableListOf<Enderecos>()
-        enderecos.add(Enderecos(
-            rua = rua,
-            bairro = bairro,
-            num = numCasa,
-            estado = estado,
-            country = country,
-            cep = cep
-        ))
+        enderecos.add(
+            Enderecos(
+                rua = rua,
+                bairro = bairro,
+                num = numCasa,
+                estado = estado,
+                country = country,
+                cep = cep
+            )
+        )
 
-        var sex = 'N'
-        if (sexoMasc.isSelected) {
-            sex = 'M'
-        }else {
-            sex = 'F'
-        }
-        // Criação do Cliente
+        val sex = if (sexoMasc.isSelected) 'M' else 'F'
+
         val client = Client(
             name = nome,
             cpf = cpf,
@@ -419,31 +475,38 @@ class RegistroActivity : AppCompatActivity() {
             birthDate = datNas,
             sexo = sex,
             email = email,
-            senha = senha
+            senha = senha,
+            celphones = celphones,
+            enderecos = enderecos
         )
 
-        // Enviar para o Backend
-        clientRepository.cadastrarCliente(client, celphones, enderecos)
-    }
+        // Verificar se o token de autenticação está presente
+        authToken?.let {
+            Log.i("Cadastro2", "Token validado, cadastro de clientes prosseguirá.")
+            // Enviar para o Backend
+            clientRepository.cadastrarCliente(client, object : Callback<Client> {
+                override fun onResponse(call: Call<Client>, response: Response<Client>) {
+                    progressBar.visibility = View.GONE
 
-       // val client = Client(nome)
-
-        clientRepository.cadastrarCliente(client, object : Callback<Client> {
-            override fun onResponse(call: Call<Client>, response: Response<Client>) {
-                if (response.isSuccessful) {
-                    // Cliente cadastrado com sucesso
-                    Toast.makeText(this@RegistroActivity, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
-                } else {
-                    // Trate o caso de erro no servidor
-                    Toast.makeText(this@RegistroActivity, "Erro no cadastro", Toast.LENGTH_SHORT).show()
+                    if (response.isSuccessful) {
+                        Log.i("Cadastro3", "Cliente cadastrado com sucesso.")
+                        Toast.makeText(this@RegistroActivity, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.e("Falha_cadastro", "Cliente não cadastrado, validar dados.")
+                        Toast.makeText(this@RegistroActivity, "Erro no cadastro", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<Client>, t: Throwable) {
-                // Trate o erro de comunicação (ex.: falta de internet)
-                Toast.makeText(this@RegistroActivity, "Erro de comunicação", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onFailure(call: Call<Client>, t: Throwable) {
+                    progressBar.visibility = View.GONE
+                    Log.wtf("Fatal_error2", "Erro ao conectar com API para cadastrar cliente.")
+                    Toast.makeText(this@RegistroActivity, "Erro de comunicação", Toast.LENGTH_SHORT).show()
+                }
+            })
+        } ?: run {
+            progressBar.visibility = View.GONE
+            Log.wtf("Fatal_error3", "Erro ao conectar com API para validar login.")
+            Toast.makeText(this@RegistroActivity, "Erro de autenticação", Toast.LENGTH_SHORT).show()
+        }
     }
-
 }

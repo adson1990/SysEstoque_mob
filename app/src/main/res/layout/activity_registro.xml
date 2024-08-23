@@ -418,12 +418,26 @@
                         tools:ignore="TooWide,TouchTargetSizeCheck"/>
                 </LinearLayout>
             </LinearLayout>
-<Button
-    android:id="@+id/btnCadastrar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/size_15dp"
-    android:text="@string/btn_cadastrar"/>
+
+            <Button
+                android:id="@+id/btnCadastrar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size_15dp"
+                android:onClick="onRegisterButtonClicked"
+                android:text="@string/btn_cadastrar" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                 />
+
+            <ProgressBar
+                android:id="@+id/requestLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_centerInParent="true"/>
         </LinearLayout>
     </ScrollView>
 

@@ -10,14 +10,19 @@ class ClientRepository {
 
     init {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://localhost:8080/")
+            .baseUrl("http://10.10.50.141:8080/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         clienteApi = retrofit.create(ClienteApi::class.java)
     }
 
-    fun cadastrarCliente(cliente: Client, celphones: List<Celphone>, enderecos: List<Enderecos>, callback: Callback<Client>) {
+    /*fun cadastrarCliente(cliente: Client, celphones: List<Celphone>, enderecos: List<Enderecos>, callback: Callback<Client>) {
+        val call = clienteApi.cadastrarCliente(cliente)
+        call.enqueue(callback)
+    }*/
+
+    fun cadastrarCliente(cliente: Client, callback: Callback<Client>) {
         val call = clienteApi.cadastrarCliente(cliente)
         call.enqueue(callback)
     }
