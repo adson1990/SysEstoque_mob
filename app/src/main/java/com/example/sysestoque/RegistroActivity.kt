@@ -1,5 +1,7 @@
 package com.example.sysestoque
 
+import android.os.Build
+import retrofit2.Callback
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,15 +13,26 @@ import android.widget.RadioButton
 import android.widget.Spinner
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.RadioGroup
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AlertDialog
+import com.example.sysestoque.backend.Celphone
+import com.example.sysestoque.backend.Client
+import com.example.sysestoque.backend.ClientRepository
+import com.example.sysestoque.backend.Enderecos
+import retrofit2.Call
+import retrofit2.Response
+import java.time.Instant
 
 
 class RegistroActivity : AppCompatActivity() {
+
+    private lateinit var clientRepository: ClientRepository
 
     private lateinit var edtCPF: EditText
     private lateinit var edtSenha: EditText
@@ -165,6 +178,8 @@ class RegistroActivity : AppCompatActivity() {
                 imageButton.isEnabled = false // Desativa o botão quando atingir o limite
             }
         }
+
+        clientRepository = ClientRepository()
 
         // fim oncreate
     }
@@ -353,4 +368,82 @@ class RegistroActivity : AppCompatActivity() {
         linearLayoutPhoneNumbers.addView(newLinearLayout)
         Log.i("AddNewPhone","Novo número adicionado")
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun onRegisterButtonClicked() {
+        val nome = findViewById<EditText>(R.id.edtNomeCompleto).text.toString()
+        val email = findViewById<EditText>(R.id.edtEmail).text.toString()
+        val cpf = findViewById<EditText>(R.id.edtCPF).text.toString()
+        val senha = findViewById<EditText>(R.id.edtSenha).text.toString()
+        val datNas = Instant.parse(findViewById<EditText>(R.id.edtNascimento).text.toString())
+        val rua = findViewById<EditText>(R.id.edtEndereco).text.toString()
+        val bairro = findViewById<EditText>(R.id.edtBairro).text.toString()
+        val numCasa = Integer.parseInt(findViewById<EditText>(R.id.edtNumCasa).text.toString())
+        val cep = findViewById<EditText>(R.id.edtCEP).text.toString()
+        val estado = findViewById<EditText>(R.id.edtEstado).text.toString()
+        val ddd = Integer.parseInt(findViewById<EditText>(R.id.edtDDD).text.toString())
+        val numCel = findViewById<EditText>(R.id.edtNumeroCel).text.toString()
+        val income = findViewById<EditText>(R.id.edtSalario).text.toString().toDouble()
+        val sexoMasc = findViewById<RadioButton>(R.id.rbMasculino)
+
+        val spinnerCountry = findViewById<Spinner>(R.id.spinnerCountry)
+        val country = spinnerCountry.selectedItem.toString()
+
+        val spinnerTipoNumero = findViewById<Spinner>(R.id.spinnerTipoNumero)
+        val tipoNum = spinnerTipoNumero.selectedItem.toString().single()
+
+        val celphones = mutableListOf<Celphone>()
+        celphones.add(Celphone(ddd = ddd, number = numCel, tipo = tipoNum))
+
+        val enderecos = mutableListOf<Enderecos>()
+        enderecos.add(Enderecos(
+            rua = rua,
+            bairro = bairro,
+            num = numCasa,
+            estado = estado,
+            country = country,
+            cep = cep
+        ))
+
+        var sex = 'N'
+        if (sexoMasc.isSelected) {
+            sex = 'M'
+        }else {
+            sex = 'F'
+        }
+        // Criação do Cliente
+        val client = Client(
+            name = nome,
+            cpf = cpf,
+            income = income,
+            birthDate = datNas,
+            sexo = sex,
+            email = email,
+            senha = senha
+        )
+
+        // Enviar para o Backend
+        clientRepository.cadastrarCliente(client, celphones, enderecos)
+    }
+
+       // val client = Client(nome)
+
+        clientRepository.cadastrarCliente(client, object : Callback<Client> {
+            override fun onResponse(call: Call<Client>, response: Response<Client>) {
+                if (response.isSuccessful) {
+                    // Cliente cadastrado com sucesso
+                    Toast.makeText(this@RegistroActivity, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Trate o caso de erro no servidor
+                    Toast.makeText(this@RegistroActivity, "Erro no cadastro", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Client>, t: Throwable) {
+                // Trate o erro de comunicação (ex.: falta de internet)
+                Toast.makeText(this@RegistroActivity, "Erro de comunicação", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
 }

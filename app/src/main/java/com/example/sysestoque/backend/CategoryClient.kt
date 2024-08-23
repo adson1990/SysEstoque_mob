@@ -1,4 +1,4 @@
-package classes.mobile
+package com.example.sysestoque.backend
 
 data class CategoryClient(
     val id: Long? = null,

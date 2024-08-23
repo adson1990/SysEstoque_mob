@@ -43,7 +43,10 @@
     <string name="jp">Japão</string>
     <string name="fr">França</string>
     <!-- Tipos de números de telefone -->
-    <string name="num_pessoal">Pes</string>
-    <string name="num_profissional">Prof</string>
-    <string name="num_residencial">Res</string>
+    <string name="num_pessoal">P</string>
+    <string name="num_profissional">T</string>
+    <string name="num_residencial">R</string>
+    <string name="num_comercial">C</string>
+
+    <string name="btn_cadastrar">CADASTRAR</string>
 </resources>

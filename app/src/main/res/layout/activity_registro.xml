@@ -385,6 +385,7 @@
                     tools:ignore="UselessParent">
 
                     <EditText
+                        android:id="@+id/edtDDD"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
@@ -396,6 +397,7 @@
                         tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
 
                     <EditText
+                        android:id="@+id/edtNumeroCel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.6"
@@ -416,7 +418,12 @@
                         tools:ignore="TooWide,TouchTargetSizeCheck"/>
                 </LinearLayout>
             </LinearLayout>
-
+<Button
+    android:id="@+id/btnCadastrar"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/size_15dp"
+    android:text="@string/btn_cadastrar"/>
         </LinearLayout>
     </ScrollView>
 

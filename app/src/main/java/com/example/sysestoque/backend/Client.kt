@@ -1,9 +1,8 @@
-package classes.mobile
+package com.example.sysestoque.backend
 
 import java.time.Instant
 
 data class Client(
-    val id: Long? = null,
     val name: String,
     val cpf: String,
     val income: Double,

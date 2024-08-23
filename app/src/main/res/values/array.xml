@@ -13,5 +13,6 @@
         <item>@string/num_pessoal</item>
         <item>@string/num_profissional</item>
         <item>@string/num_residencial</item>
+        <item>@string/num_comercial</item>
     </string-array>
 </resources>
