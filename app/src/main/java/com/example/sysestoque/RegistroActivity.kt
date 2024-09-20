@@ -25,26 +25,26 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Celphone
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.Enderecos
-import com.example.sysestoque.backend.LoginResponse
-import kotlinx.coroutines.Delay
-import kotlinx.coroutines.delay
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.Instant
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 class RegistroActivity : AppCompatActivity() {
 
     private lateinit var clientRepository: ClientRepository
     private lateinit var progressBar: ProgressBar
     private val delayMillis: Long = 5000
-
-    private var authToken: String? = null
 
     private lateinit var edtCPF: EditText
     private lateinit var edtSenha: EditText
@@ -128,9 +128,6 @@ class RegistroActivity : AppCompatActivity() {
         edtSenha = findViewById(R.id.edtSenha)
         edtSenha.validPassword()
 
-        val rbMasculino = findViewById<RadioButton>(R.id.rbMasculino)
-        val rbFeminino = findViewById<RadioButton>(R.id.rbFeminino)
-
         val edtSalario = findViewById<EditText>(R.id.edtSalario)
         edtSalario.setText(R.string.sifrao)
 
@@ -154,8 +151,6 @@ class RegistroActivity : AppCompatActivity() {
                 isUpdating = false
             }
         })
-
-        val edtNascimento = findViewById<EditText>(R.id.edtNascimento)
 
         //opção de países do endereço
         spinnerCountry = findViewById(R.id.spinnerCountry)
@@ -390,42 +385,16 @@ class RegistroActivity : AppCompatActivity() {
         Log.i("AddNewPhone","Novo número adicionado")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun onRegisterButtonClicked() {
 
         progressBar.visibility = View.VISIBLE
 
         Handler(Looper.getMainLooper()).postDelayed({
-            Log.i("Cadastro1", "Início do processo de cadastro de cliente.")
-            authenticateAndRegister()
+            Log.i("Cadastro-1", "Início do processo de cadastro de cliente.")
+            registerClient()
+           // authenticateAndRegister()
         }, delayMillis)
-    }
-
-    private fun authenticateAndRegister() {
-        val authRepository = AuthRepository()
-        Log.i("Login", "Login para garantir um Token.")
-        authRepository.login("ADMIN", "123456", object : Callback<LoginResponse> {
-            @RequiresApi(Build.VERSION_CODES.O)
-            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                if (response.isSuccessful) {
-                    Log.i("Validação", "Login validade, token recuperado..")
-                    authToken = response.body()?.token
-                    // Após obter o token, fazer o cadastro do cliente
-                    registerClient()
-                } else {
-                    // Tratar falha no login
-                    Log.e("Falha_Login", "Login mal sucedido.")
-                    progressBar.visibility = View.GONE
-                    Toast.makeText(this@RegistroActivity, "Falha no login", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                // Tratar falha na comunicação
-                progressBar.visibility = View.GONE
-                Log.wtf("Fatal_error", "Erro ao tentar conectar com a API.")
-                Toast.makeText(this@RegistroActivity, "Erro de comunicação", Toast.LENGTH_SHORT).show()
-            }
-        })
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -434,7 +403,17 @@ class RegistroActivity : AppCompatActivity() {
         val email = findViewById<EditText>(R.id.edtEmail).text.toString()
         val cpf = findViewById<EditText>(R.id.edtCPF).text.toString()
         val senha = findViewById<EditText>(R.id.edtSenha).text.toString()
-        val datNas = Instant.parse(findViewById<EditText>(R.id.edtNascimento).text.toString())
+
+        /* As próx linhas resolvem um problema de conversão da data em Json que na passagem de informações
+        * o Json estava com o campo de data vazio devido a uma má conversão de formato. */
+
+        val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Como desejo formatar a data
+        val localDate = LocalDate.parse(findViewById<EditText>(R.id.edtNascimento).text.toString(), dateFormatter) //linkando o campo formatando com meu dateFormatter
+        val zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault()) //retornar o LocalDate como ZoneDateTime com hora 00:00, systemDefault fuso padrão de onde o sistema está rodando
+        val datNas = Date.from(zonedDateTime.toInstant()) //convertendo o resultado obtido em tipo Instant
+        val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()) //variável que irá formatar a saída da data no modelo que o BD aceita
+        val formattedDate = dateFormatOutput.format(datNas) // Data sendo formatada
+
         val rua = findViewById<EditText>(R.id.edtEndereco).text.toString()
         val bairro = findViewById<EditText>(R.id.edtBairro).text.toString()
         val numCasa = Integer.parseInt(findViewById<EditText>(R.id.edtNumCasa).text.toString())
@@ -442,7 +421,11 @@ class RegistroActivity : AppCompatActivity() {
         val estado = findViewById<EditText>(R.id.edtEstado).text.toString()
         val ddd = Integer.parseInt(findViewById<EditText>(R.id.edtDDD).text.toString())
         val numCel = findViewById<EditText>(R.id.edtNumeroCel).text.toString()
-        val income = findViewById<EditText>(R.id.edtSalario).text.toString().toDouble()
+
+        val renda = findViewById<EditText>(R.id.edtSalario).text.toString()
+        val rendaLimpa = renda.replace("R$", "").replace(",","").trim()
+        val income: Double = rendaLimpa.toDoubleOrNull() ?: 0.0
+
         val sexoMasc = findViewById<RadioButton>(R.id.rbMasculino)
 
         val spinnerCountry = findViewById<Spinner>(R.id.spinnerCountry)
@@ -466,13 +449,15 @@ class RegistroActivity : AppCompatActivity() {
             )
         )
 
-        val sex = if (sexoMasc.isSelected) 'M' else 'F'
+        val sex = if (sexoMasc.isChecked) 'M' else 'F'
+
+        val gson = Gson()
 
         val client = Client(
             name = nome,
             cpf = cpf,
             income = income,
-            birthDate = datNas,
+            birthDate = formattedDate,
             sexo = sex,
             email = email,
             senha = senha,
@@ -480,33 +465,34 @@ class RegistroActivity : AppCompatActivity() {
             enderecos = enderecos
         )
 
-        // Verificar se o token de autenticação está presente
-        authToken?.let {
-            Log.i("Cadastro2", "Token validado, cadastro de clientes prosseguirá.")
-            // Enviar para o Backend
-            clientRepository.cadastrarCliente(client, object : Callback<Client> {
-                override fun onResponse(call: Call<Client>, response: Response<Client>) {
-                    progressBar.visibility = View.GONE
+        // Converter o cliente para JSON
+        val json = gson.toJson(client)
 
-                    if (response.isSuccessful) {
-                        Log.i("Cadastro3", "Cliente cadastrado com sucesso.")
-                        Toast.makeText(this@RegistroActivity, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Log.e("Falha_cadastro", "Cliente não cadastrado, validar dados.")
-                        Toast.makeText(this@RegistroActivity, "Erro no cadastro", Toast.LENGTH_SHORT).show()
-                    }
-                }
+        // Log do objeto cliente
+        Log.d("Client", "Client: $client")
+        Log.d("Client JSON", "Client JSON: $json") // Verificar o JSON gerado
 
-                override fun onFailure(call: Call<Client>, t: Throwable) {
-                    progressBar.visibility = View.GONE
-                    Log.wtf("Fatal_error2", "Erro ao conectar com API para cadastrar cliente.")
-                    Toast.makeText(this@RegistroActivity, "Erro de comunicação", Toast.LENGTH_SHORT).show()
+        clientRepository.registerClient(client, object : Callback<Client> {
+            override fun onResponse(call: Call<Client>, response: Response<Client>) {
+                progressBar.visibility = View.GONE
+                if (response.isSuccessful) {
+                    // Cliente cadastrado com sucesso
+                    Log.i("Cadastrado", "Cliente cadastrado com sucesso.")
+                    Toast.makeText(this@RegistroActivity, "Cliente cadastrado com sucesso!", Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    // Tratamento de erro
+                    Log.e("Cadastro-error", "Erro ao tentar cadastrar o cliente.")
+                    Toast.makeText(this@RegistroActivity, "Erro ao cadastrar cliente.", Toast.LENGTH_SHORT).show()
                 }
-            })
-        } ?: run {
-            progressBar.visibility = View.GONE
-            Log.wtf("Fatal_error3", "Erro ao conectar com API para validar login.")
-            Toast.makeText(this@RegistroActivity, "Erro de autenticação", Toast.LENGTH_SHORT).show()
-        }
+            }
+
+            override fun onFailure(call: Call<Client>, t: Throwable) {
+                progressBar.visibility = View.GONE
+                // Erro na requisição
+                Log.wtf("Cadastro-failure", "Falha na requisição de cadastro.")
+                Toast.makeText(this@RegistroActivity, "Falha na comunicação.", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

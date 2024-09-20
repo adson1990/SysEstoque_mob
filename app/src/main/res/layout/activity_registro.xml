@@ -171,7 +171,7 @@
                         android:layout_marginStart="@dimen/size_15dp"
                         android:text="@string/Male"
                         tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
-                    <!-- Adiciona um View para criar um espaço flexível entre os RadioButtons -->
+                    <!-- View adicionada para criar um espaço flexível entre os RadioButtons -->
                     <View
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -275,6 +275,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtNumCasa"
                     tools:ignore="TextContrastCheck"/>
 
                 <EditText
@@ -289,6 +290,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtCEP"
                     tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
 
                 <EditText
@@ -303,6 +305,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtCidade"
                     tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
             </LinearLayout>
 
@@ -322,6 +325,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtEstado"
                     tools:ignore="TextContrastCheck"/>
 
                 <EditText
@@ -394,6 +398,7 @@
                         android:autofillHints="DDD do número"
                         android:layout_marginStart="@dimen/size_5dp"
                         android:hint="DDD"
+                        android:nextFocusForward="@id/edtNumeroCel"
                         tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
 
                     <EditText
@@ -429,7 +434,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="500dp"
                  />
 
             <ProgressBar

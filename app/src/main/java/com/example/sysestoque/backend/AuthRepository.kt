@@ -10,7 +10,7 @@ class AuthRepository {
 
     init {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.10.50.141:8080/")
+            .baseUrl("http://10.0.3.2:8080/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
