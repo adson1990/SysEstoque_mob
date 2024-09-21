@@ -1,5 +1,6 @@
 package com.example.sysestoque.ui.login
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import androidx.lifecycle.Observer
@@ -8,8 +9,11 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.CheckBox
@@ -28,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
 
    // @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,7 +46,23 @@ class LoginActivity : AppCompatActivity() {
         val register: TextView = findViewById(R.id.tvRegistro)
         val remember: CheckBox = findViewById(R.id.chkLembrarUser)
         val forgotPass: TextView = findViewById(R.id.tvEsquecerSenha)
+        val edtPassword: EditText = findViewById(R.id.edt_password)
         val scaleAnimation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.scale_animation) // animação de clique
+
+        edtPassword.setOnTouchListener { _, event ->
+            if(event.action == MotionEvent.ACTION_UP) {
+                if(event.rawX >= edtPassword.right - edtPassword.compoundDrawables[2].bounds.width()){
+                    edtPassword.transformationMethod = if (edtPassword.transformationMethod is PasswordTransformationMethod) {
+                        null // Torna visível
+                    } else {
+                        PasswordTransformationMethod.getInstance()
+                    }
+                    edtPassword.setSelection(edtPassword.length())
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
 
         // animação ao clicar no TV de esquecer a senha
         forgotPass.setOnClickListener{
@@ -141,7 +162,7 @@ class LoginActivity : AppCompatActivity() {
        register.setOnClickListener(){
            abrirRegistroDeCliente(Bundle())
        }
-
+    // fim onCreate
     }
 
     fun abrirRegistroDeCliente(bundle: Bundle? = null){
