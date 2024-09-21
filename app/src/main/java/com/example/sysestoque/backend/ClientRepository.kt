@@ -15,7 +15,7 @@ class ClientRepository() {
         logging.level = HttpLoggingInterceptor.Level.BODY
 
         val client = OkHttpClient.Builder()
-            .addInterceptor(logging) // Adiciona o interceptor
+            .addInterceptor(logging) // Adiciona o interceptador
             .build()
 
         val retrofit = Retrofit.Builder()
@@ -26,11 +26,6 @@ class ClientRepository() {
 
         clienteApi = retrofit.create(ClienteApi::class.java)
     }
-
-    /*fun cadastrarCliente(cliente: Client, celphones: List<Celphone>, enderecos: List<Enderecos>, callback: Callback<Client>) {
-        val call = clienteApi.cadastrarCliente(cliente)
-        call.enqueue(callback)
-    }*/
 
     fun registerClient(cliente: Client, callback: Callback<Client>) {
         val call = clienteApi.registerClient(cliente)
