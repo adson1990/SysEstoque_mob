@@ -14,4 +14,8 @@ data class Cellphone(
 
         return true
     }
+
+    override fun hashCode(): Int {
+        return number.hashCode()
+    }
 }

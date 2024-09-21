@@ -56,9 +56,6 @@ class RegistroActivity : AppCompatActivity() {
     private lateinit var btnAddPhone: ImageButton
     private lateinit var spinnerCelphone: Spinner
     private var phoneNumberCount = 1
-    private val dddFields = mutableListOf<EditText>()
-    private val phoneFields = mutableListOf<EditText>()
-    private val spinnerFields = mutableListOf<Spinner>()
 
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
