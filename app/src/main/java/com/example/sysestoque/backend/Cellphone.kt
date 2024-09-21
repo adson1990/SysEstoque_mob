@@ -1,6 +1,6 @@
 package com.example.sysestoque.backend
 
-data class Celphone(
+data class Cellphone(
     var ddd: Int,
     var number: String,
     var tipo: Char
@@ -10,7 +10,7 @@ data class Celphone(
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
 
-        other as Celphone
+        other as Cellphone
 
         return true
     }
