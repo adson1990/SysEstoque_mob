@@ -65,6 +65,7 @@
         android:selectAllOnFocus="true"
         android:textColor="@color/purple_700"
         android:textColorHint="@color/yellow_300"
+        android:drawableEnd="@drawable/ic_eye"
         android:textSize="@dimen/size_25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
