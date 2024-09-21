@@ -1,5 +1,6 @@
 package com.example.sysestoque
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -8,6 +9,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -25,7 +27,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.sysestoque.backend.Celphone
+import com.example.sysestoque.backend.Cellphone
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.Enderecos
@@ -33,6 +35,7 @@ import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -50,10 +53,14 @@ class RegistroActivity : AppCompatActivity() {
     private lateinit var edtSenha: EditText
     private lateinit var spinnerCountry: Spinner
     private lateinit var linearLayoutPhoneNumbers: LinearLayout
-    private lateinit var imageButton: ImageButton
+    private lateinit var btnAddPhone: ImageButton
     private lateinit var spinnerCelphone: Spinner
     private var phoneNumberCount = 1
+    private val dddFields = mutableListOf<EditText>()
+    private val phoneFields = mutableListOf<EditText>()
+    private val spinnerFields = mutableListOf<Spinner>()
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,14 +77,14 @@ class RegistroActivity : AppCompatActivity() {
         edtNome.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
                 edtNome.removeTextChangedListener(this) // Previne loops infinitos
                 edtNome.setText(s.toString().uppercase())
                 edtNome.setSelection(s?.length ?: 0) // Posiciona o cursor no final
                 edtNome.addTextChangedListener(this)
             }
-
-            override fun afterTextChanged(s: Editable?) {}
         })
 
         // validação do e-mail digitado
@@ -87,8 +94,6 @@ class RegistroActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 edtEmail.removeTextChangedListener(this) // remove o listener temporariamente para evitar loop
-
-                // Verifica se o e-mail é válido conforme é digitado
                 val emailInput = s.toString()
 
                 // regex para verificar a terminação do e-mail após o "@"
@@ -128,6 +133,35 @@ class RegistroActivity : AppCompatActivity() {
         edtSenha = findViewById(R.id.edtSenha)
         edtSenha.validPassword()
 
+        edtSenha.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                //rawX = posição do toque horizontalmente, edtSenha.right = coordenadas do lado direito, edtSenha.compoundDrawables[2] = drawable no final do campo
+                //índice 1 = start,índice 2 = end, índice 3 = top e índice 4 = bottom
+                if (event.rawX >= edtSenha.right - edtSenha.compoundDrawables[2].bounds.width()) {
+                    if (edtSenha.inputType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
+                        edtSenha.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        edtSenha.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.ic_eye,
+                            0
+                        ) // Define o drawable de olho
+                    } else {
+                        edtSenha.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                        edtSenha.setCompoundDrawablesWithIntrinsicBounds(
+                            0,
+                            0,
+                            R.drawable.ic_eye,
+                            0
+                        )
+                    }
+                    edtSenha.setSelection(edtSenha.text.length) // Mantenha o cursor no final
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
+
         val edtSalario = findViewById<EditText>(R.id.edtSalario)
         edtSalario.setText(R.string.sifrao)
 
@@ -152,6 +186,39 @@ class RegistroActivity : AppCompatActivity() {
             }
         })
 
+        // Na Activity de edição dos dados do cliente a data de nascimento será um DatePickerDialog
+        val nascimento = findViewById<EditText>(R.id.edtNascimento)
+        nascimento.addTextChangedListener(object : TextWatcher {
+            private var isUpdating = false
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (isUpdating) return
+
+                nascimento.removeTextChangedListener(this)
+
+                var text = p0.toString().replace(Regex("[^\\d]"), "") // Remove qualquer caracter que não seja número, mesmo o campo contendo android:inputType="date"
+                val length = text.length
+
+                // Adiciona as barras "/" automaticamente conforme o usuário digita
+                if (length > 2) {
+                    text = text.substring(0, 2) + "/" + text.substring(2)
+                }
+                if (length > 4) {
+                    text = text.substring(0, 5) + "/" + text.substring(5)
+                }
+
+                isUpdating = true // previne loops infinitos ou reentrada no método onTextChanged, já que programaticamente estaremos alterando o campo.
+                nascimento.setText(text)
+                nascimento.setSelection(text.length) // Posiciona o cursor no final
+                isUpdating = false
+
+                nascimento.addTextChangedListener(this)
+            }
+            override fun afterTextChanged(p0: Editable?) {}
+        })
+
         //opção de países do endereço
         spinnerCountry = findViewById(R.id.spinnerCountry)
 
@@ -166,8 +233,7 @@ class RegistroActivity : AppCompatActivity() {
 
         //Adicionando mais números de telefone
         linearLayoutPhoneNumbers = findViewById(R.id.linearLayoutPhoneNumbers)
-        imageButton = findViewById(R.id.imageButton)
-
+        btnAddPhone = findViewById(R.id.addPhone)
         spinnerCelphone = findViewById(R.id.spinnerTipoNumero)
 
         val celphoneAdapter = ArrayAdapter.createFromResource(
@@ -178,12 +244,12 @@ class RegistroActivity : AppCompatActivity() {
         celphoneAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCelphone.adapter = celphoneAdapter
 
-        imageButton.setOnClickListener {
+        btnAddPhone.setOnClickListener {
             if (phoneNumberCount < 3) { // Permite até 3 números de contato
                 addPhoneNumberFields()
                 phoneNumberCount++
             } else {
-                imageButton.isEnabled = false // Desativa o botão quando atingir o limite
+                btnAddPhone.isEnabled = false // Desativa o botão quando atingir o limite
             }
         }
 
@@ -222,8 +288,7 @@ class RegistroActivity : AppCompatActivity() {
 
     fun EditText.addCpfMask() {
         this.addTextChangedListener(object : TextWatcher {
-            private var isUpdating: Boolean =
-                false //flag para verificar se o TextWatcher foi acionado
+            private var isUpdating: Boolean = false //flag para verificar se o TextWatcher foi acionado
             private var oldText: String = ""
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -333,6 +398,7 @@ class RegistroActivity : AppCompatActivity() {
 
         // Cria o EditText para o DDD
         val dddEditText = EditText(this).apply {
+            id = View.generateViewId()
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -346,6 +412,7 @@ class RegistroActivity : AppCompatActivity() {
 
         // Cria o EditText para o número de telefone
         val phoneNumberEditText = EditText(this).apply {
+            id = View.generateViewId()
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -359,6 +426,7 @@ class RegistroActivity : AppCompatActivity() {
 
         // Cria o Spinner para o tipo de número
         val tipoPhoneNumberSpinner = Spinner(this).apply {
+            id = View.generateViewId()
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -385,6 +453,31 @@ class RegistroActivity : AppCompatActivity() {
         Log.i("AddNewPhone","Novo número adicionado")
     }
 
+    // Função para recuperar os números de telefone ao enviar o formulário
+    fun getPhoneNumbers(): MutableList<Cellphone> {
+        val phoneNumbers = mutableListOf<Cellphone>()
+
+        for (i in 0 until linearLayoutPhoneNumbers.childCount) {
+            val phoneLayout = linearLayoutPhoneNumbers.getChildAt(i) as? LinearLayout
+
+            if (phoneLayout != null) {
+                // Recupera os campos DDD, Telefone e Spinner
+                val edtDDD = phoneLayout.getChildAt(0) as EditText
+                val edtPhone = phoneLayout.getChildAt(1) as EditText
+                val spinnerType = phoneLayout.getChildAt(2) as Spinner
+
+                // Converte o DDD para Int, telefone como String, e tipo como Char
+                val ddd = edtDDD.text.toString().toIntOrNull() ?: 0
+                val number = edtPhone.text.toString()
+                val tipo = spinnerType.selectedItem.toString().firstOrNull() ?: ' '
+
+                // Adiciona à lista de números de telefone
+                phoneNumbers.add(Cellphone(ddd, number, tipo))
+            }
+        }
+        return phoneNumbers
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun onRegisterButtonClicked() {
 
@@ -406,7 +499,6 @@ class RegistroActivity : AppCompatActivity() {
 
         /* As próx linhas resolvem um problema de conversão da data em Json que na passagem de informações
         * o Json estava com o campo de data vazio devido a uma má conversão de formato. */
-
         val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Como desejo formatar a data
         val localDate = LocalDate.parse(findViewById<EditText>(R.id.edtNascimento).text.toString(), dateFormatter) //linkando o campo formatando com meu dateFormatter
         val zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault()) //retornar o LocalDate como ZoneDateTime com hora 00:00, systemDefault fuso padrão de onde o sistema está rodando
@@ -419,8 +511,6 @@ class RegistroActivity : AppCompatActivity() {
         val numCasa = Integer.parseInt(findViewById<EditText>(R.id.edtNumCasa).text.toString())
         val cep = findViewById<EditText>(R.id.edtCEP).text.toString()
         val estado = findViewById<EditText>(R.id.edtEstado).text.toString()
-        val ddd = Integer.parseInt(findViewById<EditText>(R.id.edtDDD).text.toString())
-        val numCel = findViewById<EditText>(R.id.edtNumeroCel).text.toString()
 
         val renda = findViewById<EditText>(R.id.edtSalario).text.toString()
         val rendaLimpa = renda.replace("R$", "").replace(",","").trim()
@@ -431,11 +521,11 @@ class RegistroActivity : AppCompatActivity() {
         val spinnerCountry = findViewById<Spinner>(R.id.spinnerCountry)
         val country = spinnerCountry.selectedItem.toString()
 
-        val spinnerTipoNumero = findViewById<Spinner>(R.id.spinnerTipoNumero)
-        val tipoNum = spinnerTipoNumero.selectedItem.toString().single()
-
-        val celphones = mutableListOf<Celphone>()
-        celphones.add(Celphone(ddd = ddd, number = numCel, tipo = tipoNum))
+        val phoneNumberDataList = getPhoneNumbers()
+        val cellphones = mutableListOf<Cellphone>()
+        for (phoneData in phoneNumberDataList) {
+            cellphones.add(Cellphone(ddd = phoneData.ddd, number = phoneData.number, tipo = phoneData.tipo))
+        }
 
         val enderecos = mutableListOf<Enderecos>()
         enderecos.add(
@@ -461,7 +551,7 @@ class RegistroActivity : AppCompatActivity() {
             sexo = sex,
             email = email,
             senha = senha,
-            celphones = celphones,
+            cellphone = cellphones,
             enderecos = enderecos
         )
 
@@ -478,15 +568,52 @@ class RegistroActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     // Cliente cadastrado com sucesso
                     Log.i("Cadastrado", "Cliente cadastrado com sucesso.")
-                    Toast.makeText(this@RegistroActivity, "Cliente cadastrado com sucesso!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@RegistroActivity,
+                        "Cliente cadastrado com sucesso!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     finish()
                 } else {
                     // Tratamento de erro
-                    Log.e("Cadastro-error", "Erro ao tentar cadastrar o cliente.")
-                    Toast.makeText(this@RegistroActivity, "Erro ao cadastrar cliente.", Toast.LENGTH_SHORT).show()
+                    response.errorBody()?.let { errorBody ->
+                        try {
+                            val errorJson = errorBody.string()
+                            Log.e("ErrorResponse", errorJson) // Log completo do erro em formato JSON
+
+                            val errorResponse = parseErrorResponse(errorJson)
+                            if (errorResponse != null) {
+                                val status = errorResponse.status
+                                val msg = errorResponse.msg
+
+                                // Captura o primeiro erro da lista de validações
+                                val fieldError = errorResponse.listError.firstOrNull()
+                                if (fieldError != null) {
+                                    val fieldName = fieldError.fieldName
+                                    val errorMessage = fieldError.message
+
+                                    // Exibe o diálogo com as informações do erro
+                                    showErrorDialog("Erro no campo '$fieldName': $errorMessage\nStatus: $status")
+                                    Log.e("retorno-erro-cadastro", msg)
+                                } else {
+                                    showErrorDialog("Erro: $msg\nStatus: $status")
+                                }
+                            } else {
+                                showErrorDialog("Erro desconhecido ao cadastrar o cliente")
+                            }
+                        }catch (e: IOException){
+                            e.printStackTrace()
+                            showErrorDialog("Erro ao processar resposta.")
+                        }
+                        Log.e("Cadastro-error", "Erro ao tentar cadastrar o cliente.")
+                        Toast.makeText(
+                            this@RegistroActivity,
+                            "Erro ao cadastrar cliente.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
-
             override fun onFailure(call: Call<Client>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 // Erro na requisição
@@ -495,4 +622,38 @@ class RegistroActivity : AppCompatActivity() {
             }
         })
     }
+    // Função para analisar a resposta de erro
+    fun parseErrorResponse(errorJson: String): ErrorResponse? {
+        return try {
+            val gson = Gson()
+            gson.fromJson(errorJson, ErrorResponse::class.java) // Converte o JSON para ErrorResponse
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null // Retorna null se houver erro ao parsear
+        }
+    }
+
+    fun showErrorDialog(message: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Erro")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss() // Fecha o dialog ao clicar no botão OK
+            }
+            .create()
+            .show()
+    }
+
+    // Data class para a resposta de erro
+    data class ErrorResponse(
+        val status: Int,
+        val msg: String,
+        val listError: List<FieldError>
+    )
+
+    data class FieldError(
+        val fieldName: String,
+        val message: String
+    )
+
 }
