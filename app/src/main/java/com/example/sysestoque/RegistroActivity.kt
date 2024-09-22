@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -45,6 +46,7 @@ import java.util.Locale
 
 class RegistroActivity : AppCompatActivity() {
 
+    //VARIÁVEIS
     private lateinit var clientRepository: ClientRepository
     private lateinit var progressBar: ProgressBar
     private val delayMillis: Long = 5000
@@ -62,14 +64,17 @@ class RegistroActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_registro)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        setContentView(R.layout.registro_layout)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_cadastro)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
+        //Referências e validações dos campos
+
         // Nome com letras maiúsculas
+        //-----------------------------------------------------------------------------------------------------------
         val edtNome = findViewById<EditText>(R.id.edtNomeCompleto)
         edtNome.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -85,6 +90,7 @@ class RegistroActivity : AppCompatActivity() {
         })
 
         // validação do e-mail digitado
+        //-----------------------------------------------------------------------------------------------------------
         val edtEmail = findViewById<EditText>(R.id.edtEmail)
         edtEmail.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -116,13 +122,32 @@ class RegistroActivity : AppCompatActivity() {
         })
 
         // Máscara e validação do CPF
+        //-----------------------------------------------------------------------------------------------------------
         edtCPF = findViewById<EditText>(R.id.edtCPF)
         edtCPF.addCpfMask()
+        edtCPF.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                validateCpf(edtCPF)
+                }
+            }
+        // Listener para bloquear o botão "Avançar" do teclado virtual se CPF for inválido
+        edtCPF.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                if (!validateCpf(edtCPF)) {
+                    edtCPF.requestFocus()
+                    true // Bloqueia o avanço
+                } else {
+                    false // Permite o avanço se o CPF for válido
+                }
+            } else {
+                false
+            }
+        }
 
         //Validação da composição da senha
+        //-----------------------------------------------------------------------------------------------------------
         edtSenha = findViewById(R.id.edtSenha)
         edtSenha.validPassword()
-
         edtSenha.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 //rawX = posição do toque horizontalmente, edtSenha.right = coordenadas do lado direito, edtSenha.compoundDrawables[2] = drawable no final do campo
@@ -152,11 +177,19 @@ class RegistroActivity : AppCompatActivity() {
             }
             false
         }
+        edtSenha.setOnTouchListener { _, _ ->
+            if (!validateCpf(edtCPF)) {
+                edtCPF.requestFocus() // Mantém o foco no campo CPF se for inválido
+                true // Bloqueia o toque no próximo campo
+            } else {
+                false // Permite o toque no próximo campo se o CPF for válido
+            }
+        }
 
+        // Campo salário começa obrigatoriamente com R$
+        //-----------------------------------------------------------------------------------------------------------
         val edtSalario = findViewById<EditText>(R.id.edtSalario)
         edtSalario.setText(R.string.sifrao)
-
-        // Salário obrigatoriamente começa com R$
         edtSalario.addTextChangedListener(object : TextWatcher {
             private var isUpdating = false
 
@@ -177,7 +210,9 @@ class RegistroActivity : AppCompatActivity() {
             }
         })
 
+        // Data de nascimento com máscara
         // Na Activity de edição dos dados do cliente a data de nascimento será um DatePickerDialog
+        //-----------------------------------------------------------------------------------------------------------
         val nascimento = findViewById<EditText>(R.id.edtNascimento)
         nascimento.addTextChangedListener(object : TextWatcher {
             private var isUpdating = false
@@ -192,7 +227,6 @@ class RegistroActivity : AppCompatActivity() {
                 var text = p0.toString().replace(Regex("[^\\d]"),"") // Remove qualquer caracter que não seja número, mesmo o campo contendo inputType="date"
                 val length = text.length
 
-                // Adiciona as barras "/" automaticamente conforme o usuário digita
                 if (length > 2) {
                     text = text.substring(0, 2) + "/" + text.substring(2)
                 }
@@ -202,7 +236,7 @@ class RegistroActivity : AppCompatActivity() {
 
                 isUpdating = true // previne loops infinitos ou reentrada no método onTextChanged.
                 nascimento.setText(text)
-                nascimento.setSelection(text.length) // Posiciona o cursor no final
+                nascimento.setSelection(text.length)
                 isUpdating = false
 
                 nascimento.addTextChangedListener(this)
@@ -212,6 +246,7 @@ class RegistroActivity : AppCompatActivity() {
         })
 
         //opção de países do endereço
+        //-----------------------------------------------------------------------------------------------------------
         spinnerCountry = findViewById(R.id.spinnerCountry)
 
         val countriesAdapter = ArrayAdapter.createFromResource(
@@ -223,7 +258,9 @@ class RegistroActivity : AppCompatActivity() {
         countriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCountry.adapter = countriesAdapter
 
+        // Telefone
         //Adicionando mais números de telefone
+        // -----------------------------------------------------------------------------------------------------------
         linearLayoutPhoneNumbers = findViewById(R.id.linearLayoutPhoneNumbers)
         btnAddPhone = findViewById(R.id.addPhone)
         spinnerCelphone = findViewById(R.id.spinnerTipoNumero)
@@ -270,6 +307,7 @@ class RegistroActivity : AppCompatActivity() {
                     builder.setMessage(R.string.alert_password)
                     builder.setPositiveButton("OK") { dialog, _ ->
                         dialog.dismiss()
+                        this.requestFocus()
                     }
                     val dialog: AlertDialog = builder.create()
                     dialog.show()
@@ -279,6 +317,7 @@ class RegistroActivity : AppCompatActivity() {
     }
 
     fun EditText.addCpfMask() {
+        var isValidating = false  // Flag para evitar validação repetida
         this.addTextChangedListener(object : TextWatcher {
             private var isUpdating: Boolean = false //flag para verificar se o TextWatcher foi acionado
             private var oldText: String = ""
@@ -314,16 +353,21 @@ class RegistroActivity : AppCompatActivity() {
                 this@addCpfMask.setSelection(formattedText.length)
             }
 
+            // Valida de CPF está correto
             override fun afterTextChanged(s: Editable?) {
                 edtCPF.removeTextChangedListener(this)
                 val cpf = s.toString().replace(".", "").replace("-", "")
                 if (cpf.length == 11) {
                     if (isCPF(cpf)) {
+                        if (isValidating) return
                         Toast.makeText(this@RegistroActivity, "CPF válido", Toast.LENGTH_SHORT)
                             .show()
+                        isValidating = true // impede que o toast seja exibido 2x
                     } else {
+                        isValidating = false
                         Toast.makeText(this@RegistroActivity, "CPF inválido", Toast.LENGTH_LONG)
                             .show()
+                        edtCPF.requestFocus()
                     }
                 }
                 edtCPF.addTextChangedListener(this)
@@ -379,6 +423,16 @@ class RegistroActivity : AppCompatActivity() {
         return if (result >= 10) 0 else result
     }
 
+    fun validateCpf(edtCPF: EditText): Boolean {
+        val cpf = edtCPF.text.toString().replace(".", "").replace("-", "")
+        return if (cpf.length == 11 && isCPF(cpf)) {
+            true // CPF é válido
+        } else {
+            Toast.makeText(this@RegistroActivity, "CPF inválido", Toast.LENGTH_LONG).show()
+            false // CPF inválido
+        }
+    }
+
     private fun addPhoneNumberFields() {
         val newLinearLayout = LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
@@ -428,7 +482,6 @@ class RegistroActivity : AppCompatActivity() {
                 marginEnd = resources.getDimensionPixelSize(R.dimen.size_5dp)
             }
         }
-
         val adapter = ArrayAdapter.createFromResource(
             this,
             R.array.tipo_telefone,
@@ -472,7 +525,6 @@ class RegistroActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun onRegisterButtonClicked() {
-
         progressBar.visibility = View.VISIBLE
 
         Handler(Looper.getMainLooper()).postDelayed({
