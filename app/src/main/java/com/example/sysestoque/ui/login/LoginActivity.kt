@@ -21,6 +21,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.example.sysestoque.EsqueciSenhaActivity
 import com.example.sysestoque.databinding.ActivityLoginBinding
 
 import com.example.sysestoque.R
@@ -162,11 +163,18 @@ class LoginActivity : AppCompatActivity() {
        register.setOnClickListener(){
            abrirRegistroDeCliente(Bundle())
        }
+       forgotPass.setOnClickListener(){
+           abrirResetPassword(Bundle())
+       }
     // fim onCreate
     }
 
     fun abrirRegistroDeCliente(bundle: Bundle? = null){
         val intent = Intent(this, RegistroActivity::class.java)
+        startActivity(intent)
+    }
+    fun abrirResetPassword(bundle: Bundle? = null){
+        val intent = Intent(this, EsqueciSenhaActivity::class.java)
         startActivity(intent)
     }
 

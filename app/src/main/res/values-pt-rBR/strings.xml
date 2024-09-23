@@ -49,4 +49,13 @@
     <string name="num_comercial">C</string>
 
     <string name="btn_cadastrar">CADASTRAR</string>
+    <string name="esqueci_senha">Esqueci a Senha</string>
+    <string name="enviar">Enviar</string>
+    <string name="cod_recuperacao">Digite o código enviado</string>
+    <string name="nova_senha">Digite a nova senha</string>
+    <string name="gravar">Gravar</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="next">Próximo</string>
+    <string name="previous">Anterior</string>
+
 </resources>

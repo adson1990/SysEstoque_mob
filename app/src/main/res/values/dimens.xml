@@ -57,4 +57,5 @@
     <dimen name="size_65sp">65sp</dimen>
     <dimen name="size_70sp">70sp</dimen>
     <dimen name="size_75sp">75sp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>
