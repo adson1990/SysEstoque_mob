@@ -1,8 +1,5 @@
 package com.example.sysestoque.backend
 
-import android.os.Looper
-import android.os.Handler
-import android.util.Log
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.Callback
@@ -37,14 +34,15 @@ class AuthRepository {
         call.enqueue(callback)
     }
 
-    fun validaEmail(email: String, token: String, callback: Callback<Client>) {
-        val emailCall = authApiEmail.searchLogin(email)
-        emailCall.enqueue(object : Callback<Client> {
-            override fun onResponse(call: Call<Client>, response: Response<Client>) {
+    fun validaEmail(email: String, token: String, callback: Callback<Boolean>) {
+        val request = EmailRequest(email)
+        val emailCall = authApiEmail.searchEmail(request)
+        emailCall.enqueue(object : Callback<Boolean> {
+            override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
                 callback.onResponse(call, response)
             }
 
-            override fun onFailure(call: Call<Client>, t: Throwable) {
+            override fun onFailure(call: Call<Boolean>, t: Throwable) {
                 callback.onFailure(call, t)
             }
         })

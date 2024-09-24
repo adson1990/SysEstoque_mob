@@ -7,8 +7,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AuthApiEmail {
-    @GET("email/{email}")
-    fun searchLogin(@Path("email") email: String): Call<Client>
+    @GET("clients/email/{email}")
+    fun searchEmail(@Path("email") email: EmailRequest): Call<Boolean>
 
     @POST("token/consulta")
     fun getToken(@Body request: TokenRequest): Call<TokenResponse>
@@ -17,8 +17,11 @@ interface AuthApiEmail {
 data class TokenRequest(
     val username: String
 )
-
 data class TokenResponse(
     val accessToken: String,
-    val expiresIn: Long
+    val expiresInSeconds: Long
+)
+
+data class EmailRequest(
+    val email: String
 )
