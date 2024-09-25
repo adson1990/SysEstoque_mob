@@ -9,7 +9,6 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
-import android.text.InputType
 import android.text.TextWatcher
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
@@ -26,11 +25,13 @@ import com.example.sysestoque.databinding.ActivityLoginBinding
 
 import com.example.sysestoque.R
 import com.example.sysestoque.RegistroActivity
+import com.example.sysestoque.data.database.DbHelperLogin
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var dbHelperLogin: DbHelperLogin
 
    // @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ClickableViewAccessibility")
@@ -39,6 +40,10 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+       if(loginAutomatico()){
+           // chama a dashboard
+       }
 
         val username = binding.edtUsername
         val password = binding.edtPassword
@@ -80,9 +85,11 @@ class LoginActivity : AppCompatActivity() {
            if (isChecked) {
                remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.pink_200)
                remember.setTextColor(colorStateList)
+               dbHelperLogin.lembrarCliente(true)
            } else {
                remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.gray_50)
                remember.setTextColor(colorStateList)
+               dbHelperLogin.lembrarCliente(false)
            }
        }
 
@@ -196,6 +203,10 @@ class LoginActivity : AppCompatActivity() {
     //Exibe uma mensagem de erro se o login falhar.
     private fun showLoginFailed(@StringRes errorString: Int) {
         Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
+    }
+
+    fun loginAutomatico(): Boolean{
+        return dbHelperLogin.checarLoginAutomatico()
     }
 }
 

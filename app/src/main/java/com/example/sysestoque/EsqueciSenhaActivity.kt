@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.sysestoque.backend.AuthRepository
+import com.example.sysestoque.backend.PassResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.DatabaseHelper
 import com.example.sysestoque.databinding.EsqueciSenhaLayoutBinding
@@ -49,6 +50,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     private lateinit var tvNovaSenha: TextView
     private lateinit var btn3: Button
     private var idCliente: Long = 0
+    private var token: String = ""
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,9 +175,10 @@ class EsqueciSenhaActivity : AppCompatActivity() {
 
         // alteração da senha no DB
         btn3.setOnClickListener {
-            Toast.makeText(this@EsqueciSenhaActivity, "Botão acionado. Cliente $idCliente", Toast.LENGTH_SHORT).show()
+           // Toast.makeText(this@EsqueciSenhaActivity, "Botão acionado. Cliente $idCliente", Toast.LENGTH_SHORT).show()
+            val newPass = edtNovaSenha.text.toString()
+            mudarSenha(newPass, idCliente, token)
         }
-
 
         // Fim OnCreate
     }
@@ -187,7 +190,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
             override fun onResponse(call: RetrofitCall<TokenResponse>, response: RetrofitResponse<TokenResponse>) {
                 if (response.isSuccessful) {
                     val tokenResponse = response.body()
-                    val token: String = tokenResponse?.accessToken ?: "invalid_token"
+                    token = tokenResponse?.accessToken ?: "invalid_token"
                     val expiresIn: Long = tokenResponse?.expiresInSeconds ?: 0L
                     callback(Pair(token, expiresIn))
 
@@ -196,11 +199,11 @@ class EsqueciSenhaActivity : AppCompatActivity() {
                         "O token foi recuperado com exito: $token e expira em: $expiresIn segundos"
                     )
 
-                    Toast.makeText(
+                  /*  Toast.makeText(
                         this@EsqueciSenhaActivity,
                         "Token recuperado",
                         Toast.LENGTH_SHORT
-                    ).show()
+                    ).show() */
                 } else {
                     callback(Pair("invalid_token", 0L))
                     Log.e("Erro_recuperar_token", "O token não foi recuperado com êxito.")
@@ -231,7 +234,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
                 if(response.isSuccessful && response.body() != null){
                     idCliente = response.body()!!
                     Log.i("Sucesso_busca", "E-mail encontrado no DB")
-                    Toast.makeText(this@EsqueciSenhaActivity, "E-mail encontrado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EsqueciSenhaActivity, "Código de recuperação enviado para o e-mail", Toast.LENGTH_LONG).show()
 
                     tvCodRec.visibility = View.VISIBLE
                     edtCodRec.visibility = View.VISIBLE
@@ -263,7 +266,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
         val success = dbHelper.salvarCodigo(cod)
         if (success) {
             Log.i("Codigo_gerado", "O código gerado foi: $cod")
-            Toast.makeText(this, "Código salvo com sucesso!", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "Código salvo com sucesso!", Toast.LENGTH_SHORT).show()
             enviarEmail(cod.toString(), "adson-luks@hotmail.com".toString())
         } else {
             Log.e("salvar_codigo", "Falha ao tentar salvar o código $cod no DB")
@@ -338,8 +341,26 @@ class EsqueciSenhaActivity : AppCompatActivity() {
         })
     }
 
-    private fun mudarSenha(){
+    private fun mudarSenha(newPassword: String, id: Long, token: String) {
+        val authRepository = AuthRepository()
 
+        authRepository.setNewPassword(newPassword, id, token, object : RetrofitCallback<PassResponse> {
+
+            override fun onResponse(call: RetrofitCall<PassResponse>, response: RetrofitResponse<PassResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@EsqueciSenhaActivity, "Senha alterada com sucesso!", Toast.LENGTH_SHORT).show()
+                    Log.i("SenhaAlterada","A senha do cliente id: $id foi alterada com sucesso!")
+                    finish()
+                } else {
+                    Log.e("ErroAlteracaoSenha","Erro ao tentar alterar a senha do cliente id = $id")
+                    Toast.makeText(this@EsqueciSenhaActivity, "Erro ao alterar a senha. Tente novamente.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: RetrofitCall<PassResponse>, t: Throwable) {
+                Toast.makeText(this@EsqueciSenhaActivity, "Falha na comunicação com o servidor.", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
 }
