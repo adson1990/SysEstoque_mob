@@ -72,6 +72,8 @@
         android:id="@+id/edtCodRecuperacao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLength="4"
         android:layout_marginTop="@dimen/size_15sp"
         android:autofillHints="@string/cod_recuperacao"
         android:ems="10"

@@ -79,7 +79,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    // OkHttp para fazer requisições HTTP
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
 
+    // Dependência para envio de e-mail através da API
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+
+
+    // para fazer consultas as API's com objetos Json
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 

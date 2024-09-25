@@ -8,7 +8,7 @@ import retrofit2.http.Path
 
 interface AuthApiEmail {
     @GET("clients/email/{email}")
-    fun searchEmail(@Path("email") email: EmailRequest): Call<Boolean>
+    fun searchEmail(@Path("email") email: String): Call<Long>
 
     @POST("token/consulta")
     fun getToken(@Body request: TokenRequest): Call<TokenResponse>

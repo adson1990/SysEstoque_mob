@@ -149,41 +149,31 @@ class RegistroActivity : AppCompatActivity() {
         edtSenha = findViewById(R.id.edtSenha)
         edtSenha.validPassword()
         edtSenha.setOnTouchListener { _, event ->
+            // Verificar primeiro o botão de olho para revelar/ocultar senha
             if (event.action == MotionEvent.ACTION_UP) {
-                //rawX = posição do toque horizontalmente, edtSenha.right = coordenadas do lado direito, edtSenha.compoundDrawables[2] = drawable no final do campo
+                // Verificar se o toque está na posição do drawable no final (o olho)
                 //índice 1 = start,índice 2 = end, índice 3 = top e índice 4 = bottom
                 if (event.rawX >= edtSenha.right - edtSenha.compoundDrawables[2].bounds.width()) {
                     if (edtSenha.inputType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
                         edtSenha.inputType =
                             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                        edtSenha.setCompoundDrawablesWithIntrinsicBounds(
-                            0,
-                            0,
-                            R.drawable.ic_eye,
-                            0
-                        ) // Define o drawable de olho
+                        edtSenha.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye, 0)
                     } else {
                         edtSenha.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                        edtSenha.setCompoundDrawablesWithIntrinsicBounds(
-                            0,
-                            0,
-                            R.drawable.ic_eye,
-                            0
-                        )
+                        edtSenha.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye, 0)
                     }
-                    edtSenha.setSelection(edtSenha.text.length) // Mantenha o cursor no final
+                    edtSenha.setSelection(edtSenha.text.length)
                     return@setOnTouchListener true
                 }
             }
-            false
-        }
-        edtSenha.setOnTouchListener { _, _ ->
+
+            // Agora, verificar a validação do CPF
             if (!validateCpf(edtCPF)) {
-                edtCPF.requestFocus() // Mantém o foco no campo CPF se for inválido
-                true // Bloqueia o toque no próximo campo
-            } else {
-                false // Permite o toque no próximo campo se o CPF for válido
+                edtCPF.requestFocus() // Manter o foco no campo CPF se for inválido
+                return@setOnTouchListener true // Bloquear o toque no próximo campo
             }
+
+            false // Permitir o toque no próximo campo se o CPF for válido
         }
 
         // Campo salário começa obrigatoriamente com R$
