@@ -42,22 +42,32 @@
     <string name="ge">Germany</string>
     <string name="jp">Japan</string>
     <string name="fr">France</string>
+    <!-- ********************************* -->
     <!-- Tipos de números de telefone -->
     <string name="num_pessoal">Pes</string>
     <string name="num_profissional">Prof</string>
     <string name="num_residencial">Res</string>
     <string name="num_comercial">Com</string>
-
+    <!-- ********************************* -->
     <string name="btn_cadastrar">DONE</string>
     <string name="esqueci_senha">Forgot Password</string>
     <string name="enviar">Send</string>
     <string name="cod_recuperacao">Enter the code sent</string>
     <string name="nova_senha">Enter the new password</string>
     <string name="gravar">Record</string>
-
+    <string name="pedidos">Your Orders</string>
+    <string name="pesquisar">Search</string>
     <!-- Strings used for fragments for navigation -->
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="home" translatable="false">Home</string>
+    <string name="perfil">Profile</string>
+    <string name="configuracoes">Settings</string>
+    <string name="navigation_drawer_open">Open navigation</string>
+    <string name="navigation_drawer_close">Closed navigation</string>
+    <!-- ******************************************************** -->
+    <string name="ultimas_compras">Your latest purchases</string>
+    <string name="sem_dados">No data to display</string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>

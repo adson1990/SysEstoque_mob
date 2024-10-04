@@ -42,20 +42,30 @@
     <string name="ge">Alemanha</string>
     <string name="jp">Japão</string>
     <string name="fr">França</string>
+    <!-- ********************************* -->
     <!-- Tipos de números de telefone -->
     <string name="num_pessoal">P</string>
     <string name="num_profissional">T</string>
     <string name="num_residencial">R</string>
     <string name="num_comercial">C</string>
-
+    <!-- ********************************* -->
     <string name="btn_cadastrar">CADASTRAR</string>
     <string name="esqueci_senha">Esqueci a Senha</string>
     <string name="enviar">Enviar</string>
     <string name="cod_recuperacao">Digite o código enviado</string>
     <string name="nova_senha">Digite a nova senha</string>
     <string name="gravar">Gravar</string>
+    <string name="pedidos">Seus pedidos</string>
+    <string name="pesquisar">Pesquisar</string>
     <!-- Strings used for fragments for navigation -->
     <string name="next">Próximo</string>
     <string name="previous">Anterior</string>
+    <string name="perfil">Seu Perfil</string>
+    <string name="configuracoes">Configurações</string>
+    <string name="navigation_drawer_open">Abrir navegação</string>
+    <string name="navigation_drawer_close">Fechar navegação</string>
+    <!-- *********************************************************** -->
+    <string name="ultimas_compras">Suas últimas compras</string>
+    <string name="sem_dados">Sem dados para exibir</string>
 
 </resources>

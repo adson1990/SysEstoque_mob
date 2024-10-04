@@ -25,13 +25,13 @@ import com.example.sysestoque.databinding.ActivityLoginBinding
 
 import com.example.sysestoque.R
 import com.example.sysestoque.RegistroActivity
+import com.example.sysestoque.data.database.DatabaseHelper
 import com.example.sysestoque.data.database.DbHelperLogin
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var dbHelperLogin: DbHelperLogin
 
    // @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ClickableViewAccessibility")
@@ -40,6 +40,8 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
 
        if(loginAutomatico()){
            // chama a dashboard
@@ -80,6 +82,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
        remember.setOnCheckedChangeListener { _, isChecked ->
+           val dbHelperLogin = DbHelperLogin(this)
            val colorResId = if (isChecked) R.color.pink_200 else R.color.gray_50
            val colorStateList = ContextCompat.getColorStateList(this, colorResId)
            if (isChecked) {
@@ -206,6 +209,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun loginAutomatico(): Boolean{
+        val dbHelperLogin = DbHelperLogin(this)
+
         return dbHelperLogin.checarLoginAutomatico()
     }
 }

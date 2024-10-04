@@ -234,7 +234,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
                 if(response.isSuccessful && response.body() != null){
                     idCliente = response.body()!!
                     Log.i("Sucesso_busca", "E-mail encontrado no DB")
-                    Toast.makeText(this@EsqueciSenhaActivity, "Código de recuperação enviado para o e-mail", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@EsqueciSenhaActivity, "E-mail validado.", Toast.LENGTH_LONG).show()
 
                     tvCodRec.visibility = View.VISIBLE
                     edtCodRec.visibility = View.VISIBLE
