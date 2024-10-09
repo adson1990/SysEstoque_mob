@@ -108,10 +108,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="@dimen/size_8dp"
-                android:layout_marginBottom="@dimen/size_8dp">
+                android:background="@color/gray_400"
+                android:layout_marginBottom="@dimen/size_8dp"
+                tools:ignore="UselessParent">
 
                 <TextView
-                    android:id="@+id/tvCodigoProduto1"
+                    android:id="@+id/tvNomeProduto1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/sem_dados"

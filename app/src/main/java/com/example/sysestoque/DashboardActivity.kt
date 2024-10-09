@@ -1,6 +1,9 @@
 package com.example.sysestoque
 
 import android.os.Bundle
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -8,7 +11,15 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.sysestoque.backend.AuthRepository
+import com.example.sysestoque.backend.ComprasResponse
+import com.example.sysestoque.backend.TokenResponse
 import com.google.android.material.navigation.NavigationView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 private lateinit var drawerLayout: DrawerLayout
 private lateinit var navView: NavigationView
@@ -54,6 +65,66 @@ class DashboardActivity : AppCompatActivity() {
             drawerLayout.closeDrawers()
             true
         }
+
+        //referencias das views
+
+        val tvProductName1 = findViewById<TextView>(R.id.tvNomeProduto1)
+        val tvProductDate1 = findViewById<TextView>(R.id.tvDataCompra1)
+        val tvProductPrice1 = findViewById<TextView>(R.id.tvValorTotal1)
+
+        val authRepository = AuthRepository()
+
+        fun fetchCompras(idCliente: Long, token: String) {
+            authRepository.getComprasPorIdCliente(idCliente, token, object : Callback<ComprasResponse> {
+                override fun onResponse(call: Call<ComprasResponse>, response: Response<ComprasResponse>) {
+                    if (response.isSuccessful) {
+                        val comprasList = response.body()?.content ?: emptyList()
+
+                        if (comprasList.isNotEmpty()) {
+                            val compra = comprasList[0]
+
+                            // Atualiza os EditTexts com os dados recebidos
+                            tvProductName1.setText(compra.name)
+                            tvProductPrice1.setText(compra.valor.toString())
+                            val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            val formattedDate = formatter.format(compra.dataVenda)
+                            tvProductDate1?.text = formattedDate
+
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<ComprasResponse>, t: Throwable) {
+                    // Trate o erro (ex.: exibir um Toast com mensagem de erro)
+                    Toast.makeText(this@DashboardActivity, "Erro ao buscar compras: ${t.message}", Toast.LENGTH_LONG).show()
+                }
+            })
+        }
+
+        // Função para buscar o token e depois as compras
+        fun fetchTokenAndCompras(idCliente: Long, username: String) {
+            authRepository.getToken(username, object : Callback<TokenResponse> {
+                override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+                    if (response.isSuccessful) {
+                        val token = response.body()?.accessToken ?: ""
+                        // Agora que temos o token, podemos buscar as compras
+                        fetchCompras(idCliente, token)
+                    } else {
+                        Toast.makeText(this@DashboardActivity, "Erro ao obter token", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                    Toast.makeText(this@DashboardActivity, "Erro ao buscar token: ${t.message}", Toast.LENGTH_LONG).show()
+                }
+            })
+        }
+
+        val idCliente = 12L
+        val username = "ADMIN"
+
+        fetchTokenAndCompras(idCliente, username)
+
     }
 
     override fun onBackPressed() {
