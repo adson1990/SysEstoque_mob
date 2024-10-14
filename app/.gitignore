@@ -1,1 +1,54 @@
 /build
+
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Diretórios de build e compilação
+/build/
+/.idea/
+/.gradle/
+/captures/
+/.externalNativeBuild/
+/local.properties
+/.cxx/
+
+# Arquivos de cache e de configuração do Android Studio
+*.iml
+*.hprof
+*.log
+*.tmp
+*.class
+*.apk
+*.db
+*.cxx
+*.ccls-cache/
+
+# Arquivos gerados automaticamente
+.DS_Store
+Thumbs.db
+
+# Arquivos de sistema do Windows
+*.exe
+*.dll
+*.bat
+*.lnk
+desktop.ini
+
+# Arquivos compilados
+*.class
+*.jar
+*.war
+*.ear
