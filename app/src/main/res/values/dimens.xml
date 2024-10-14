@@ -20,6 +20,8 @@
     <dimen name="size_65dp">65dp</dimen>
     <dimen name="size_70dp">70dp</dimen>
     <dimen name="size_75dp">75dp</dimen>
+    <dimen name="size_140dp">140dp</dimen>
+    <dimen name="size_150dp">150dp</dimen>
     <dimen name="size_160dp">160dp</dimen>
     <dimen name="size_200dp">200dp</dimen>
 
@@ -57,4 +59,5 @@
     <dimen name="size_65sp">65sp</dimen>
     <dimen name="size_70sp">70sp</dimen>
     <dimen name="size_75sp">75sp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>

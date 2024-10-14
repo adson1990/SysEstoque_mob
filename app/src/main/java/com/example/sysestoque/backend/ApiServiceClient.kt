@@ -5,6 +5,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface ClienteApi {
-    @POST("clients")
-    fun cadastrarCliente(@Body client: Client): Call<Client>
+    @POST("/clients/register")
+    fun registerClient(@Body client: Client): Call<Client>
 }

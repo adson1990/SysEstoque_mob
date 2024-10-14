@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/main_cadastro"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/gray_400"
@@ -59,7 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/size_5dp"
-                android:layout_marginTop="@dimen/size_5dp"
+                android:layout_marginTop="@dimen/size_10dp"
                 android:labelFor="@+id/edtNomeCompleto"
                 android:text="@string/full_name"
                 android:textSize="@dimen/size_20sp"
@@ -142,6 +142,7 @@
                 android:fontFamily="serif-monospace"
                 android:inputType="textPassword"
                 android:textColor="@color/black"
+                android:drawableEnd="@drawable/ic_eye"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="normal"
                 android:tooltipText="@string/alert_password" />
@@ -171,7 +172,7 @@
                         android:layout_marginStart="@dimen/size_15dp"
                         android:text="@string/Male"
                         tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
-                    <!-- Adiciona um View para criar um espaço flexível entre os RadioButtons -->
+                    <!-- View adicionada para criar um espaço flexível entre os RadioButtons -->
                     <View
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -229,6 +230,7 @@
                 android:autofillHints="Nascimento"
                 android:fontFamily="serif-monospace"
                 android:inputType="date"
+                android:maxLength="10"
                 android:textColor="@color/black"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="normal" />
@@ -275,6 +277,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtNumCasa"
                     tools:ignore="TextContrastCheck"/>
 
                 <EditText
@@ -289,6 +292,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtCEP"
                     tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
 
                 <EditText
@@ -303,6 +307,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtCidade"
                     tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
             </LinearLayout>
 
@@ -322,6 +327,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
+                    android:nextFocusForward="@id/edtEstado"
                     tools:ignore="TextContrastCheck"/>
 
                 <EditText
@@ -362,7 +368,7 @@
                 tools:ignore="TextContrastCheck"/>
 
             <ImageButton
-                android:id="@+id/imageButton"
+                android:id="@+id/addPhone"
                 android:layout_width="@dimen/size_175px"
                 android:layout_height="@dimen/size_175px"
                 android:layout_marginTop="@dimen/size_5dp"
@@ -394,6 +400,7 @@
                         android:autofillHints="DDD do número"
                         android:layout_marginStart="@dimen/size_5dp"
                         android:hint="DDD"
+                        android:nextFocusForward="@id/edtNumeroCel"
                         tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
 
                     <EditText
@@ -429,7 +436,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="500dp"
                  />
 
             <ProgressBar
@@ -440,6 +447,4 @@
                 android:layout_centerInParent="true"/>
         </LinearLayout>
     </ScrollView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
