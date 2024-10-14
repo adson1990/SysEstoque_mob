@@ -1,6 +1,8 @@
 package com.example.sysestoque
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -14,6 +16,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
+import com.example.sysestoque.data.database.DbHelperLogin
+import com.example.sysestoque.ui.login.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
@@ -61,6 +65,11 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.nav_settings -> {
                     // Abrir tela de Configurações
                 }
+                R.id.nav_exit -> {
+                    logout()
+                    drawerLayout.closeDrawers() // Fecha o drawer após a ação
+                    return@setNavigationItemSelectedListener true
+                }
             }
             drawerLayout.closeDrawers()
             true
@@ -72,6 +81,10 @@ class DashboardActivity : AppCompatActivity() {
         val tvProductDate1 = findViewById<TextView>(R.id.tvDataCompra1)
         val tvProductPrice1 = findViewById<TextView>(R.id.tvValorTotal1)
 
+        val tvProductName2 = findViewById<TextView>(R.id.tvNomeProduto2)
+        val tvProductDate2 = findViewById<TextView>(R.id.tvDataCompra2)
+        val tvProductPrice2 = findViewById<TextView>(R.id.tvValorTotal2)
+
         val authRepository = AuthRepository()
 
         fun fetchCompras(idCliente: Long, token: String) {
@@ -81,16 +94,25 @@ class DashboardActivity : AppCompatActivity() {
                         val comprasList = response.body()?.content ?: emptyList()
 
                         if (comprasList.isNotEmpty()) {
-                            val compra = comprasList[0]
-
-                            // Atualiza os EditTexts com os dados recebidos
-                            tvProductName1.setText(compra.name)
-                            tvProductPrice1.setText(compra.valor.toString())
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                            val formattedDate = formatter.format(compra.dataVenda)
-                            tvProductDate1?.text = formattedDate
 
+                            // Preencher a primeira compra
+                            if (comprasList.size > 0) {
+                                val compra1 = comprasList[0]
+                                tvProductName1.text = compra1.name
+                                tvProductPrice1.text = compra1.valor.toString()
+                                tvProductDate1.text = formatter.format(compra1.dataVenda)
+                            }
+
+                            if (comprasList.size > 1) {
+                                val compra2 = comprasList[1]
+                                tvProductName2.text = compra2.name
+                                tvProductPrice2.text = compra2.valor.toString()
+                                tvProductDate2.text = formatter.format(compra2.dataVenda)
+                            }
                         }
+                    } else {
+                        Toast.makeText(this@DashboardActivity, "Erro ao buscar compras: ${response.message()}", Toast.LENGTH_LONG).show()
                     }
                 }
 
@@ -125,6 +147,20 @@ class DashboardActivity : AppCompatActivity() {
 
         fetchTokenAndCompras(idCliente, username)
 
+        // fim do onCreate
+    }
+
+    private fun logout(){
+        val dbHelperLogin = DbHelperLogin(this)
+        dbHelperLogin.lembrarCliente(false)
+        Toast.makeText(this, "Logout realizado com sucesso!", Toast.LENGTH_SHORT).show()
+        chamarLoginActivity()
+    }
+
+    private fun chamarLoginActivity(){
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     override fun onBackPressed() {

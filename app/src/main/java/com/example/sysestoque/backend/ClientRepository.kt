@@ -14,8 +14,6 @@ class ClientRepository() {
         val logging = HttpLoggingInterceptor()
         logging.level = HttpLoggingInterceptor.Level.BODY
 
-
-
         val client = OkHttpClient.Builder()
             .addInterceptor(logging) // Adiciona o interceptador
             .build()

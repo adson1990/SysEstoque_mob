@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class AuthRepository {
 
-    private val authApi: AuthApi
+    val authApi: AuthApi
     private val authApiEmail: AuthApiEmail
 
 

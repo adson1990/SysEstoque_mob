@@ -146,7 +146,7 @@
                     tools:ignore="HardcodedText" />
 
                 <TextView
-                    android:id="@+id/tvCodigoProduto2"
+                    android:id="@+id/tvNomeProduto2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/sem_dados"

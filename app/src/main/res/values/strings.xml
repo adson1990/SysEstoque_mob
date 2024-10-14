@@ -63,6 +63,7 @@
     <string name="home" translatable="false">Home</string>
     <string name="perfil">Profile</string>
     <string name="configuracoes">Settings</string>
+    <string name="sair">Exit</string>
     <string name="navigation_drawer_open">Open navigation</string>
     <string name="navigation_drawer_close">Closed navigation</string>
     <!-- ******************************************************** -->

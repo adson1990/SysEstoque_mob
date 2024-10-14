@@ -11,19 +11,26 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         private const val RELEMBRAR_USUARIO = "remember_user.db"
         private const val DATABASE_VERSION = 1
         private const val TABLE_NAME = "tb_grava_login"
+        private const val TABLE2_NAME = "tb_usuario_logado"
         private const val COLUMN_ID = "id"
         private const val COLUMN_REMEMBER = "remember"
+        private const val COLUMN_USER_LOGGED = "user_logged"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
         val createTableStatement = ("CREATE TABLE ${DbHelperLogin.TABLE_NAME} (" +
                 "${DbHelperLogin.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "$COLUMN_REMEMBER BOOLEAN)")
+        val createTableStatement2 = ("CREATE TABLE ${DbHelperLogin.TABLE2_NAME} (" +
+                "${DbHelperLogin.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_USER_LOGGED TEXT)")
         db.execSQL(createTableStatement)
+        db.execSQL(createTableStatement2)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS ${com.example.sysestoque.data.database.DbHelperLogin.TABLE_NAME}")
+        db.execSQL("DROP TABLE IF EXISTS ${com.example.sysestoque.data.database.DbHelperLogin.TABLE2_NAME}")
         onCreate(db)
     }
 
@@ -51,6 +58,35 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
             dadoRecuperado = cursor.getInt(cursor.getColumnIndexOrThrow("remember")) == 1
         }
         cursor.close()
+        return dadoRecuperado
+    }
+
+    fun gravarUsuarioLogin(user: String): Boolean{
+        val db = this.writableDatabase
+
+        db.execSQL("DELETE FROM tb_usuario_logado")
+
+        val contentValues = ContentValues().apply {
+            put(COLUMN_USER_LOGGED, user)
+        }
+
+        val result = db.insert(DbHelperLogin.TABLE2_NAME, null, contentValues)
+        db.close()
+
+        return result != -1L
+    }
+    fun getUsuarioLogado(): String{
+        val db = this.readableDatabase
+        var dadoRecuperado = "";
+
+        val cursor =  db.rawQuery("SELECT user_logged FROM tb_usuario_logado", null)
+
+        if(cursor.moveToFirst()){
+            dadoRecuperado = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOGGED))
+        }
+
+        cursor.close()
+
         return dadoRecuperado
     }
 }
