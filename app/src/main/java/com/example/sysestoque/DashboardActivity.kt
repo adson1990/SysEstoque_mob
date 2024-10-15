@@ -1,9 +1,11 @@
 package com.example.sysestoque
 
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.view.MenuItem
-import android.widget.EditText
+import android.view.View
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -13,10 +15,15 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.RequestListener
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.DbHelperLogin
+import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.ui.login.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
@@ -27,6 +34,7 @@ import java.util.Locale
 
 private lateinit var drawerLayout: DrawerLayout
 private lateinit var navView: NavigationView
+private lateinit var dbHelperLogin: DbHelperLogin
 
 class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +83,47 @@ class DashboardActivity : AppCompatActivity() {
             true
         }
 
-        //referencias das views
+        var loginInfo: LoginInfo? = null
+        dbHelperLogin = DbHelperLogin(this)
+        loginInfo = dbHelperLogin.getUsuarioLogado()
+
+        val emailUsuario = loginInfo?.email ?: ""
+        val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
+        val tvNomeUsuario = findViewById<TextView>(R.id.tvNomeUsuario)
+        tvNomeUsuario.text = nomeUsuario
+
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+
+        val imageUrl = loginInfo?.foto ?: ""
+
+        val imageView = findViewById<ImageView>(R.id.ftUsuario)
+
+        Glide.with(this)
+            .load(imageUrl)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    progressBar.visibility = View.GONE
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: com.bumptech.glide.load.DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    progressBar.visibility = View.GONE
+                    return false
+                }
+
+            })
+            .into(imageView)
 
         val tvProductName1 = findViewById<TextView>(R.id.tvNomeProduto1)
         val tvProductDate1 = findViewById<TextView>(R.id.tvDataCompra1)
@@ -142,10 +190,12 @@ class DashboardActivity : AppCompatActivity() {
             })
         }
 
-        val idCliente = 12L
+        val idCliente = loginInfo?.idClient ?: 0
         val username = "ADMIN"
 
         fetchTokenAndCompras(idCliente, username)
+
+        mostrarDadosDB()
 
         // fim do onCreate
     }
@@ -169,5 +219,10 @@ class DashboardActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    fun mostrarDadosDB(){
+        val dbHelperLogin = DbHelperLogin(this)
+        dbHelperLogin.logarConteudoTabela()
     }
 }
