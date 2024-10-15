@@ -18,5 +18,6 @@ data class LoginResponse(val token: String)
 data class LoginResponseWithSex(
     val accessToken: String,
     val expiresIn: Long,
-    val sexo: Char
+    val sexo: Char,
+    val id: Long
 )

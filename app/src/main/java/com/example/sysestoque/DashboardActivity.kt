@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.bumptech.glide.Glide
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
@@ -75,7 +77,17 @@ class DashboardActivity : AppCompatActivity() {
             true
         }
 
-        //referencias das views
+        val nomeUsuario = intent.getStringExtra("NOME_USUARIO") ?: "Usuário"
+        val tvNomeUsuario = findViewById<TextView>(R.id.tvNomeUsuario)
+        tvNomeUsuario.text = nomeUsuario
+
+        val imageUrl = "https://drive.google.com/uc?export=download&id=1X_BS_6i50h6TLrwqNziAuljHbwrs9PRw"
+
+        val imageView = findViewById<ImageView>(R.id.ftUsuario)
+
+        Glide.with(this)
+            .load(imageUrl)
+            .into(imageView)
 
         val tvProductName1 = findViewById<TextView>(R.id.tvNomeProduto1)
         val tvProductDate1 = findViewById<TextView>(R.id.tvDataCompra1)
@@ -152,7 +164,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun logout(){
         val dbHelperLogin = DbHelperLogin(this)
-        dbHelperLogin.lembrarCliente(false)
+        dbHelperLogin.lembrarCliente(false, 0L)
         Toast.makeText(this, "Logout realizado com sucesso!", Toast.LENGTH_SHORT).show()
         chamarLoginActivity()
     }

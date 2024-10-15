@@ -35,6 +35,7 @@ import com.example.sysestoque.backend.LoginResponse
 import com.example.sysestoque.backend.LoginResponseWithSex
 import com.example.sysestoque.data.database.DatabaseHelper
 import com.example.sysestoque.data.database.DbHelperLogin
+import com.example.sysestoque.data.database.LoginInfo
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,7 +45,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var authRepository: AuthRepository
     private lateinit var loading: ProgressBar
-
+    private lateinit var remember: CheckBox
+    private lateinit var dbHelperLogin: DbHelperLogin
 
    // @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ClickableViewAccessibility")
@@ -54,8 +56,14 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-       if(loginAutomatico()){
-          abrirDashboard()
+       if(loginAutomatico()?.remember == true){
+           dbHelperLogin = DbHelperLogin(this)
+           val email = dbHelperLogin.getUsuarioLogado()?.email
+           val nome = email?.substringBefore("@")?.uppercase()
+           val idClient = dbHelperLogin.getUsuarioLogado()?.idClient
+           if (nome != null && idClient != null) {
+               abrirDashboard(nome, idClient, true)
+           }
        }
 
        authRepository = AuthRepository()
@@ -65,7 +73,7 @@ class LoginActivity : AppCompatActivity() {
         val login = binding.btnLogin
         loading = binding.loading
         val register: TextView = findViewById(R.id.tvRegistro)
-        val remember: CheckBox = findViewById(R.id.chkLembrarUser)
+        remember = findViewById(R.id.chkLembrarUser)
         val forgotPass: TextView = findViewById(R.id.tvEsquecerSenha)
         val edtPassword: EditText = findViewById(R.id.edt_password)
         val scaleAnimation = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.scale_animation) // animação de clique
@@ -119,17 +127,15 @@ class LoginActivity : AppCompatActivity() {
        }
 
        remember.setOnCheckedChangeListener { _, isChecked ->
-           val dbHelperLogin = DbHelperLogin(this)
+
            val colorResId = if (isChecked) R.color.pink_200 else R.color.gray_50
            val colorStateList = ContextCompat.getColorStateList(this, colorResId)
            if (isChecked) {
                remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.pink_200)
                remember.setTextColor(colorStateList)
-               dbHelperLogin.lembrarCliente(true)
            } else {
                remember.buttonTintList = ContextCompat.getColorStateList(this, R.color.gray_50)
                remember.setTextColor(colorStateList)
-               dbHelperLogin.lembrarCliente(false)
            }
        }
     // fim onCreate
@@ -145,10 +151,14 @@ class LoginActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val token = response.body()?.accessToken ?: ""
                     val sexo = response.body()?.sexo ?: ' '
+                    val id = response.body()?.id ?: 0
                     val saudacao = if (sexo == 'M') getString(R.string.welcome_male) else getString(R.string.welcome_female)
+
+                    val rememberMe = remember.isChecked
 
                     val user = binding.edtUsername.text.toString()
                     val nome = user.substringBefore("@").uppercase()
+
 
                     Toast.makeText(
                         applicationContext,
@@ -156,9 +166,9 @@ class LoginActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
 
-                    salvarUsuario(username)
+                    salvarUsuario(username, id)
                     saveToken(token)
-                    abrirDashboard()
+                    abrirDashboard(nome, id, rememberMe)
                 } else {
                     val errorMessage = try {
                         response.errorBody()?.string() ?: "Erro desconhecido"
@@ -178,10 +188,10 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
-    fun salvarUsuario(username: String){
-        val dbHelperLogin = DbHelperLogin(this)
+    fun salvarUsuario(username: String, id: Long){
+        dbHelperLogin = DbHelperLogin(this)
 
-        dbHelperLogin.gravarUsuarioLogin(username)
+        dbHelperLogin.gravarUsuarioLogin(username, id)
     }
 
     private fun saveToken(token: String) {
@@ -191,12 +201,15 @@ class LoginActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    private fun abrirDashboard() {
-        val intent = Intent(this, DashboardActivity::class.java)
+    private fun abrirDashboard(nome: String, id: Long, remember: Boolean) {
+        val intent = Intent(this, DashboardActivity::class.java).apply {
+            putExtra("NOME_USUARIO", nome)
+            putExtra("ID_USER", id)
+            putExtra("REMEMBER_USER", remember)
+        }
         startActivity(intent)
         finish() // Fecha a LoginActivity para que o usuário não volte ao login
     }
-
 
     fun abrirRegistroDeCliente(bundle: Bundle? = null){
         val intent = Intent(this, RegistroActivity::class.java)
@@ -207,23 +220,8 @@ class LoginActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    //Atualiza a interface do usuário após um login bem-sucedido, mostrando uma mensagem de boas-vindas.
-    private fun updateUiWithUser(success: LoggedInUserView) {
-        val sexo = "M" //retorno da API
-        val saudacao = if (sexo == "M") getString(R.string.welcome_male) else getString(R.string.welcome_female)
-
-        val user = binding.edtUsername.text.toString()
-        val nome = user.substringBefore("@").uppercase()
-        // TODO : initiate successful logged in experience
-        Toast.makeText(
-            applicationContext,
-            "$saudacao $nome",
-            Toast.LENGTH_LONG
-        ).show()
-    }
-
-    fun loginAutomatico(): Boolean{
-        val dbHelperLogin = DbHelperLogin(this)
+    fun loginAutomatico(): LoginInfo? {
+        dbHelperLogin = DbHelperLogin(this)
 
         return dbHelperLogin.checarLoginAutomatico()
     }
