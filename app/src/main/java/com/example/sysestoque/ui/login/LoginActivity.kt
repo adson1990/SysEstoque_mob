@@ -1,13 +1,9 @@
 package com.example.sysestoque.ui.login
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,8 +11,6 @@ import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -31,11 +25,8 @@ import com.example.sysestoque.R
 import com.example.sysestoque.RegistroActivity
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.LoginRequest
-import com.example.sysestoque.backend.LoginResponse
-import com.example.sysestoque.backend.LoginResponseWithSex
-import com.example.sysestoque.data.database.DatabaseHelper
+import com.example.sysestoque.backend.LoginResponseWithClientData
 import com.example.sysestoque.data.database.DbHelperLogin
-import com.example.sysestoque.data.database.LoginInfo
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -56,14 +47,10 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-       if(loginAutomatico()?.remember == true){
-           dbHelperLogin = DbHelperLogin(this)
-           val email = dbHelperLogin.getUsuarioLogado()?.email
-           val nome = email?.substringBefore("@")?.uppercase()
-           val idClient = dbHelperLogin.getUsuarioLogado()?.idClient
-           if (nome != null && idClient != null) {
-               abrirDashboard(nome, idClient, true)
-           }
+       criarTabelas()
+
+       if(loginAutomatico()){
+          abrirDashboardAutomatico(true)
        }
 
        authRepository = AuthRepository()
@@ -141,17 +128,24 @@ class LoginActivity : AppCompatActivity() {
     // fim onCreate
     }
 
+    private fun criarTabelas() {
+        dbHelperLogin = DbHelperLogin(this)
+
+        dbHelperLogin.popularTabelasInicio()
+    }
+
     private fun login(username: String, password: String) {
         val loginRequest = LoginRequest(username, password)
 
         Log.d("LoginActivity", "LoginRequest: $loginRequest")
 
-        authRepository.authApi.login2(loginRequest).enqueue(object : Callback<LoginResponseWithSex> {
-            override fun onResponse(call: Call<LoginResponseWithSex>, response: Response<LoginResponseWithSex>) {
+        authRepository.authApi.login2(loginRequest).enqueue(object : Callback<LoginResponseWithClientData> {
+            override fun onResponse(call: Call<LoginResponseWithClientData>, response: Response<LoginResponseWithClientData>) {
                 if (response.isSuccessful) {
                     val token = response.body()?.accessToken ?: ""
                     val sexo = response.body()?.sexo ?: ' '
                     val id = response.body()?.id ?: 0
+                    val foto = response.body()?.foto ?: ""
                     val saudacao = if (sexo == 'M') getString(R.string.welcome_male) else getString(R.string.welcome_female)
 
                     val rememberMe = remember.isChecked
@@ -166,9 +160,9 @@ class LoginActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
 
-                    salvarUsuario(username, id)
+                    salvarUsuario(rememberMe, id, username, foto)
                     saveToken(token)
-                    abrirDashboard(nome, id, rememberMe)
+                    abrirDashboard(nome)
                 } else {
                     val errorMessage = try {
                         response.errorBody()?.string() ?: "Erro desconhecido"
@@ -182,16 +176,16 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<LoginResponseWithSex>, t: Throwable) {
+            override fun onFailure(call: Call<LoginResponseWithClientData>, t: Throwable) {
                 Toast.makeText(this@LoginActivity, "Erro: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    fun salvarUsuario(username: String, id: Long){
+    fun salvarUsuario(remenberMe: Boolean, id: Long, email: String, foto: String){
         dbHelperLogin = DbHelperLogin(this)
 
-        dbHelperLogin.gravarUsuarioLogin(username, id)
+        dbHelperLogin.gravarUsuarioLogin(remenberMe, id, email, foto)
     }
 
     private fun saveToken(token: String) {
@@ -201,29 +195,35 @@ class LoginActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    private fun abrirDashboard(nome: String, id: Long, remember: Boolean) {
+    private fun abrirDashboard(nome: String) {
         val intent = Intent(this, DashboardActivity::class.java).apply {
             putExtra("NOME_USUARIO", nome)
-            putExtra("ID_USER", id)
-            putExtra("REMEMBER_USER", remember)
         }
         startActivity(intent)
         finish() // Fecha a LoginActivity para que o usuário não volte ao login
     }
 
-    fun abrirRegistroDeCliente(bundle: Bundle? = null){
+    private fun abrirDashboardAutomatico(automatico: Boolean){
+        val intent = Intent(this, DashboardActivity::class.java).apply {
+            putExtra("LOGIN_AUTOMATICO", automatico)
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    fun abrirRegistroDeCliente(){
         val intent = Intent(this, RegistroActivity::class.java)
         startActivity(intent)
     }
-    fun abrirResetPassword(bundle: Bundle? = null){
+    fun abrirResetPassword(){
         val intent = Intent(this, EsqueciSenhaActivity::class.java)
         startActivity(intent)
     }
 
-    fun loginAutomatico(): LoginInfo? {
+    fun loginAutomatico(): Boolean {
         dbHelperLogin = DbHelperLogin(this)
 
-        return dbHelperLogin.checarLoginAutomatico()
+        return dbHelperLogin.checarLoginAutomatico()?.remember ?: false
     }
 }
 

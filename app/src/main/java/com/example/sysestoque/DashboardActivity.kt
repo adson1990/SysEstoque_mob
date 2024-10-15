@@ -1,10 +1,11 @@
 package com.example.sysestoque
 
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.view.MenuItem
-import android.widget.EditText
+import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -15,10 +16,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.RequestListener
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.DbHelperLogin
+import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.ui.login.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
@@ -29,6 +34,7 @@ import java.util.Locale
 
 private lateinit var drawerLayout: DrawerLayout
 private lateinit var navView: NavigationView
+private lateinit var dbHelperLogin: DbHelperLogin
 
 class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,16 +83,46 @@ class DashboardActivity : AppCompatActivity() {
             true
         }
 
-        val nomeUsuario = intent.getStringExtra("NOME_USUARIO") ?: "Usuário"
+        var loginInfo: LoginInfo? = null
+        dbHelperLogin = DbHelperLogin(this)
+        loginInfo = dbHelperLogin.getUsuarioLogado()
+
+        val emailUsuario = loginInfo?.email ?: ""
+        val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
         val tvNomeUsuario = findViewById<TextView>(R.id.tvNomeUsuario)
         tvNomeUsuario.text = nomeUsuario
 
-        val imageUrl = "https://drive.google.com/uc?export=download&id=1X_BS_6i50h6TLrwqNziAuljHbwrs9PRw"
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+
+        val imageUrl = loginInfo?.foto ?: ""
 
         val imageView = findViewById<ImageView>(R.id.ftUsuario)
 
         Glide.with(this)
             .load(imageUrl)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    progressBar.visibility = View.GONE
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: com.bumptech.glide.load.DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    progressBar.visibility = View.GONE
+                    return false
+                }
+
+            })
             .into(imageView)
 
         val tvProductName1 = findViewById<TextView>(R.id.tvNomeProduto1)
@@ -154,17 +190,19 @@ class DashboardActivity : AppCompatActivity() {
             })
         }
 
-        val idCliente = 12L
+        val idCliente = loginInfo?.idClient ?: 0
         val username = "ADMIN"
 
         fetchTokenAndCompras(idCliente, username)
+
+        mostrarDadosDB()
 
         // fim do onCreate
     }
 
     private fun logout(){
         val dbHelperLogin = DbHelperLogin(this)
-        dbHelperLogin.lembrarCliente(false, 0L)
+        dbHelperLogin.lembrarCliente(false)
         Toast.makeText(this, "Logout realizado com sucesso!", Toast.LENGTH_SHORT).show()
         chamarLoginActivity()
     }
@@ -181,5 +219,10 @@ class DashboardActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    fun mostrarDadosDB(){
+        val dbHelperLogin = DbHelperLogin(this)
+        dbHelperLogin.logarConteudoTabela()
     }
 }

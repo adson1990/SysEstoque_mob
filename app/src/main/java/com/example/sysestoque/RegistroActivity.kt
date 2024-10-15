@@ -591,6 +591,7 @@ class RegistroActivity : AppCompatActivity() {
             sexo = sex,
             email = email,
             senha = senha,
+            foto = "",
             cellphone = cellphones,
             enderecos = enderecos
         )
