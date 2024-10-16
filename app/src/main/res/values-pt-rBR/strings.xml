@@ -15,6 +15,7 @@
     <string name="remember_user">"Lembrar usuário"</string>
     <string name="forgot_pass"><u>"Esqueci a senha"</u></string>
     <string name="full_name">"Nome completo:"</string>
+    <string name="first_name">"Primeiro nome"</string>
     <string name="CPF">"CPF:"</string>
     <string name="password">Senha:</string>
     <string name="alert_password">Deve conter maiúscula, minúscula, dígito, caractere especial e mín de 6 caracteres</string>
@@ -68,5 +69,9 @@
     <!-- *********************************************************** -->
     <string name="ultimas_compras">Suas últimas compras</string>
     <string name="sem_dados">Sem dados para exibir</string>
+    <string name="data">Selecione a data</string>
+    <string name="Vermelho">Vermelho</string>
+    <string name="Verde">Verde</string>
+    <string name="Azul">Azul</string>
 
 </resources>

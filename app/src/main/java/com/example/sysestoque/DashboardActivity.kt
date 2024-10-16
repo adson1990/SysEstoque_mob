@@ -68,7 +68,7 @@ class DashboardActivity : AppCompatActivity() {
                     // Abrir tela de Home
                 }
                 R.id.nav_profile -> {
-                    // Abrir tela de Perfil
+                    abrirProfileActivity()
                 }
                 R.id.nav_settings -> {
                     // Abrir tela de Configurações
@@ -198,6 +198,11 @@ class DashboardActivity : AppCompatActivity() {
         mostrarDadosDB()
 
         // fim do onCreate
+    }
+
+    private fun abrirProfileActivity() {
+        val intent = Intent(this, ProfileActivity::class.java)
+        startActivity(intent)
     }
 
     private fun logout(){

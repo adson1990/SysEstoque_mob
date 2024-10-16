@@ -15,6 +15,7 @@
     <string name="remember_user">"Remember user"</string>
     <string name="forgot_pass"><u>"Forgot Password"</u></string>
     <string name="full_name">"Full Name:"</string>
+    <string name="first_name">"First Name"</string>
     <string name="CPF">"CPF:"</string>
     <string name="password">Password:</string>
     <string name="alert_password">Must contain uppercase, lowercase, digit, special character and a minimum of 6 characters</string>
@@ -69,6 +70,10 @@
     <!-- ******************************************************** -->
     <string name="ultimas_compras">Your latest purchases</string>
     <string name="sem_dados">No data to display</string>
+    <string name="data">Select the date</string>
+    <string name="Vermelho">Red</string>
+    <string name="Verde">Green</string>
+    <string name="Azul">Blue</string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>
