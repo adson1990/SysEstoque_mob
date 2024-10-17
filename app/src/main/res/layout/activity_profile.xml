@@ -20,14 +20,25 @@
             android:background="@color/blue_100"
             tools:context=".ProfileActivity">
 
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:elevation="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
             <ImageView
                 android:id="@+id/ftUsuario"
                 android:layout_width="@dimen/size_90dp"
                 android:layout_height="@dimen/size_90dp"
-                android:layout_marginStart="@dimen/size_5dp"
-                android:layout_marginTop="@dimen/size_15dp"
+                android:layout_marginStart="@dimen/size_10dp"
+                android:layout_marginTop="@dimen/size_25dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar"
                 app:srcCompat="@mipmap/user_icon"
                 tools:ignore="ContentDescription" />
 
@@ -37,39 +48,42 @@
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size_30dp"
                 android:layout_marginStart="@dimen/size_30dp"
-                android:layout_marginTop="@dimen/size_20dp"
                 android:text="@string/first_name"
+                android:textColor="@color/white"
                 android:textSize="@dimen/size_25sp"
                 android:textStyle="bold|italic"
                 app:layout_constraintStart_toEndOf="@+id/ftUsuario"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-            <ProgressBar
-                android:id="@+id/progressBarRed"
+            <SeekBar
+                android:id="@+id/seekBarRed"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/size_180dp"
+                android:layout_height="@dimen/size_15dp"
                 android:layout_marginTop="@dimen/size_15dp"
                 android:layout_marginEnd="@dimen/size_40dp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
-            <ProgressBar
-                android:id="@+id/progressBarGreen"
+
+            <SeekBar
+                android:id="@+id/seekBarGreen"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/size_180dp"
+                android:layout_height="@dimen/size_15dp"
                 android:layout_marginTop="@dimen/size_15dp"
                 android:layout_marginEnd="@dimen/size_40dp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
-            <ProgressBar
-                android:id="@+id/progressBarBlue"
+
+            <SeekBar
+                android:id="@+id/seekBarBlue"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/size_180dp"
+                android:layout_height="@dimen/size_15dp"
                 android:layout_marginTop="@dimen/size_15dp"
                 android:layout_marginEnd="@dimen/size_40dp"
                 android:visibility="gone"
@@ -77,6 +91,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
             <RadioGroup
+                android:id="@+id/radioGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/size_40dp"
@@ -91,21 +106,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/Vermelho"
-                    android:textColor="@color/red_500"/>
+                    android:textColor="@color/red_500" />
 
                 <RadioButton
                     android:id="@+id/btnGreen"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/Verde"
-                    android:textColor="@color/green_500"/>
+                    android:textColor="@color/green_500" />
 
                 <RadioButton
                     android:id="@+id/btnBlue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/Azul"
-                    android:textColor="@color/blue_500"/>
+                    android:textColor="@color/blue_500" />
 
             </RadioGroup>
 
@@ -113,13 +128,14 @@
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/size_10dp"
                 android:layout_marginStart="@dimen/size_5dp"
-                android:textStyle="bold"
-                android:textSize="@dimen/size_20sp"
+                android:layout_marginTop="@dimen/size_10dp"
                 android:text="@string/full_name"
+                android:textSize="@dimen/size_20sp"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ftUsuario" />
+
             <EditText
                 android:id="@+id/edtNomeCompleto"
                 android:layout_width="match_parent"
@@ -127,12 +143,12 @@
                 android:autofillHints="NomeCompleto"
                 android:fontFamily="serif-monospace"
                 android:inputType="textCapCharacters|textPersonName"
+                android:labelFor="@+id/edtNomeCompleto"
                 android:textColor="@color/black"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="normal"
-                android:labelFor="@+id/edtNomeCompleto"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView1"/>
+                app:layout_constraintTop_toBottomOf="@+id/textView1" />
 
             <!-- E-mail do usuário -->
             <TextView
@@ -145,9 +161,10 @@
                 android:text="@string/email"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtNomeCompleto"/>
+                app:layout_constraintTop_toBottomOf="@+id/edtNomeCompleto"
+                tools:ignore="TextContrastCheck" />
+
             <EditText
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
@@ -172,23 +189,25 @@
                 android:text="@string/CPF"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtEmail"/>
+                app:layout_constraintTop_toBottomOf="@+id/edtEmail"
+                tools:ignore="TextContrastCheck" />
+
             <EditText
                 android:id="@+id/edtCPF"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="CPF"
+                android:background="@color/gray_300"
+                android:enabled="false"
                 android:fontFamily="serif-monospace"
                 android:inputType="number"
-                android:textColor="@color/black"
-                android:textSize="@dimen/size_20sp"
-                android:textStyle="normal"
-                android:enabled="false"
                 android:text="@string/CPF"
+                android:textColor="@color/black"
+                android:textSize="@dimen/size_25sp"
+                android:textStyle="normal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView3"/>
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
             <!-- Senha do usuário -->
             <TextView
@@ -201,18 +220,19 @@
                 android:text="@string/password"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtCPF"/>
+                app:layout_constraintTop_toBottomOf="@+id/edtCPF"
+                tools:ignore="TextContrastCheck" />
+
             <EditText
                 android:id="@+id/edtSenha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="Senha"
+                android:drawableEnd="@drawable/ic_eye"
                 android:fontFamily="serif-monospace"
                 android:inputType="textPassword"
                 android:textColor="@color/black"
-                android:drawableEnd="@drawable/ic_eye"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="normal"
                 android:tooltipText="@string/alert_password"
@@ -227,13 +247,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/size_5dp"
                 android:layout_marginTop="@dimen/size_10dp"
-                android:text="@string/sex"
                 android:labelFor="@id/textView5"
+                android:text="@string/sex"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtSenha"/>
+                app:layout_constraintTop_toBottomOf="@+id/edtSenha"
+                tools:ignore="TextContrastCheck" />
 
             <!-- Salário do usuário -->
             <TextView
@@ -246,9 +266,10 @@
                 android:text="@string/Income"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textView5"/>
+                app:layout_constraintTop_toBottomOf="@id/textView5"
+                tools:ignore="TextContrastCheck" />
+
             <EditText
                 android:id="@+id/edtSalario"
                 android:layout_width="match_parent"
@@ -260,7 +281,7 @@
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="normal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView6"/>
+                app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
             <!-- Nascimento do usuário -->
             <TextView
@@ -273,16 +294,20 @@
                 android:text="@string/Birth"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edtSalario"/>
+                app:layout_constraintTop_toBottomOf="@+id/edtSalario"
+                tools:ignore="TextContrastCheck" />
+
             <Button
                 android:id="@+id/btnToggleCalendar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/data"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView7"/>
+                app:layout_constraintTop_toBottomOf="@+id/textView7" />
+
+            <!--CALENDÁRIO RETIRADO DEVIDO FALTA DE USABILIDADE EM
+            RETROCEDER DATAS, SUBSTITUÍDO POR DatePickerDialog
             <CalendarView
                 android:id="@+id/calendarView"
                 android:layout_width="wrap_content"
@@ -290,7 +315,7 @@
                 tools:layout_editor_absoluteX="23dp"
                 tools:layout_editor_absoluteY="385dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnToggleCalendar"/>
+                app:layout_constraintTop_toBottomOf="@+id/btnToggleCalendar"/>-->
 
             <!-- Endereço do usuário -->
             <TextView
@@ -303,9 +328,10 @@
                 android:text="@string/Address"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/calendarView"/>
+                app:layout_constraintTop_toBottomOf="@+id/btnToggleCalendar"
+                tools:ignore="TextContrastCheck" />
+
             <EditText
                 android:id="@+id/edtEndereco"
                 android:layout_width="match_parent"
@@ -317,9 +343,10 @@
                 android:textColor="@color/black"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="normal"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView8"/>
+                app:layout_constraintTop_toBottomOf="@+id/textView8"
+                tools:ignore="TextContrastCheck" />
+
             <LinearLayout
                 android:id="@+id/llEndereco"
                 android:layout_width="match_parent"
@@ -327,6 +354,7 @@
                 android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/edtEndereco">
+
                 <EditText
                     android:id="@+id/edtBairro"
                     android:layout_width="0dp"
@@ -336,11 +364,12 @@
                     android:fontFamily="serif-monospace"
                     android:hint="@string/neighborhood"
                     android:inputType="text"
+                    android:nextFocusForward="@id/edtNumCasa"
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
-                    android:nextFocusForward="@id/edtNumCasa"
-                    tools:ignore="TextContrastCheck"/>
+                    tools:ignore="TextContrastCheck" />
+
                 <EditText
                     android:id="@+id/edtNumCasa"
                     android:layout_width="0dp"
@@ -350,11 +379,12 @@
                     android:fontFamily="serif-monospace"
                     android:hint="@string/num_adress"
                     android:inputType="number"
+                    android:nextFocusForward="@id/edtCEP"
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
-                    android:nextFocusForward="@id/edtCEP"
                     tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
+
                 <EditText
                     android:id="@+id/edtCEP"
                     android:layout_width="0dp"
@@ -364,18 +394,20 @@
                     android:fontFamily="serif-monospace"
                     android:hint="@string/postal_code"
                     android:inputType="textPostalAddress"
+                    android:nextFocusForward="@id/edtCidade"
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
-                    android:nextFocusForward="@id/edtCidade"
-                    tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+                    tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
             </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/llEndereco2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/llEndereco">
+
                 <EditText
                     android:id="@+id/edtCidade"
                     android:layout_width="0dp"
@@ -385,11 +417,12 @@
                     android:fontFamily="serif-monospace"
                     android:hint="@string/city"
                     android:inputType="text"
+                    android:nextFocusForward="@id/edtEstado"
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
-                    android:nextFocusForward="@id/edtEstado"
-                    tools:ignore="TextContrastCheck"/>
+                    tools:ignore="TextContrastCheck" />
+
                 <EditText
                     android:id="@+id/edtEstado"
                     android:layout_width="0dp"
@@ -402,8 +435,9 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_20sp"
                     android:textStyle="normal"
-                    tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+                    tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
             </LinearLayout>
+
             <Spinner
                 android:id="@+id/spinnerCountry"
                 android:layout_width="wrap_content"
@@ -412,9 +446,9 @@
                 android:layout_marginTop="@dimen/size_10dp"
                 android:layout_marginEnd="16dp"
                 android:entries="@array/countries_array"
-                tools:ignore="TooWide,TouchTargetSizeCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/llEndereco2"/>
+                app:layout_constraintTop_toBottomOf="@+id/llEndereco2"
+                tools:ignore="TooWide,TouchTargetSizeCheck" />
 
             <!-- Telefones do usuário -->
             <TextView
@@ -427,20 +461,22 @@
                 android:text="@string/Celphone"
                 android:textSize="@dimen/size_20sp"
                 android:textStyle="bold"
-                tools:ignore="TextContrastCheck"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/spinnerCountry"/>
+                app:layout_constraintTop_toBottomOf="@+id/spinnerCountry"
+                tools:ignore="TextContrastCheck" />
+
             <ImageButton
                 android:id="@+id/addPhone"
                 android:layout_width="@dimen/size_175px"
                 android:layout_height="@dimen/size_175px"
                 android:layout_marginTop="@dimen/size_5dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:srcCompat="@android:drawable/ic_input_add"
                 android:contentDescription="@string/add_phoneNumber"
+                android:focusable="true"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView9"/>
+                app:layout_constraintTop_toBottomOf="@+id/textView9"
+                app:srcCompat="@android:drawable/ic_input_add" />
+
             <LinearLayout
                 android:id="@+id/linearLayoutPhoneNumbers"
                 android:layout_width="match_parent"
@@ -448,43 +484,47 @@
                 android:orientation="vertical"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/addPhone">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginTop="@dimen/size_8dp"
+                    android:orientation="horizontal"
                     tools:ignore="UselessParent">
+
                     <EditText
                         android:id="@+id/edtDDD"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/size_5dp"
                         android:layout_weight="0.2"
+                        android:autofillHints="DDD do número"
+                        android:hint="DDD"
                         android:inputType="number"
                         android:maxLength="2"
-                        android:autofillHints="DDD do número"
-                        android:layout_marginStart="@dimen/size_5dp"
-                        android:hint="DDD"
                         android:nextFocusForward="@id/edtNumeroCel"
-                        tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck"/>
+                        tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
+
                     <EditText
                         android:id="@+id/edtNumeroCel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.6"
-                        android:inputType="phone"
-                        android:autofillHints="Numero de telefone"
                         android:layout_marginStart="@dimen/size_5dp"
+                        android:layout_weight="0.6"
+                        android:autofillHints="Numero de telefone"
                         android:hint="@string/number"
-                        tools:ignore="TooWide,TouchTargetSizeCheck, TextContrastCheck"/>
+                        android:inputType="phone"
+                        tools:ignore="TooWide,TouchTargetSizeCheck, TextContrastCheck" />
+
                     <Spinner
                         android:id="@+id/spinnerTipoNumero"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.2"
                         android:layout_marginStart="@dimen/size_5dp"
                         android:layout_marginEnd="@dimen/size_5dp"
+                        android:layout_weight="0.2"
                         android:entries="@array/tipo_telefone"
-                        tools:ignore="TooWide,TouchTargetSizeCheck"/>
+                        tools:ignore="TooWide,TouchTargetSizeCheck" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -496,23 +536,18 @@
                 android:onClick="onSaveButtonClicked"
                 android:text="@string/gravar"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayoutPhoneNumbers"/>
-
+                app:layout_constraintTop_toBottomOf="@+id/linearLayoutPhoneNumbers" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </android.widget.ScrollView>
 
-    <!-- Menu lateral (NavigationView) -->
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
+        android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         android:background="?android:attr/windowBackground"
         app:menu="@menu/drawer_menu" />
-
-
-
 </androidx.drawerlayout.widget.DrawerLayout>

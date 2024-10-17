@@ -1,6 +1,7 @@
 package com.example.sysestoque
 
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
@@ -22,6 +23,7 @@ import com.bumptech.glide.request.RequestListener
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
+import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.ui.login.LoginActivity
@@ -35,6 +37,7 @@ import java.util.Locale
 private lateinit var drawerLayout: DrawerLayout
 private lateinit var navView: NavigationView
 private lateinit var dbHelperLogin: DbHelperLogin
+private lateinit var dbHelper: ColorDatabaseHelper
 
 class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +56,9 @@ class DashboardActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
 
+        dbHelper = ColorDatabaseHelper(this)
+        dbHelperLogin = DbHelperLogin(this)
+
         // Configura o ActionBarDrawerToggle
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
@@ -69,13 +75,15 @@ class DashboardActivity : AppCompatActivity() {
                 }
                 R.id.nav_profile -> {
                     abrirProfileActivity()
+                    drawerLayout.closeDrawers()
+                    return@setNavigationItemSelectedListener true
                 }
                 R.id.nav_settings -> {
                     // Abrir tela de Configurações
                 }
                 R.id.nav_exit -> {
                     logout()
-                    drawerLayout.closeDrawers() // Fecha o drawer após a ação
+                    drawerLayout.closeDrawers()
                     return@setNavigationItemSelectedListener true
                 }
             }
@@ -84,7 +92,6 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         var loginInfo: LoginInfo? = null
-        dbHelperLogin = DbHelperLogin(this)
         loginInfo = dbHelperLogin.getUsuarioLogado()
 
         val emailUsuario = loginInfo?.email ?: ""
@@ -196,6 +203,21 @@ class DashboardActivity : AppCompatActivity() {
         fetchTokenAndCompras(idCliente, username)
 
         mostrarDadosDB()
+
+        val colors = dbHelper.getColors()
+        colors?.let { (red, green, blue) ->
+            val hsv = FloatArray(3)
+            Color.RGBToHSV(red, green, blue, hsv)
+            hsv[1] = 1.0f
+            hsv[2] = 0.8f
+
+            val vibrantColor = Color.HSVToColor(hsv)
+            if(red == 0 && green == 0 && blue == 0){
+                tvNomeUsuario.setTextColor(Color.BLACK)
+            } else {
+            tvNomeUsuario.setTextColor(vibrantColor)
+            }
+        }
 
         // fim do onCreate
     }
