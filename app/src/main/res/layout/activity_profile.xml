@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
@@ -47,8 +46,8 @@
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/size_30dp"
                 android:layout_marginStart="@dimen/size_30dp"
+                android:layout_marginTop="@dimen/size_30dp"
                 android:text="@string/first_name"
                 android:textColor="@color/white"
                 android:textSize="@dimen/size_25sp"
@@ -464,66 +463,140 @@
                 app:layout_constraintTop_toBottomOf="@+id/spinnerCountry"
                 tools:ignore="TextContrastCheck" />
 
-            <ImageButton
-                android:id="@+id/addPhone"
-                android:layout_width="@dimen/size_175px"
-                android:layout_height="@dimen/size_175px"
-                android:layout_marginTop="@dimen/size_5dp"
-                android:clickable="true"
-                android:contentDescription="@string/add_phoneNumber"
-                android:focusable="true"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView9"
-                app:srcCompat="@android:drawable/ic_input_add" />
-
             <LinearLayout
                 android:id="@+id/linearLayoutPhoneNumbers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/addPhone">
+                app:layout_constraintTop_toBottomOf="@+id/textView9">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/size_8dp"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     tools:ignore="UselessParent">
 
-                    <EditText
-                        android:id="@+id/edtDDD"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/size_5dp"
-                        android:layout_weight="0.2"
-                        android:autofillHints="DDD do número"
-                        android:hint="DDD"
-                        android:inputType="number"
-                        android:maxLength="2"
-                        android:nextFocusForward="@id/edtNumeroCel"
-                        tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
+                        android:orientation="horizontal">
 
-                    <EditText
-                        android:id="@+id/edtNumeroCel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/size_5dp"
-                        android:layout_weight="0.6"
-                        android:autofillHints="Numero de telefone"
-                        android:hint="@string/number"
-                        android:inputType="phone"
-                        tools:ignore="TooWide,TouchTargetSizeCheck, TextContrastCheck" />
+                        <EditText
+                            android:id="@+id/edtDDD1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_weight="0.2"
+                            android:autofillHints="DDD do número"
+                            android:hint="DDD"
+                            android:inputType="number"
+                            android:maxLength="2"
+                            android:nextFocusForward="@id/edtNumeroCel"
+                            tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
 
-                    <Spinner
-                        android:id="@+id/spinnerTipoNumero"
-                        android:layout_width="0dp"
+                        <EditText
+                            android:id="@+id/edtNumeroCel1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_weight="0.6"
+                            android:autofillHints="Numero de telefone"
+                            android:hint="@string/number"
+                            android:inputType="phone"
+                            tools:ignore="TooWide,TouchTargetSizeCheck, TextContrastCheck" />
+
+                        <Spinner
+                            android:id="@+id/spinnerTipoNumero1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_marginEnd="@dimen/size_5dp"
+                            android:layout_weight="0.2"
+                            android:entries="@array/tipo_telefone"
+                            tools:ignore="TooWide,TouchTargetSizeCheck" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/size_5dp"
-                        android:layout_marginEnd="@dimen/size_5dp"
-                        android:layout_weight="0.2"
-                        android:entries="@array/tipo_telefone"
-                        tools:ignore="TooWide,TouchTargetSizeCheck" />
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/edtDDD2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_weight="0.2"
+                            android:autofillHints="DDD do número"
+                            android:hint="DDD"
+                            android:inputType="number"
+                            android:maxLength="2"
+                            android:nextFocusForward="@id/edtNumeroCel"
+                            tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
+
+                        <EditText
+                            android:id="@+id/edtNumeroCel2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_weight="0.6"
+                            android:autofillHints="Numero de telefone"
+                            android:hint="@string/number"
+                            android:inputType="phone"
+                            tools:ignore="TooWide,TouchTargetSizeCheck, TextContrastCheck" />
+
+                        <Spinner
+                            android:id="@+id/spinnerTipoNumero2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_marginEnd="@dimen/size_5dp"
+                            android:layout_weight="0.2"
+                            android:entries="@array/tipo_telefone"
+                            tools:ignore="TooWide,TouchTargetSizeCheck" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/edtDDD3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_weight="0.2"
+                            android:autofillHints="DDD do número"
+                            android:hint="DDD"
+                            android:inputType="number"
+                            android:maxLength="2"
+                            android:nextFocusForward="@id/edtNumeroCel"
+                            tools:ignore="TooWide,TouchTargetSizeCheck,TextContrastCheck" />
+
+                        <EditText
+                            android:id="@+id/edtNumeroCel3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_weight="0.6"
+                            android:autofillHints="Numero de telefone"
+                            android:hint="@string/number"
+                            android:inputType="phone"
+                            tools:ignore="TooWide,TouchTargetSizeCheck, TextContrastCheck" />
+
+                        <Spinner
+                            android:id="@+id/spinnerTipoNumero3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/size_5dp"
+                            android:layout_marginEnd="@dimen/size_5dp"
+                            android:layout_weight="0.2"
+                            android:entries="@array/tipo_telefone"
+                            tools:ignore="TooWide,TouchTargetSizeCheck" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
@@ -546,7 +619,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
         android:background="?android:attr/windowBackground"
+        android:fitsSystemWindows="true"
         app:menu="@menu/drawer_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

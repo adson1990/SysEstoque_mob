@@ -7,7 +7,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-interface AuthApiEmail {
+interface ApiEmail {
     @GET("clients/email/{email}")
     fun searchEmail(@Path("email") email: String): Call<Long>
 

@@ -22,9 +22,12 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import com.example.sysestoque.backend.AuthApiClient
+import com.bumptech.glide.Glide
 import com.example.sysestoque.backend.AuthRepository
+import com.example.sysestoque.backend.Cellphone
 import com.example.sysestoque.backend.Client
+import com.example.sysestoque.backend.ClientRepository
+import com.example.sysestoque.backend.Enderecos
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.databinding.ActivityProfileBinding
@@ -43,28 +46,34 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var seekBarRed: SeekBar
     private lateinit var seekBarGreen: SeekBar
     private lateinit var seekBarBlue: SeekBar
-    private lateinit var ftCliente : ImageView
-    private lateinit var nomeCompleto : EditText
-    private lateinit var cpfClient : EditText
+    private lateinit var ftCliente: ImageView
+    private lateinit var nomeCompleto: EditText
+    private lateinit var cpfClient: EditText
     private lateinit var emailCLiente: EditText
-    private lateinit var senhaCliente : EditText
-    private lateinit var sexoCliente : TextView
-    private lateinit var aniversarioCliente : Button
-    private lateinit var salarioCliente : EditText
-    private lateinit var enderecoCliente : EditText
-    private lateinit var bairroCliente : EditText
-    private lateinit var numCasaCliente : EditText
-    private lateinit var cepCliente : EditText
-    private lateinit var cidadeCliente : EditText
-    private lateinit var estadoCliente : EditText
-    private lateinit var dddCiente : EditText
-    private lateinit var celularCliente : EditText
+    private lateinit var senhaCliente: EditText
+    private lateinit var sexoCliente: TextView
+    private lateinit var aniversarioCliente: Button
+    private lateinit var salarioCliente: EditText
+    private lateinit var enderecoCliente: EditText
+    private lateinit var bairroCliente: EditText
+    private lateinit var numCasaCliente: EditText
+    private lateinit var cepCliente: EditText
+    private lateinit var cidadeCliente: EditText
+    private lateinit var estadoCliente: EditText
+    private lateinit var dddCiente1: EditText
+    private lateinit var dddCiente2: EditText
+    private lateinit var dddCiente3: EditText
+    private lateinit var celularCliente1: EditText
+    private lateinit var celularCliente2: EditText
+    private lateinit var celularCliente3: EditText
     private lateinit var dbHelper: ColorDatabaseHelper
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var authRepository: AuthRepository
+    private lateinit var clientRepository : ClientRepository
 
     private var activeColor = "red"
+    private var originalClientData: Client? = null
 
     /*private var redValue = 0
     private var greenValue = 0
@@ -88,13 +97,19 @@ class ProfileActivity : AppCompatActivity() {
         cepCliente = findViewById(R.id.edtCEP)
         cidadeCliente = findViewById(R.id.edtCidade)
         estadoCliente = findViewById(R.id.edtEstado)
-        dddCiente = findViewById(R.id.edtDDD)
-        celularCliente = findViewById(R.id.edtNumeroCel)
+        celularCliente1 = findViewById(R.id.edtNumeroCel1)
+        celularCliente2 = findViewById(R.id.edtNumeroCel2)
+        celularCliente3 = findViewById(R.id.edtNumeroCel3)
+
+        dddCiente1 = findViewById(R.id.edtDDD1)
+        dddCiente2 = findViewById(R.id.edtDDD2)
+        dddCiente3 = findViewById(R.id.edtDDD3)
 
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         authRepository = AuthRepository()
+        clientRepository = ClientRepository()
 
         // menu lateral na tela
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -114,16 +129,19 @@ class ProfileActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    Toast.makeText(this,"Dados descartados!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Dados descartados!", Toast.LENGTH_SHORT).show()
                     finish()
                 }
+
                 R.id.nav_profile -> {
                     // permanece na mesma tela
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
+
                 R.id.nav_settings -> {
                     // Abrir tela de Configurações
                 }
+
                 R.id.nav_exit -> {
                     logout()
                     drawerLayout.closeDrawers() // Fecha o drawer após a ação
@@ -149,10 +167,12 @@ class ProfileActivity : AppCompatActivity() {
                     activeColor = "red"
                     toggleSeekBarVisibility(seekBarRed, seekBarGreen, seekBarBlue)
                 }
+
                 R.id.btnGreen -> {
                     activeColor = "green"
                     toggleSeekBarVisibility(seekBarGreen, seekBarRed, seekBarBlue)
                 }
+
                 R.id.btnBlue -> {
                     activeColor = "blue"
                     toggleSeekBarVisibility(seekBarBlue, seekBarRed, seekBarGreen)
@@ -188,7 +208,7 @@ class ProfileActivity : AppCompatActivity() {
             updateTextViewColor()
         }*/
 
-        val btnToggleCalendar : Button = findViewById(R.id.btnToggleCalendar)
+        val btnToggleCalendar: Button = findViewById(R.id.btnToggleCalendar)
         val calendar = Calendar.getInstance()
 
         /*Calendário retrocedia mês a mês não podendo escolher ano
@@ -230,35 +250,90 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
 
-        fun getDadosCliente(idCliente: Long, token: String){
-            authRepository.getClientById(idCliente, token, object : Callback<Client>{
+        fun getDadosCliente(idCliente: Long, token: String) {
+            clientRepository.getClientById(idCliente, token, object : Callback<Client> {
                 override fun onResponse(call: Call<Client>, response: Response<Client>) {
-                    if (response.isSuccessful){
-                        nomeCompleto.setText(response.body()?.name)
-                        cpfClient.setText(response.body()?.cpf)
-                       // salarioCliente.setText(response.body()?.income)
-                        if (response.body()?.sexo == 'M') {
+                    if (response.isSuccessful) {
+                        val cliente = response.body()
+                        originalClientData = cliente
+
+                        nomeCompleto.setText(cliente?.name)
+                        cpfClient.setText(cliente?.cpf)
+                        salarioCliente.setText(cliente?.income.toString())
+                        if (cliente?.sexo == 'M') {
                             sexoCliente.setText(R.string.Male)
                         } else {
                             sexoCliente.setText(R.string.Female)
                         }
-                        emailCLiente.setText(response.body()?.email)
-                        aniversarioCliente.setText(response.body()?.birthDate)
-                        senhaCliente.setText(response.body()?.senha)
-                        //ftCliente.setImageURI(response.body()?.foto)
-                        val endereco = response.body()?.enderecos
-                        //val phonesCliente = response.body()?.cellphone
+                        emailCLiente.setText(cliente?.email)
+                        aniversarioCliente.text = cliente?.birthDate
+                        senhaCliente.setText(cliente?.senha)
 
+                        cliente?.foto?.let {
+                            Glide.with(this@ProfileActivity)
+                                .load(it)
+                                .into(ftCliente)
+                        }
 
+                        val endereco = cliente?.enderecos?.firstOrNull()
+                        endereco?.let {
+                            enderecoCliente.setText(it.rua)
+                            bairroCliente.setText(it.bairro)
+                            numCasaCliente.setText(it.num.toString())
+                            cepCliente.setText(it.cep)
+                            cidadeCliente.setText(it.estado)
+                            estadoCliente.setText(it.country)
+                        }
+
+                        val celulares = cliente?.cellphone
+
+                        celulares?.let {
+                            when (celulares.size) {
+                                1 -> {
+                                    dddCiente1.setText(celulares[0].ddd.toString())
+                                    celularCliente1.setText(celulares[0].number)
+                                }
+
+                                2 -> {
+                                    dddCiente1.setText(celulares[0].ddd.toString())
+                                    celularCliente1.setText(celulares[0].number)
+
+                                    dddCiente2.setText(celulares[1].ddd.toString())
+                                    celularCliente2.setText(celulares[1].number)
+                                }
+
+                                3 -> {
+                                    dddCiente1.setText(celulares[0].ddd.toString())
+                                    celularCliente1.setText(celulares[0].number)
+
+                                    dddCiente2.setText(celulares[1].ddd.toString())
+                                    celularCliente2.setText(celulares[1].number)
+
+                                    dddCiente3.setText(celulares[2].ddd.toString())
+                                    celularCliente3.setText(celulares[2].number)
+                                }
+                            }
+                        }
 
                     } else {
-                        Toast.makeText(this@ProfileActivity,"Erro ao buscar cliente com ID informado. ${response.message()}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@ProfileActivity,
+                            "Erro ao buscar cliente com ID informado. ${response.message()}",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
 
                 override fun onFailure(call: Call<Client>, t: Throwable) {
-                    Toast.makeText(this@ProfileActivity,"Erro ao conectar-se com o DB. ${t.message}", Toast.LENGTH_LONG).show()
-                    Log.e("Erro_busca_cliente", "Erro ao tentar recuperar dados do cliente. ${t.message}")
+                    Toast.makeText(
+                        this@ProfileActivity,
+                        "Erro ao conectar-se com o DB. ${t.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    Log.e(
+                        "Erro_busca_cliente",
+                        "Erro ao tentar recuperar dados do cliente. ${t.message}"
+                    )
                 }
             })
         }
@@ -288,10 +363,10 @@ class ProfileActivity : AppCompatActivity() {
         hsv[2] = 0.8f // Brilho elevado para evitar cores muito escuras
 
         val vibrantColor = Color.HSVToColor(hsv)
-        if(red == 0 && green == 0 && blue == 0){
+        if (red == 0 && green == 0 && blue == 0) {
             textView.setTextColor(Color.WHITE)
-        }else {
-        textView.setTextColor(vibrantColor)
+        } else {
+            textView.setTextColor(vibrantColor)
         }
         dbHelper.saveColors(red, green, blue) // salvando no DB do android as cores
     }
@@ -324,18 +399,69 @@ class ProfileActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-    fun onSaveButtonClicked(view: View) {
+    fun salvaDadosAtuaisCliente(client: Client){
 
     }
 
-    private fun logout(){
+    fun onSaveButtonClicked(view: View) {
+        // salvando os dados atuais do cliente
+        val updatedClient = Client(
+            name = nomeCompleto.text.toString(),
+            cpf = cpfClient.text.toString(),
+            income = salarioCliente.text.toString().toDoubleOrNull() ?: 0.0,
+            birthDate = aniversarioCliente.text.toString(),
+            sexo = if (sexoCliente.text.toString() == getString(R.string.Male)) 'M' else 'F',
+            email = emailCLiente.text.toString(),
+            senha = senhaCliente.text.toString(),
+            foto = originalClientData?.foto ?: "", // Mantenha a foto original, caso não tenha mudado
+            cellphone = listOf(
+                Cellphone(ddd = dddCiente1.text.toString().toIntOrNull() ?: 0, number = celularCliente1.text.toString(), tipo = 'C'),
+                Cellphone(ddd = dddCiente2.text.toString().toIntOrNull() ?: 0, number = celularCliente2.text.toString(), tipo = 'C'),
+                Cellphone(ddd = dddCiente3.text.toString().toIntOrNull() ?: 0, number = celularCliente3.text.toString(), tipo = 'C')
+            ),
+            enderecos = listOf(
+                Enderecos(
+                    rua = enderecoCliente.text.toString(),
+                    bairro = bairroCliente.text.toString(),
+                    num = numCasaCliente.text.toString().toIntOrNull() ?: 0,
+                    estado = estadoCliente.text.toString(),
+                    country = cidadeCliente.text.toString(),
+                    cep = cepCliente.text.toString()
+                )
+            )
+        )
+
+        // Compara os dados atuais com os originais
+        if (updatedClient != originalClientData) {
+            // Se houver mudanças, envie os dados para o endpoint
+            clientRepository.registerClient(updatedClient, object : Callback<Client> {
+                override fun onResponse(call: Call<Client>, response: Response<Client>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@ProfileActivity, "Dados salvos com sucesso!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    } else {
+                        Toast.makeText(this@ProfileActivity, "Erro ao salvar dados: ${response.message()}", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<Client>, t: Throwable) {
+                    Toast.makeText(this@ProfileActivity, "Erro ao conectar-se com o servidor: ${t.message}", Toast.LENGTH_LONG).show()
+                }
+            })
+        } else {
+            // Se não houver mudanças, apenas encerre a activity
+            finish()
+        }
+    }
+
+    private fun logout() {
         val dbHelperLogin = DbHelperLogin(this)
         dbHelperLogin.lembrarCliente(false)
         Toast.makeText(this, "Logout realizado com sucesso!", Toast.LENGTH_SHORT).show()
         chamarLoginActivity()
     }
 
-    private fun chamarLoginActivity(){
+    private fun chamarLoginActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()

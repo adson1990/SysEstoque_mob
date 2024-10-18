@@ -21,6 +21,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.RequestListener
 import com.example.sysestoque.backend.AuthRepository
+import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
@@ -141,9 +142,10 @@ class DashboardActivity : AppCompatActivity() {
         val tvProductPrice2 = findViewById<TextView>(R.id.tvValorTotal2)
 
         val authRepository = AuthRepository()
+        val clientRepository = ClientRepository()
 
         fun fetchCompras(idCliente: Long, token: String) {
-            authRepository.getComprasPorIdCliente(idCliente, token, object : Callback<ComprasResponse> {
+            clientRepository.getComprasPorIdCliente(idCliente, token, object : Callback<ComprasResponse> {
                 override fun onResponse(call: Call<ComprasResponse>, response: Response<ComprasResponse>) {
                     if (response.isSuccessful) {
                         val comprasList = response.body()?.content ?: emptyList()

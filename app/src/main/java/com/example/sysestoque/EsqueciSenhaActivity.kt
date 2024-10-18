@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.sysestoque.backend.AuthRepository
+import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.PassResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.DatabaseHelper
@@ -227,9 +228,9 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     }
 
     private fun validarEmail(token: String, email: String){
-        val authRepository = AuthRepository()
+        val clientRepository = ClientRepository()
 
-        authRepository.validaEmail(email, token, object : RetrofitCallback<Long> {
+        clientRepository.validaEmail(email, token, object : RetrofitCallback<Long> {
             override fun onResponse(call: RetrofitCall<Long>, response: RetrofitResponse<Long>){
                 if(response.isSuccessful && response.body() != null){
                     idCliente = response.body()!!
@@ -342,9 +343,9 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     }
 
     private fun mudarSenha(newPassword: String, id: Long, token: String) {
-        val authRepository = AuthRepository()
+        val clientRepository = ClientRepository()
 
-        authRepository.setNewPassword(newPassword, id, token, object : RetrofitCallback<PassResponse> {
+        clientRepository.setNewPassword(newPassword, id, token, object : RetrofitCallback<PassResponse> {
 
             override fun onResponse(call: RetrofitCall<PassResponse>, response: RetrofitResponse<PassResponse>) {
                 if (response.isSuccessful) {
