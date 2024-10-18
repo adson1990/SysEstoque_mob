@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class ClientRepository() {
 
-    private val clienteApi: ClienteApi
+    private val authApiClient: AuthApiClient
 
     init {
         val logging = HttpLoggingInterceptor()
@@ -24,11 +24,11 @@ class ClientRepository() {
             .addConverterFactory(GsonConverterFactory.create()) // conversor automático de dados Kotlin ou Java em Json
             .build()
 
-        clienteApi = retrofit.create(ClienteApi::class.java) //O Retrofit gera automaticamente o código necessário para fazer requisições HTTP baseadas nos métodos definidos na interface
+        authApiClient = retrofit.create(AuthApiClient::class.java) //O Retrofit gera automaticamente o código necessário para fazer requisições HTTP baseadas nos métodos definidos na interface
     }
 
     fun registerClient(cliente: Client, callback: Callback<Client>) {
-        val call = clienteApi.registerClient(cliente)
+        val call = authApiClient.registerClient(cliente)
         call.enqueue(callback)
     }
 }

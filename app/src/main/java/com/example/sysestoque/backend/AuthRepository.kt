@@ -13,7 +13,6 @@ class AuthRepository {
     val authApi: AuthApi
     private val authApiEmail: AuthApiEmail
 
-
     init {
         val retrofit = Retrofit.Builder()
             .baseUrl("http://10.0.3.2:8080/")
@@ -120,6 +119,26 @@ class AuthRepository {
 
             override fun onFailure(call: Call<PassResponse>, t: Throwable) {
                 callback.onFailure(call, t)
+            }
+        })
+    }
+
+    fun getClientById(id: Long, token: String, callback: Callback<Client>) {
+        val accessToken = requestToken(token)
+        val apiCliente = accessToken.create(AuthApiClient::class.java)
+
+        val clientCall = apiCliente.getClientById(id)
+        clientCall.enqueue(object : Callback<Client> {
+            override fun onResponse(call: Call<Client>, response: Response<Client>) {
+                if(response.isSuccessful){
+                    callback.onResponse(call, response)
+                } else {
+                    callback.onFailure(call, Throwable("Erro ao buscar cliente por ID."))
+                }
+            }
+
+            override fun onFailure(call: Call<Client>, t: Throwable) {
+               callback.onFailure(call, t)
             }
         })
     }
