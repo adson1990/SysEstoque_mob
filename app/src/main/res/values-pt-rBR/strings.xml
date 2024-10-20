@@ -3,6 +3,8 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="email">Principal email:</string>
+    <string name="erro_email">E-mail inválido</string>
+    <string name="email_nao_encontrado">E-mail não encontrado</string>
     <string name="prompt_password">Senha</string>
     <string name="action_sign_in"><u>"Registrar"</u></string>
     <string name="sign_in_new_user"><u>"Registro de novos usuários"</u></string>
@@ -12,6 +14,7 @@
     <string name="invalid_username">Nome de usuário inválido</string>
     <string name="invalid_password">Senha inválida</string>
     <string name="login_failed">"Login falhou"</string>
+    <string name="login_sucess">"Login realizado com sucesso."</string>
     <string name="remember_user">"Lembrar usuário"</string>
     <string name="forgot_pass"><u>"Esqueci a senha"</u></string>
     <string name="full_name">"Nome completo:"</string>
@@ -45,10 +48,10 @@
     <string name="fr">França</string>
     <!-- ********************************* -->
     <!-- Tipos de números de telefone -->
-    <string name="num_pessoal">P</string>
-    <string name="num_profissional">T</string>
-    <string name="num_residencial">R</string>
-    <string name="num_comercial">C</string>
+    <string name="num_pessoal">Pessoal</string>
+    <string name="num_profissional">Trabalho</string>
+    <string name="num_residencial">Residencial</string>
+    <string name="num_comercial">Comercial</string>
     <!-- ********************************* -->
     <string name="btn_cadastrar">CADASTRAR</string>
     <string name="esqueci_senha">Esqueci a Senha</string>
@@ -73,5 +76,18 @@
     <string name="Vermelho">Vermelho</string>
     <string name="Verde">Verde</string>
     <string name="Azul">Azul</string>
+    <string name="descartar">Dados descartados</string>
+    <string name="erro_buscar_cliente">Erro ao buscar cliente com ID informado.</string>
+    <string name="erro_conexao_db">Erro ao conectar-se com o DB.</string>
+    <string name="salvar_dados_ok">Dados salvos com sucesso!</string>
+    <string name="erro_salvar_dados">Erro ao salvar informações!</string>
+    <string name="msg_logout">Logout realizado com sucessso!</string>
+    <string name="erro_buscar_token">Erro ao obter token.</string>
+    <string name="alerta_preencher_campos">Preencha todos os campos.</string>
+    <string name="doc_valido">Documento válido</string>
+    <string name="doc_invalido">Documento inválido</string>
+    <string name="cadastrado">Cadastrado com sucesso!</string>
+    <string name="erro_cadastrado">Erro ao cadastrar informação!</string>
+    <string name="erro_processamento">Erro ao processar dados!</string>
 
 </resources>

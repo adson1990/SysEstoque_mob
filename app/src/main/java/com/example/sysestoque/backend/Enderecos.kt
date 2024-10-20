@@ -5,6 +5,7 @@ data class Enderecos(
     var rua: String,
     var bairro: String,
     var num: Int,
+    var cidade: String,
     var estado: String,
     var country: String,
     var cep: String

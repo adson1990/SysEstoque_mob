@@ -114,11 +114,9 @@ class ClientRepository() {
     }
 
     fun getClientById(id: Long, token: String, callback: Callback<Client>) {
-        val accessToken = authRepository.requestToken(token)
-        val apiCliente = accessToken.create(ApiClient::class.java)
-
-        val clientCall = apiCliente.getClientById(id)
-        clientCall.enqueue(object : Callback<Client> {
+        Log.d("Token_Debug", "Token: Bearer $token")
+        val accessToken = apiClient.getClientById(id, "Bearer $token")
+        accessToken.enqueue(object : Callback<Client> {
             override fun onResponse(call: Call<Client>, response: Response<Client>) {
                 if(response.isSuccessful){
                     callback.onResponse(call, response)
@@ -131,5 +129,11 @@ class ClientRepository() {
                 callback.onFailure(call, t)
             }
         })
+    }
+
+    fun getTokenByEmail(email: String, callback: Callback<TokenResponse>){
+        val request = TokenRequest(email)
+        val call = apiClient.getTokenByEmail(request)
+        call.enqueue(callback)
     }
 }

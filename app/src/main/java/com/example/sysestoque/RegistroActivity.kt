@@ -20,7 +20,6 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.Spinner
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -32,6 +31,7 @@ import com.example.sysestoque.backend.Cellphone
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.Enderecos
+import com.example.sysestoque.data.utilitarios.Funcoes
 import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
@@ -57,6 +57,7 @@ class RegistroActivity : AppCompatActivity() {
     private lateinit var linearLayoutPhoneNumbers: LinearLayout
     private lateinit var btnAddPhone: ImageButton
     private lateinit var spinnerCelphone: Spinner
+    private lateinit var funcoes: Funcoes
     private var phoneNumberCount = 1
 
     @SuppressLint("ClickableViewAccessibility")
@@ -70,6 +71,7 @@ class RegistroActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        funcoes = Funcoes()
 
         //Referências e validações dos campos
 
@@ -144,7 +146,7 @@ class RegistroActivity : AppCompatActivity() {
             }
         }
 
-        //Validação da composição da senha
+        //Senha visível ou não
         //-----------------------------------------------------------------------------------------------------------
         edtSenha = findViewById(R.id.edtSenha)
         edtSenha.validPassword()
@@ -292,15 +294,8 @@ class RegistroActivity : AppCompatActivity() {
                 val senhaPattern = Regex(passwordRegex)
 
                 if (!senhaPattern.matches(inputSenha)) {
-                    val builder = AlertDialog.Builder(this@RegistroActivity)
-                    builder.setTitle(R.string.error)
-                    builder.setMessage(R.string.alert_password)
-                    builder.setPositiveButton("OK") { dialog, _ ->
-                        dialog.dismiss()
-                        this.requestFocus()
-                    }
-                    val dialog: AlertDialog = builder.create()
-                    dialog.show()
+                    funcoes.exibirDialogo(this@RegistroActivity, R.string.error, R.string.alert_password,
+                                          true, false,false)
                 }
             }
         }
@@ -350,13 +345,11 @@ class RegistroActivity : AppCompatActivity() {
                 if (cpf.length == 11) {
                     if (isCPF(cpf)) {
                         if (isValidating) return
-                        Toast.makeText(this@RegistroActivity, "CPF válido", Toast.LENGTH_SHORT)
-                            .show()
+                        funcoes.exibirToast(this@RegistroActivity, R.string.doc_valido, "", 0)
                         isValidating = true // impede que o toast seja exibido 2x
                     } else {
                         isValidating = false
-                        Toast.makeText(this@RegistroActivity, "CPF inválido", Toast.LENGTH_LONG)
-                            .show()
+                        funcoes.exibirToast(this@RegistroActivity, R.string.doc_invalido, "", 1)
                         edtCPF.requestFocus()
                     }
                 }
@@ -418,7 +411,7 @@ class RegistroActivity : AppCompatActivity() {
         return if (cpf.length == 11 && isCPF(cpf)) {
             true // CPF é válido
         } else {
-            Toast.makeText(this@RegistroActivity, "CPF inválido", Toast.LENGTH_LONG).show()
+            funcoes.exibirToast(this@RegistroActivity, R.string.doc_invalido,"", 1)
             false // CPF inválido
         }
     }
@@ -544,6 +537,7 @@ class RegistroActivity : AppCompatActivity() {
         val rua = findViewById<EditText>(R.id.edtEndereco).text.toString()
         val bairro = findViewById<EditText>(R.id.edtBairro).text.toString()
         val numCasa = Integer.parseInt(findViewById<EditText>(R.id.edtNumCasa).text.toString())
+        val cidade = findViewById<EditText>(R.id.edtCidade).text.toString()
         val cep = findViewById<EditText>(R.id.edtCEP).text.toString()
         val estado = findViewById<EditText>(R.id.edtEstado).text.toString()
 
@@ -573,6 +567,7 @@ class RegistroActivity : AppCompatActivity() {
                 rua = rua,
                 bairro = bairro,
                 num = numCasa,
+                cidade = cidade,
                 estado = estado,
                 country = country,
                 cep = cep
@@ -608,11 +603,7 @@ class RegistroActivity : AppCompatActivity() {
                 progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
                     Log.i("Cadastrado", "Cliente cadastrado com sucesso.")
-                    Toast.makeText(
-                        this@RegistroActivity,
-                        "Cliente cadastrado com sucesso!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    funcoes.exibirToast(this@RegistroActivity, R.string.cadastrado, "", 0)
                     finish()
                 } else {
                     // Tratamento de erro
@@ -639,15 +630,14 @@ class RegistroActivity : AppCompatActivity() {
                                     showErrorDialog("Erro: $msg\nStatus: $status")
                                 }
                             } else {
-                                showErrorDialog("Erro desconhecido ao cadastrar o cliente")
+                                funcoes.exibirDialogo(this@RegistroActivity, R.string.error, R.string.bad_request, true, false, false)
                             }
                         } catch (e: IOException) {
                             e.printStackTrace()
-                            showErrorDialog("Erro ao processar resposta.")
+                            funcoes.exibirDialogo(this@RegistroActivity, R.string.error, R.string.erro_processamento, true, false, false)
                         }
                         Log.e("Cadastro-error", "Erro ao tentar cadastrar o cliente.")
-                        Toast.makeText(this@RegistroActivity,"Erro ao cadastrar cliente.",
-                                        Toast.LENGTH_SHORT).show()
+                        funcoes.exibirToast(this@RegistroActivity, R.string.erro_cadastrado, "", 1)
                     }
                 }
             }
@@ -656,8 +646,7 @@ class RegistroActivity : AppCompatActivity() {
                 progressBar.visibility = View.GONE
                 // Erro na requisição
                 Log.wtf("Cadastro-failure", "Falha na requisição de cadastro.")
-                Toast.makeText(this@RegistroActivity, "Falha na comunicação.", Toast.LENGTH_SHORT)
-                    .show()
+                funcoes.exibirToast(this@RegistroActivity, R.string.erro_conexao_db, "", 1)
             }
         })
     }

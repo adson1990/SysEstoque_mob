@@ -8,11 +8,11 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -27,6 +27,8 @@ import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.database.LoginInfo
+import com.example.sysestoque.data.utilitarios.ActivityManager
+import com.example.sysestoque.data.utilitarios.Funcoes
 import com.example.sysestoque.ui.login.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
@@ -39,6 +41,7 @@ private lateinit var drawerLayout: DrawerLayout
 private lateinit var navView: NavigationView
 private lateinit var dbHelperLogin: DbHelperLogin
 private lateinit var dbHelper: ColorDatabaseHelper
+lateinit var funcoes: Funcoes
 
 class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,15 +53,17 @@ class DashboardActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        ActivityManager.addActivity(this)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        drawerLayout = findViewById(R.id.drawer_layout)
+        drawerLayout = findViewById(R.id.drawer_layout_dashboard)
         navView = findViewById(R.id.nav_view)
 
         dbHelper = ColorDatabaseHelper(this)
         dbHelperLogin = DbHelperLogin(this)
+        funcoes = Funcoes()
 
         // Configura o ActionBarDrawerToggle
         val toggle = ActionBarDrawerToggle(
@@ -72,7 +77,7 @@ class DashboardActivity : AppCompatActivity() {
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    // Abrir tela de Home
+                    drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_profile -> {
                     abrirProfileActivity()
@@ -83,7 +88,7 @@ class DashboardActivity : AppCompatActivity() {
                     // Abrir tela de Configurações
                 }
                 R.id.nav_exit -> {
-                    logout()
+                    funcoes.logout(this@DashboardActivity)
                     drawerLayout.closeDrawers()
                     return@setNavigationItemSelectedListener true
                 }
@@ -169,13 +174,12 @@ class DashboardActivity : AppCompatActivity() {
                             }
                         }
                     } else {
-                        Toast.makeText(this@DashboardActivity, "Erro ao buscar compras: ${response.message()}", Toast.LENGTH_LONG).show()
+                        funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, response.message(), 1)
                     }
                 }
 
                 override fun onFailure(call: Call<ComprasResponse>, t: Throwable) {
-                    // Trate o erro (ex.: exibir um Toast com mensagem de erro)
-                    Toast.makeText(this@DashboardActivity, "Erro ao buscar compras: ${t.message}", Toast.LENGTH_LONG).show()
+                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
                 }
             })
         }
@@ -186,15 +190,15 @@ class DashboardActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
                     if (response.isSuccessful) {
                         val token = response.body()?.accessToken ?: ""
-                        // Agora que temos o token, podemos buscar as compras
+                        // Agora com o token, realizar busca pelas compras
                         fetchCompras(idCliente, token)
                     } else {
-                        Toast.makeText(this@DashboardActivity, "Erro ao obter token", Toast.LENGTH_LONG).show()
+                        funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, response.message(),0)
                     }
                 }
 
                 override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                    Toast.makeText(this@DashboardActivity, "Erro ao buscar token: ${t.message}", Toast.LENGTH_LONG).show()
+                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, t.message.toString(),0)
                 }
             })
         }
@@ -229,19 +233,6 @@ class DashboardActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun logout(){
-        val dbHelperLogin = DbHelperLogin(this)
-        dbHelperLogin.lembrarCliente(false)
-        Toast.makeText(this, "Logout realizado com sucesso!", Toast.LENGTH_SHORT).show()
-        chamarLoginActivity()
-    }
-
-    private fun chamarLoginActivity(){
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
-
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(navView)) {
             drawerLayout.closeDrawer(navView)
@@ -253,5 +244,10 @@ class DashboardActivity : AppCompatActivity() {
     fun mostrarDadosDB(){
         val dbHelperLogin = DbHelperLogin(this)
         dbHelperLogin.logarConteudoTabela()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ActivityManager.removeActivity(this)
     }
 }
