@@ -8,16 +8,21 @@ interface ApiLogin {
     @POST("login/client")
     fun login(@Body loginRequest: LoginRequest): Call<LoginResponse>
 
-    @POST("login/client")
-    fun login2(@Body loginRequest: LoginRequest): Call<LoginResponseWithClientData>
+    @POST("token/cliente")
+    fun getToken(@Body request: TokenRequest): Call<TokenResponse>
 }
 
-data class LoginRequest(val username: String, val password: String)
-data class LoginResponse(val token: String)
-data class LoginResponseWithClientData(
-    val accessToken: String,
-    val expiresIn: Long,
-    val sexo: Char,
-    val id: Long,
-    val foto: String
+data class TokenRequest(
+    val username: String
 )
+data class TokenResponse(
+    val accessToken: String,
+    val expiresInSeconds: Long
+)
+
+data class LoginRequest(val username: String, val password: String)
+data class LoginResponse(val accessToken: String,
+                         val expiresIn: Long,
+                         val sexo: Char,
+                         val id: Long,
+                         val foto: String)

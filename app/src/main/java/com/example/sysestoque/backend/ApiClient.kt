@@ -5,6 +5,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ApiClient {
@@ -14,6 +15,6 @@ interface ApiClient {
     @GET("/clients/{ID}")
     fun getClientById(@Path("ID") id: Long,@Header("Authorization") token: String): Call<Client>
 
-    @POST("token/cliente")
-    fun getTokenByEmail(@Body request: TokenRequest): Call<TokenResponse>
+    @PUT("/clients/upd/{ID}")
+    fun updateClient(@Path("ID") id: Long, @Body client: Client): Call<Client>
 }

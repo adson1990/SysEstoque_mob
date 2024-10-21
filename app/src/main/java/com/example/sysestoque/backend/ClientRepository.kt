@@ -57,8 +57,6 @@ class ClientRepository() {
     }
 
     fun validaEmail(email: String, token: String, callback: Callback<Long>) {
-        //  val request = EmailRequest(email)
-
         // retrofit personalizado para esta requisição, já que o token precisa ir junto
         val retrofitWithToken = authRepository.requestToken(token)
 
@@ -77,22 +75,13 @@ class ClientRepository() {
         })
     }
 
+    fun updateClient(email: String, id: Long, client: Client, token: String, callback: Callback<Client>){
+       // getTokenByEmail(email)
+    }
+
     fun setNewPassword(password: String, id: Long, token: String, callback: Callback<PassResponse>){
 
-        val retrofitWithToken = Retrofit.Builder()
-            .baseUrl("http://10.0.3.2:8080/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(OkHttpClient.Builder().addInterceptor { chain ->
-                val original = chain.request()
-                val requestBuilder = original.newBuilder()
-                    .header("Authorization", "Bearer $token")
-                    .method(original.method, original.body)
-                val requestWithToken = requestBuilder.build()
-                chain.proceed(requestWithToken)
-            }.build())
-            .build()
-
-        val apiEmailWithToken = retrofitWithToken.create(ApiEmail::class.java)
+        val apiEmailWithToken = authRepository.requestToken(token).create(ApiEmail::class.java)
 
         val passRequest = PassRequest(password, id)
 
@@ -131,9 +120,4 @@ class ClientRepository() {
         })
     }
 
-    fun getTokenByEmail(email: String, callback: Callback<TokenResponse>){
-        val request = TokenRequest(email)
-        val call = apiClient.getTokenByEmail(request)
-        call.enqueue(callback)
-    }
 }

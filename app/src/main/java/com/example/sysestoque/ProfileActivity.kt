@@ -2,7 +2,6 @@ package com.example.sysestoque
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +12,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.Spinner
@@ -39,14 +39,17 @@ import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.data.utilitarios.ActivityManager
 import com.example.sysestoque.data.utilitarios.Funcoes
 import com.example.sysestoque.databinding.ActivityProfileBinding
-import com.example.sysestoque.ui.login.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class ProfileActivity : AppCompatActivity() {
@@ -87,10 +90,15 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var clientRepository : ClientRepository
     private lateinit var dbHelperLogin: DbHelperLogin
     private lateinit var funcoes: Funcoes
+    private lateinit var progressBar: ProgressBar
 
     private var activeColor = "red"
     private var originalClientData: Client? = null
     private var senhaCliente: String? = null
+    private var isUpdating = false
+    private var isInitializing = false
+    private var idCliente: Long = 0L
+    private var loginInfo: LoginInfo? = null
 
     /*private var redValue = 0
     private var greenValue = 0
@@ -103,6 +111,7 @@ class ProfileActivity : AppCompatActivity() {
         setContentView(binding.root)
         ActivityManager.addActivity(this)
         funcoes = Funcoes()
+        progressBar = binding.requestSave
 
         // referências das views na tela
         ftCliente = binding.ftUsuario
@@ -177,19 +186,18 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         // Salário começa com R$
-        salarioCliente.setText(R.string.sifrao)
+        salarioCliente.setText(getString(R.string.sifrao) + " ")
         salarioCliente.addTextChangedListener(object : TextWatcher {
-            private var isUpdating = false
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (isUpdating) return
+                if (isUpdating || isInitializing) return
 
-                val texto = s.toString().replace(R.string.sifrao.toString(), "").trim() // Remove "R$" para evitar duplicação
-                if (texto.isNotEmpty()) {
+                val texto = s?.toString() ?: ""
+
+                if (!texto.startsWith(getString(R.string.sifrao))) {
                     isUpdating = true
-                    salarioCliente.setText(getString(R.string.sifrao) + " " + texto)
+                    salarioCliente.setText(getString(R.string.sifrao) + " " + texto.trim())
                     salarioCliente.setSelection(salarioCliente.text.length)
                 }
             }
@@ -238,7 +246,7 @@ class ProfileActivity : AppCompatActivity() {
         seekBarGreen.setOnSeekBarChangeListener(seekBarChangeListener)
         seekBarBlue.setOnSeekBarChangeListener(seekBarChangeListener)
 
-        val colors = dbHelper.getColors()
+        val colors = dbHelper.getColors(idCliente)
         colors?.let { (red, green, blue) ->
             seekBarRed.progress = red
             seekBarGreen.progress = green
@@ -297,21 +305,20 @@ class ProfileActivity : AppCompatActivity() {
         }*/
 
         // bucando dados do cliente
-        var loginInfo: LoginInfo? = null
-        loginInfo = dbHelperLogin.getUsuarioLogado()
-        var id = loginInfo?.idClient ?: 0L
+        loginInfo = dbHelperLogin.getUsuarioLogado()!!
+        idCliente = loginInfo?.idClient ?: 0L
         var email = loginInfo?.email ?: ""
         val nome = email.substringBefore("@")
 
         textView.setText(nome)
 
-        getAccessToken(id,email)
+        getAccessToken(idCliente,email)
 
         // fim do onCreate
     }
 
     fun getAccessToken(idCliente: Long, email: String){
-        clientRepository.getTokenByEmail(email, object : Callback<TokenResponse>{
+        authRepository.getTokenByEmail(email, object : Callback<TokenResponse>{
             override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
                 if (response.isSuccessful){
                     val token = response.body()?.accessToken ?: ""
@@ -339,46 +346,49 @@ class ProfileActivity : AppCompatActivity() {
             override fun onResponse(call: Call<Client>, response: Response<Client>) {
                 if (response.isSuccessful) {
                     val cliente = response.body()
-                    originalClientData = cliente
+                    if (cliente != null) {
+                        originalClientData = cliente
 
-                    nomeCompleto.setText(cliente?.name)
-                    cpfClient.setText(cliente?.cpf)
-                    salarioCliente.setText(cliente?.income.toString())
-                    if (cliente?.sexo == 'M') {
-                        sexoCliente.setText(R.string.Male)
-                    } else {
-                        sexoCliente.setText(R.string.Female)
-                    }
-                    emailCLiente.setText(cliente?.email)
-                    senhaCliente = cliente?.senha.toString()
-                    val dataCliente = formatarDataParaBrasileiro(cliente?.birthDate.toString())
-                    aniversarioCliente.text = dataCliente
+                        nomeCompleto.setText(cliente?.name)
+                        cpfClient.setText(cliente?.cpf)
+                        isInitializing = true
+                        salarioCliente.setText(getString(R.string.sifrao) + " " + cliente.income.toString())
+                        isInitializing = false
+                        if (cliente?.sexo == 'M') {
+                            sexoCliente.setText(R.string.Male)
+                        } else {
+                            sexoCliente.setText(R.string.Female)
+                        }
+                        emailCLiente.setText(cliente?.email)
+                        senhaCliente = cliente?.senha.toString()
+                        val dataCliente = formatarDataParaBrasileiro(cliente?.birthDate.toString())
+                        aniversarioCliente.text = dataCliente
 
-                    cliente?.foto?.let {
-                        Glide.with(this@ProfileActivity)
-                            .load(it)
-                            .into(ftCliente)
-                    }
+                        cliente?.foto?.let {
+                            Glide.with(this@ProfileActivity)
+                                .load(it)
+                                .into(ftCliente)
+                        }
 
-                    val endereco = cliente?.enderecos?.firstOrNull()
-                    val countryFromDB = endereco?.country ?: ""
-                    val countriesArray = resources.getStringArray(R.array.countries_array)
-                    val countryIndex = countriesArray.indexOf(countryFromDB)
-                    if (countryIndex != -1) {
-                        paisCliente.setSelection(countryIndex)
-                    }
+                        val endereco = cliente?.enderecos?.firstOrNull()
+                        val countryFromDB = endereco?.country ?: ""
+                        val countriesArray = resources.getStringArray(R.array.countries_array)
+                        val countryIndex = countriesArray.indexOf(countryFromDB)
+                        if (countryIndex != -1) {
+                            paisCliente.setSelection(countryIndex)
+                        }
                         endereco?.let {
-                        enderecoCliente.setText(it.rua)
-                        bairroCliente.setText(it.bairro)
-                        numCasaCliente.setText(it.num.toString())
-                        cepCliente.setText(it.cep)
-                        cidadeCliente.setText(it.cidade)
-                        estadoCliente.setText(it.estado)
+                            enderecoCliente.setText(it.rua)
+                            bairroCliente.setText(it.bairro)
+                            numCasaCliente.setText(it.num.toString())
+                            cepCliente.setText(it.cep)
+                            cidadeCliente.setText(it.cidade) // verificar o por quê de a cidade não carregar
+                            estadoCliente.setText(it.estado)
+                        }
+
+                        val celulares = cliente?.cellphone ?: emptyList()
+                        preencherCamposDeTelefone(celulares)
                     }
-
-                    val celulares = cliente?.cellphone ?: emptyList()
-                    preencherCamposDeTelefone(celulares)
-
                 } else {
                     funcoes.exibirToast(this@ProfileActivity, R.string.erro_buscar_cliente,"",1)
                 }
@@ -471,7 +481,11 @@ class ProfileActivity : AppCompatActivity() {
         } else {
             textView.setTextColor(vibrantColor)
         }
-        dbHelper.saveColors(red, green, blue) // salvando no DB do android as cores
+
+        loginInfo?.let {
+            dbHelper.saveColors(red, green, blue, it.idClient)
+        }
+        dbHelper.saveColors(red, green, blue, loginInfo?.idClient ?: 0L) // salvando no DB do android as cores
     }
 
     /*A cor do textview não estava viva o suficiente, ficando muito escura mesmo usando seekbar até o fim
@@ -502,21 +516,37 @@ class ProfileActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun onSaveButtonClicked(view: View) {
+        progressBar.visibility = View.VISIBLE
+
+        val tpNumero1 = tipoNumero1.selectedItem.toString().firstOrNull() ?: 'P' // Default: 'P' para Pessoal
+        val tpNumero2 = tipoNumero2.selectedItem.toString().firstOrNull() ?: 'P'
+        val tpNumero3 = tipoNumero3.selectedItem.toString().firstOrNull() ?: 'P'
+        val paisCliente = paisCliente.selectedItem.toString() ?: "Brasil"
+
+        val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val localDate = LocalDate.parse(findViewById<Button>(R.id.btnToggleCalendar).text.toString(),dateFormatter)
+        val zonedDateTime =
+            localDate.atStartOfDay(ZoneId.systemDefault())
+        val datNas = Date.from(zonedDateTime.toInstant())
+        val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.getDefault())
+        val formattedDate = dateFormatOutput.format(datNas)
+
         // salvando os dados atuais do cliente
         val updatedClient = Client(
             name = nomeCompleto.text.toString(),
             cpf = cpfClient.text.toString(),
             income = salarioCliente.text.toString().toDoubleOrNull() ?: 0.0,
-            birthDate = aniversarioCliente.text.toString(),
+            birthDate = formattedDate,
             sexo = if (sexoCliente.text.toString() == getString(R.string.Male)) 'M' else 'F',
             email = emailCLiente.text.toString(),
-            senha = "",
+            senha = senhaCliente.toString(),
             foto = originalClientData?.foto ?: "", // Mantenha a foto original, caso não tenha mudado
             cellphone = listOf(
-                Cellphone(ddd = dddCiente1.text.toString().toIntOrNull() ?: 0, number = celularCliente1.text.toString(), tipo = 'C'),
-                Cellphone(ddd = dddCiente2.text.toString().toIntOrNull() ?: 0, number = celularCliente2.text.toString(), tipo = 'C'),
-                Cellphone(ddd = dddCiente3.text.toString().toIntOrNull() ?: 0, number = celularCliente3.text.toString(), tipo = 'C')
+                Cellphone(ddd = dddCiente1.text.toString().toIntOrNull() ?: 0, number = celularCliente1.text.toString(), tipo = tpNumero1),
+                Cellphone(ddd = dddCiente2.text.toString().toIntOrNull() ?: 0, number = celularCliente2.text.toString(), tipo = tpNumero2),
+                Cellphone(ddd = dddCiente3.text.toString().toIntOrNull() ?: 0, number = celularCliente3.text.toString(), tipo = tpNumero3)
             ),
             enderecos = listOf(
                 Enderecos(
@@ -525,27 +555,30 @@ class ProfileActivity : AppCompatActivity() {
                     num = numCasaCliente.text.toString().toIntOrNull() ?: 0,
                     cidade = cidadeCliente.toString(),
                     estado = estadoCliente.text.toString(),
-                    country = cidadeCliente.text.toString(),
+                    country = paisCliente,
                     cep = cepCliente.text.toString()
                 )
             )
         )
-
         // Compara os dados atuais com os originais
         if (updatedClient != originalClientData) {
+
             // Se houver mudanças, envie os dados para o endpoint
             clientRepository.registerClient(updatedClient, object : Callback<Client> {
                 override fun onResponse(call: Call<Client>, response: Response<Client>) {
                     if (response.isSuccessful) {
                         funcoes.exibirToast(this@ProfileActivity, R.string.salvar_dados_ok, "",0)
+                        progressBar.visibility = View.GONE
                         finish()
                     } else {
                         funcoes.exibirToast(this@ProfileActivity, R.string.erro_salvar_dados, response.message(),1)
+                        progressBar.visibility = View.GONE
                     }
                 }
 
                 override fun onFailure(call: Call<Client>, t: Throwable) {
                     funcoes.exibirToast(this@ProfileActivity,R.string.erro_conexao_db, t.message.toString(),1)
+                    progressBar.visibility = View.GONE
                 }
             })
         } else {

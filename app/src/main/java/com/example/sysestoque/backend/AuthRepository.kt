@@ -8,7 +8,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 class AuthRepository {
 
     val authApi: ApiLogin
-    private val apiEmail: ApiEmail
 
     init {
         val retrofit = Retrofit.Builder()
@@ -17,7 +16,6 @@ class AuthRepository {
             .build()
 
         authApi = retrofit.create(ApiLogin::class.java)
-        apiEmail = retrofit.create(ApiEmail::class.java)
     }
 
     fun requestToken(token: String): Retrofit{
@@ -37,9 +35,9 @@ class AuthRepository {
         return retrofitWithToken;
     }
 
-    fun getToken(username: String, callback: Callback<TokenResponse>) {
-        val request = TokenRequest(username)
-        val call = apiEmail.getToken(request)
+    fun getTokenByEmail(email: String, callback: Callback<TokenResponse>){
+        val request = TokenRequest(email)
+        val call = authApi.getToken(request)
         call.enqueue(callback)
     }
 }

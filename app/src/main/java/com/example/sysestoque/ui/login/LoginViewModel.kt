@@ -30,7 +30,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     if (loginResponse != null) {
-                        _loginResult.postValue(LoginResult(success = LoggedInUserView(loginResponse.token)))
+                        _loginResult.postValue(LoginResult(success = LoggedInUserView(loginResponse.accessToken)))
                     }
                 } else {
                     _loginResult.postValue(LoginResult(error = R.string.login_failed))

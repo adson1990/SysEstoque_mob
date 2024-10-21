@@ -60,7 +60,7 @@ class RegistroActivity : AppCompatActivity() {
     private lateinit var funcoes: Funcoes
     private var phoneNumberCount = 1
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +72,7 @@ class RegistroActivity : AppCompatActivity() {
             insets
         }
         funcoes = Funcoes()
+        progressBar = findViewById<ProgressBar>(R.id.requestLogin)
 
         //Referências e validações dos campos
 
@@ -181,7 +182,7 @@ class RegistroActivity : AppCompatActivity() {
         // Campo salário começa obrigatoriamente com R$
         //-----------------------------------------------------------------------------------------------------------
         val edtSalario = findViewById<EditText>(R.id.edtSalario)
-        edtSalario.setText(R.string.sifrao)
+        edtSalario.setText(getString(R.string.sifrao) + " ")
         edtSalario.addTextChangedListener(object : TextWatcher {
             private var isUpdating = false
 
@@ -519,7 +520,7 @@ class RegistroActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun registerClient() {
         val nome = findViewById<EditText>(R.id.edtNomeCompleto).text.toString()
-        val email = findViewById<EditText>(R.id.edtEmail).text.toString()
+        val email = findViewById<EditText>(R.id.edtEmail).text.toString().trim()
         val cpf = findViewById<EditText>(R.id.edtCPF).text.toString()
         val senha = findViewById<EditText>(R.id.edtSenha).text.toString()
 
@@ -604,6 +605,7 @@ class RegistroActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     Log.i("Cadastrado", "Cliente cadastrado com sucesso.")
                     funcoes.exibirToast(this@RegistroActivity, R.string.cadastrado, "", 0)
+                    progressBar.visibility = View.GONE
                     finish()
                 } else {
                     // Tratamento de erro
@@ -632,9 +634,11 @@ class RegistroActivity : AppCompatActivity() {
                             } else {
                                 funcoes.exibirDialogo(this@RegistroActivity, R.string.error, R.string.bad_request, true, false, false)
                             }
+                            progressBar.visibility = View.GONE
                         } catch (e: IOException) {
                             e.printStackTrace()
                             funcoes.exibirDialogo(this@RegistroActivity, R.string.error, R.string.erro_processamento, true, false, false)
+                            progressBar.visibility = View.GONE
                         }
                         Log.e("Cadastro-error", "Erro ao tentar cadastrar o cliente.")
                         funcoes.exibirToast(this@RegistroActivity, R.string.erro_cadastrado, "", 1)
@@ -647,6 +651,7 @@ class RegistroActivity : AppCompatActivity() {
                 // Erro na requisição
                 Log.wtf("Cadastro-failure", "Falha na requisição de cadastro.")
                 funcoes.exibirToast(this@RegistroActivity, R.string.erro_conexao_db, "", 1)
+                progressBar.visibility = View.GONE
             }
         })
     }

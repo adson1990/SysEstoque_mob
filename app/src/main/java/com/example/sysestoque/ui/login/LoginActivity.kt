@@ -23,7 +23,7 @@ import com.example.sysestoque.R
 import com.example.sysestoque.RegistroActivity
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.LoginRequest
-import com.example.sysestoque.backend.LoginResponseWithClientData
+import com.example.sysestoque.backend.LoginResponse
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.utilitarios.Funcoes
 import retrofit2.Call
@@ -140,8 +140,8 @@ class LoginActivity : AppCompatActivity() {
 
         Log.d("LoginActivity", "LoginRequest: $loginRequest")
 
-        authRepository.authApi.login2(loginRequest).enqueue(object : Callback<LoginResponseWithClientData> {
-            override fun onResponse(call: Call<LoginResponseWithClientData>, response: Response<LoginResponseWithClientData>) {
+        authRepository.authApi.login(loginRequest).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful) {
                     val token = response.body()?.accessToken ?: ""
                     val sexo = response.body()?.sexo ?: ' '
@@ -171,7 +171,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<LoginResponseWithClientData>, t: Throwable) {
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 funcoes.exibirToast(this@LoginActivity,R.string.error, t.message.toString(), 1)
             }
         })

@@ -42,7 +42,6 @@ import okhttp3.Response as OkHttpResponse
 class EsqueciSenhaActivity : AppCompatActivity() {
 
     private lateinit var binding: EsqueciSenhaLayoutBinding
-    private val username = "admin"
 
     private lateinit var tvCodRec: TextView
     private lateinit var edtCodRec: EditText
@@ -51,6 +50,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     private lateinit var tvNovaSenha: TextView
     private lateinit var btn3: Button
     private lateinit var funcoes: Funcoes
+    private lateinit var username: String
     private var idCliente: Long = 0
     private var token: String = ""
 
@@ -151,7 +151,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
         btn1.setOnClickListener {
             if (btn1.isEnabled) {
                 // Chama o método getToken e lida com o resultado no callback
-                getToken(username) { (token, expiresIn) ->
+                getToken(edtEmail.text.toString()) { (token, expiresIn) ->
                     if (token != "invalid_token") {
                         validarEmail(token, edtEmail.text.toString())
                     } else {
@@ -190,7 +190,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     private fun getToken(username: String, callback: (Pair<String, Long>) -> Unit) {
         val authRepository = AuthRepository()
 
-        authRepository.getToken(username, object : RetrofitCallback<TokenResponse> {
+        authRepository.getTokenByEmail(username, object : RetrofitCallback<TokenResponse> {
             override fun onResponse(call: RetrofitCall<TokenResponse>, response: RetrofitResponse<TokenResponse>) {
                 if (response.isSuccessful) {
                     val tokenResponse = response.body()
@@ -224,7 +224,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
                 if(response.isSuccessful && response.body() != null){
                     idCliente = response.body()!!
                     Log.i("Sucesso_busca", "E-mail encontrado no DB")
-                    funcoes.exibirToast(this@EsqueciSenhaActivity, R.string.erro_email, "",1)
+                    funcoes.exibirToast(this@EsqueciSenhaActivity, R.string.email_encontrado, "",1)
 
                     tvCodRec.visibility = View.VISIBLE
                     edtCodRec.visibility = View.VISIBLE

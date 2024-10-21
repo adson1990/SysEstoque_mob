@@ -5,6 +5,7 @@
     <string name="email">Main email:</string>
     <string name="erro_email">Invalid mail</string>
     <string name="email_nao_encontrado">E-mail not found</string>
+    <string name="email_encontrado">E-mail found</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in"><u>Register</u></string>
     <string name="sign_in_new_user"><u>"Register new user"</u></string>

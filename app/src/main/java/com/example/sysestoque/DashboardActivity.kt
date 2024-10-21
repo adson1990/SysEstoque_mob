@@ -29,7 +29,6 @@ import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.data.utilitarios.ActivityManager
 import com.example.sysestoque.data.utilitarios.Funcoes
-import com.example.sysestoque.ui.login.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
@@ -106,13 +105,13 @@ class DashboardActivity : AppCompatActivity() {
         tvNomeUsuario.text = nomeUsuario
 
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
-
         val imageUrl = loginInfo?.foto ?: ""
-
         val imageView = findViewById<ImageView>(R.id.ftUsuario)
 
         Glide.with(this)
             .load(imageUrl)
+            .placeholder(R.mipmap.user_icon)
+            .error(R.mipmap.user_icon)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -186,7 +185,7 @@ class DashboardActivity : AppCompatActivity() {
 
         // Função para buscar o token e depois as compras
         fun fetchTokenAndCompras(idCliente: Long, username: String) {
-            authRepository.getToken(username, object : Callback<TokenResponse> {
+            authRepository.getTokenByEmail(username, object : Callback<TokenResponse> {
                 override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
                     if (response.isSuccessful) {
                         val token = response.body()?.accessToken ?: ""
@@ -204,26 +203,31 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         val idCliente = loginInfo?.idClient ?: 0
-        val username = "ADMIN"
+        val username = loginInfo?.email ?: ""
 
         fetchTokenAndCompras(idCliente, username)
 
         mostrarDadosDB()
 
-        val colors = dbHelper.getColors()
-        colors?.let { (red, green, blue) ->
-            val hsv = FloatArray(3)
-            Color.RGBToHSV(red, green, blue, hsv)
-            hsv[1] = 1.0f
-            hsv[2] = 0.8f
+        val colors = dbHelper.getColors(idCliente)
+        if(colors != null) {
+            colors?.let { (red, green, blue) ->
+                val hsv = FloatArray(3)
+                Color.RGBToHSV(red, green, blue, hsv)
+                hsv[1] = 1.0f
+                hsv[2] = 0.8f
 
-            val vibrantColor = Color.HSVToColor(hsv)
-            if(red == 0 && green == 0 && blue == 0){
-                tvNomeUsuario.setTextColor(Color.BLACK)
-            } else {
-            tvNomeUsuario.setTextColor(vibrantColor)
+                val vibrantColor = Color.HSVToColor(hsv)
+                if(red == 0 && green == 0 && blue == 0){
+                    tvNomeUsuario.setTextColor(Color.BLACK)
+                } else {
+                    tvNomeUsuario.setTextColor(vibrantColor)
+                }
             }
+        } else {
+            tvNomeUsuario.setTextColor(Color.BLACK)
         }
+
 
         // fim do onCreate
     }

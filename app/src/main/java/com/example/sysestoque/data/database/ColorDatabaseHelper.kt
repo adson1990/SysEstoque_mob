@@ -14,10 +14,13 @@ class ColorDatabaseHelper(context: Context) : SQLiteOpenHelper(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 red INTEGER,
                 green INTEGER,
-                blue INTEGER
+                blue INTEGER,
+                idCliente INTEGER NOT NULL
             )
         """.trimIndent()
         db.execSQL(createTable)
+        db.execSQL("CREATE INDEX idx_client_id ON ClientNameColors (idCliente);")
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -25,22 +28,44 @@ class ColorDatabaseHelper(context: Context) : SQLiteOpenHelper(
         onCreate(db)
     }
 
-    fun saveColors(red: Int, green: Int, blue: Int) {
+    fun saveColors(red: Int, green: Int, blue: Int, idCliente: Long) {
         val db = writableDatabase
-        db.execSQL("DELETE FROM ClientNameColors")
+        //db.execSQL("DELETE FROM ClientNameColors")
+
+        val cursor = db.rawQuery(
+            "SELECT id FROM ClientNameColors WHERE idCliente = ?",
+            arrayOf(idCliente.toString())
+        )
+
+        val exists = cursor.moveToFirst()
+        cursor.close()
 
         val values = ContentValues().apply {
             put("red", red)
             put("green", green)
             put("blue", blue)
+            put("idCliente", idCliente)
         }
-        db.insert("ClientNameColors", null, values)
+
+        if (exists) {
+            // Se o cliente já tem um registro, faz um update.
+            db.update(
+                "ClientNameColors",
+                values,
+                "idCliente = ?",
+                arrayOf(idCliente.toString())
+            )
+        } else {
+            // Se não existe, insere um novo registro.
+            db.insert("ClientNameColors", null, values)
+        }
+
         db.close()
     }
 
-    fun getColors(): Triple<Int, Int, Int>? {
+    fun getColors(idCliente: Long): Triple<Int,Int,Int>? {
         val db = readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM ClientNameColors ORDER BY id DESC LIMIT 1", null)
+        val cursor = db.rawQuery("SELECT red, green, blue FROM ClientNameColors WHERE idCliente = ?", arrayOf(idCliente.toString()))
         return if (cursor.moveToFirst()) {
             val red = cursor.getInt(cursor.getColumnIndexOrThrow("red"))
             val green = cursor.getInt(cursor.getColumnIndexOrThrow("green"))
@@ -53,3 +78,10 @@ class ColorDatabaseHelper(context: Context) : SQLiteOpenHelper(
         }
     }
 }
+
+data class ClientColor(
+    val red: Int,
+    val green: Int,
+    val blue: Int,
+    val idCliente: Long
+)
