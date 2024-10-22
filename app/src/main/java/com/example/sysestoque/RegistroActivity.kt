@@ -588,7 +588,7 @@ class RegistroActivity : AppCompatActivity() {
             email = email,
             senha = senha,
             foto = "",
-            cellphone = cellphones,
+            cellphones = cellphones,
             enderecos = enderecos
         )
 

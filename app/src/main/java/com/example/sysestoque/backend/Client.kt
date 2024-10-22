@@ -9,6 +9,6 @@ data class Client(
     val email: String,
     val senha: String,
     val foto: String,
-    val cellphone: List<Cellphone>,
+    val cellphones: List<Cellphone>,
     val enderecos: List<Enderecos>
 )

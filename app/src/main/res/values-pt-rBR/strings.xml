@@ -90,5 +90,6 @@
     <string name="cadastrado">Cadastrado com sucesso!</string>
     <string name="erro_cadastrado">Erro ao cadastrar informação!</string>
     <string name="erro_processamento">Erro ao processar dados!</string>
+    <string name="denied_permition">Permissão negada!</string>
 
 </resources>

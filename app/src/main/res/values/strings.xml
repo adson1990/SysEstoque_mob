@@ -92,6 +92,7 @@
     <string name="erro_cadastrado">Error when registering information!</string>
     <string name="bad_request" translatable="false">Bad request!</string>
     <string name="erro_processamento">Error processing data!</string>
+    <string name="denied_permition">Permission Denied!</string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>

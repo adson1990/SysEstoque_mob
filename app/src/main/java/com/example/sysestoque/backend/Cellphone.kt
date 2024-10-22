@@ -5,17 +5,16 @@ data class Cellphone(
     var number: String,
     var tipo: Char
 ) {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
+        if (other !is Cellphone) return false
 
-        other as Cellphone
-
-        return true
+        return ddd == other.ddd &&
+                number == other.number &&
+                tipo == other.tipo
     }
 
     override fun hashCode(): Int {
-        return number.hashCode()
+        return arrayOf(ddd, number, tipo).contentHashCode()
     }
 }

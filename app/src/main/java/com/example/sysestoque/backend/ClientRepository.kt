@@ -75,9 +75,34 @@ class ClientRepository() {
         })
     }
 
-    fun updateClient(email: String, id: Long, client: Client, token: String, callback: Callback<Client>){
-       // getTokenByEmail(email)
+    fun updateClient(email: String, id: Long, client: Client, callback: Callback<Client>) {
+        // 1. Buscar o token com o e-mail fornecido
+        authRepository.getTokenByEmail(email, object : Callback<TokenResponse> {
+            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+                if (response.isSuccessful) {
+                    val token = response.body()?.accessToken
+                    if (token != null) {
+                        // 2. Chamar o método PATCH com o token no cabeçalho
+                        apiClient.updateClientWithToken(id, client, "Bearer $token")
+                            .enqueue(callback) // 3. Enfileira a chamada e processa a resposta
+                    } else {
+                        callback.onFailure(
+                            null,
+                            Throwable("Token é nulo")
+                        )
+                    }
+                } else {
+                    callback.onFailure(null, Throwable("Falha na obtenção do token"))
+                }
+            }
+
+            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                callback.onFailure(null, t)
+            }
+        })
     }
+
+
 
     fun setNewPassword(password: String, id: Long, token: String, callback: Callback<PassResponse>){
 

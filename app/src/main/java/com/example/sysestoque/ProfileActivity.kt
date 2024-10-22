@@ -1,10 +1,16 @@
 package com.example.sysestoque
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -17,10 +23,15 @@ import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
@@ -91,6 +102,9 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var dbHelperLogin: DbHelperLogin
     private lateinit var funcoes: Funcoes
     private lateinit var progressBar: ProgressBar
+    private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
+    private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
+
 
     private var activeColor = "red"
     private var originalClientData: Client? = null
@@ -99,6 +113,9 @@ class ProfileActivity : AppCompatActivity() {
     private var isInitializing = false
     private var idCliente: Long = 0L
     private var loginInfo: LoginInfo? = null
+
+    private val REQUEST_IMAGE_CAPTURE = 1
+    private val REQUEST_PICK_IMAGE = 2
 
     /*private var redValue = 0
     private var greenValue = 0
@@ -314,6 +331,28 @@ class ProfileActivity : AppCompatActivity() {
 
         getAccessToken(idCliente,email)
 
+        // Registrando o launcher para a câmera
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imageBitmap = result.data?.extras?.get("data") as Bitmap
+                ftCliente.setImageBitmap(imageBitmap) // Mostra a imagem capturada
+            }
+        }
+
+        // Registrando o launcher para a galeria
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val selectedImageUri = result.data?.data
+                if (selectedImageUri != null) {
+                    ftCliente.setImageURI(selectedImageUri) // Mostra a imagem selecionada
+                }
+            }
+        }
+
+        ftCliente.setOnClickListener {
+            showImagePickerDialog()
+        }
+
         // fim do onCreate
     }
 
@@ -386,7 +425,7 @@ class ProfileActivity : AppCompatActivity() {
                             estadoCliente.setText(it.estado)
                         }
 
-                        val celulares = cliente?.cellphone ?: emptyList()
+                        val celulares = cliente?.cellphones ?: emptyList()
                         preencherCamposDeTelefone(celulares)
                     }
                 } else {
@@ -525,35 +564,42 @@ class ProfileActivity : AppCompatActivity() {
         val tpNumero3 = tipoNumero3.selectedItem.toString().firstOrNull() ?: 'P'
         val paisCliente = paisCliente.selectedItem.toString() ?: "Brasil"
 
-        val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        val localDate = LocalDate.parse(findViewById<Button>(R.id.btnToggleCalendar).text.toString(),dateFormatter)
+        val dateFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+        val localDate = LocalDate.parse(findViewById<Button>(R.id.btnToggleCalendar).text.toString().trim(),dateFormatter)
         val zonedDateTime =
             localDate.atStartOfDay(ZoneId.systemDefault())
         val datNas = Date.from(zonedDateTime.toInstant())
         val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.getDefault())
         val formattedDate = dateFormatOutput.format(datNas)
 
+        val incomeString = salarioCliente.text.toString().replace("R$", "").trim()
         // salvando os dados atuais do cliente
         val updatedClient = Client(
             name = nomeCompleto.text.toString(),
             cpf = cpfClient.text.toString(),
-            income = salarioCliente.text.toString().toDoubleOrNull() ?: 0.0,
+            income = incomeString.toDoubleOrNull() ?: 0.0,
             birthDate = formattedDate,
             sexo = if (sexoCliente.text.toString() == getString(R.string.Male)) 'M' else 'F',
             email = emailCLiente.text.toString(),
             senha = senhaCliente.toString(),
             foto = originalClientData?.foto ?: "", // Mantenha a foto original, caso não tenha mudado
-            cellphone = listOf(
-                Cellphone(ddd = dddCiente1.text.toString().toIntOrNull() ?: 0, number = celularCliente1.text.toString(), tipo = tpNumero1),
-                Cellphone(ddd = dddCiente2.text.toString().toIntOrNull() ?: 0, number = celularCliente2.text.toString(), tipo = tpNumero2),
-                Cellphone(ddd = dddCiente3.text.toString().toIntOrNull() ?: 0, number = celularCliente3.text.toString(), tipo = tpNumero3)
+            cellphones = listOfNotNull(
+                if (isPhoneNumberValid(dddCiente1.text.toString().toIntOrNull() ?: 0, celularCliente1.text.toString())) {
+                    Cellphone(dddCiente1.text.toString().toInt(), celularCliente1.text.toString(), tpNumero1)
+                } else null,
+                if (isPhoneNumberValid(dddCiente2.text.toString().toIntOrNull() ?: 0, celularCliente2.text.toString())) {
+                    Cellphone(dddCiente2.text.toString().toInt(), celularCliente2.text.toString(), tpNumero2)
+                } else null,
+                if (isPhoneNumberValid(dddCiente3.text.toString().toIntOrNull() ?: 0, celularCliente3.text.toString())) {
+                    Cellphone(dddCiente3.text.toString().toInt(), celularCliente3.text.toString(), tpNumero3)
+                } else null
             ),
             enderecos = listOf(
                 Enderecos(
                     rua = enderecoCliente.text.toString(),
                     bairro = bairroCliente.text.toString(),
                     num = numCasaCliente.text.toString().toIntOrNull() ?: 0,
-                    cidade = cidadeCliente.toString(),
+                    cidade = cidadeCliente.text.toString(),
                     estado = estadoCliente.text.toString(),
                     country = paisCliente,
                     cep = cepCliente.text.toString()
@@ -564,20 +610,20 @@ class ProfileActivity : AppCompatActivity() {
         if (updatedClient != originalClientData) {
 
             // Se houver mudanças, envie os dados para o endpoint
-            clientRepository.registerClient(updatedClient, object : Callback<Client> {
+            clientRepository.updateClient(originalClientData!!.email, loginInfo!!.idClient, updatedClient, object : Callback<Client> {
                 override fun onResponse(call: Call<Client>, response: Response<Client>) {
                     if (response.isSuccessful) {
-                        funcoes.exibirToast(this@ProfileActivity, R.string.salvar_dados_ok, "",0)
+                        println("Cliente atualizado com sucesso")
                         progressBar.visibility = View.GONE
                         finish()
                     } else {
-                        funcoes.exibirToast(this@ProfileActivity, R.string.erro_salvar_dados, response.message(),1)
+                        println("Erro ao atualizar cliente: ${response.errorBody()?.string()}")
                         progressBar.visibility = View.GONE
                     }
                 }
 
-                override fun onFailure(call: Call<Client>, t: Throwable) {
-                    funcoes.exibirToast(this@ProfileActivity,R.string.erro_conexao_db, t.message.toString(),1)
+                override fun onFailure(call: Call<Client>?, t: Throwable) {
+                    println("Erro na requisição: ${t.message}")
                     progressBar.visibility = View.GONE
                 }
             })
@@ -585,6 +631,10 @@ class ProfileActivity : AppCompatActivity() {
             // Se não houver mudanças, apenas encerre a activity
             finish()
         }
+    }
+
+    fun isPhoneNumberValid(ddd: Int, number: String): Boolean {
+        return ddd > 0 && number.isNotBlank()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -601,6 +651,52 @@ class ProfileActivity : AppCompatActivity() {
         // Converte para o formato brasileiro e retorna
         return data.format(formatoBrasileiro)
     }
+
+    private fun showImagePickerDialog() {
+        val options = arrayOf("Câmera", "Galeria")
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Escolha uma opção")
+        builder.setItems(options) { dialog, which ->
+            when (which) {
+                0 -> checkPermissionsAndOpenCamera() // Chama o método de verificação de permissões
+                1 -> openGallery()
+            }
+        }
+        builder.show()
+    }
+
+    private fun openCamera() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(packageManager) != null) {
+            cameraLauncher.launch(takePictureIntent)
+        }
+    }
+
+    private fun openGallery() {
+        val pickPhotoIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        galleryLauncher.launch(pickPhotoIntent)
+    }
+
+    private fun checkPermissionsAndOpenCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_IMAGE_CAPTURE)
+        } else {
+            openCamera()
+        }
+    }
+
+    // Tratar a resposta da solicitação de permissões
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                openCamera()
+            } else {
+                funcoes.exibirToast(this@ProfileActivity, R.string.denied_permition,"", 1)
+            }
+        }
+    }
+
 
     // Fecha o Drawer ao pressionar o botão de voltar
     override fun onBackPressed() {
