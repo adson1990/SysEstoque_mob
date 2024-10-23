@@ -2,17 +2,19 @@ package com.example.sysestoque
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -32,12 +34,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import com.bumptech.glide.Glide
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Cellphone
 import com.example.sysestoque.backend.Client
@@ -54,6 +56,7 @@ import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -62,9 +65,12 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.Optional
+
 
 class ProfileActivity : AppCompatActivity() {
 
+    // Variáveis
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityProfileBinding
     private lateinit var textView: TextView
@@ -105,7 +111,6 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
 
-
     private var activeColor = "red"
     private var originalClientData: Client? = null
     private var senhaCliente: String? = null
@@ -113,9 +118,9 @@ class ProfileActivity : AppCompatActivity() {
     private var isInitializing = false
     private var idCliente: Long = 0L
     private var loginInfo: LoginInfo? = null
+    private var novaFotoUri: Uri? = null
 
     private val REQUEST_IMAGE_CAPTURE = 1
-    private val REQUEST_PICK_IMAGE = 2
 
     /*private var redValue = 0
     private var greenValue = 0
@@ -127,6 +132,7 @@ class ProfileActivity : AppCompatActivity() {
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ActivityManager.addActivity(this)
+        // Instanciando objetos
         funcoes = Funcoes()
         progressBar = binding.requestSave
 
@@ -331,21 +337,18 @@ class ProfileActivity : AppCompatActivity() {
 
         getAccessToken(idCliente,email)
 
-        // Registrando o launcher para a câmera
         cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK && result.data != null) {
                 val imageBitmap = result.data?.extras?.get("data") as Bitmap
-                ftCliente.setImageBitmap(imageBitmap) // Mostra a imagem capturada
+                novaFotoUri = getImageUriFromBitmap(imageBitmap)
+                ftCliente.setImageURI(novaFotoUri)
             }
         }
 
-        // Registrando o launcher para a galeria
         galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val selectedImageUri = result.data?.data
-                if (selectedImageUri != null) {
-                    ftCliente.setImageURI(selectedImageUri) // Mostra a imagem selecionada
-                }
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                novaFotoUri = result.data?.data
+                ftCliente.setImageURI(novaFotoUri)
             }
         }
 
@@ -403,11 +406,20 @@ class ProfileActivity : AppCompatActivity() {
                         val dataCliente = formatarDataParaBrasileiro(cliente?.birthDate.toString())
                         aniversarioCliente.text = dataCliente
 
-                        cliente?.foto?.let {
+                        val fotoUser = cliente?.foto.toString()
+                        val bitmap = base64ToBitmap(fotoUser)
+
+                        if (bitmap != null) {
+                            ftCliente.setImageBitmap(bitmap)
+                        } else {
+                            ftCliente.setImageResource(R.mipmap.user_icon)
+                        }
+
+                        /*cliente?.foto?.let {
                             Glide.with(this@ProfileActivity)
                                 .load(it)
                                 .into(ftCliente)
-                        }
+                        }*/
 
                         val endereco = cliente?.enderecos?.firstOrNull()
                         val countryFromDB = endereco?.country ?: ""
@@ -572,6 +584,28 @@ class ProfileActivity : AppCompatActivity() {
         val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.getDefault())
         val formattedDate = dateFormatOutput.format(datNas)
 
+        // foto em capo TEXT no DB, formato BASE64
+        var updatedPhoto: String = originalClientData?.foto ?: ""
+
+        if (novaFotoUri != null) {
+            // A imagem foi atualizada, então converte para Base64
+            val inputStream = contentResolver.openInputStream(novaFotoUri!!)
+            val byteArray = inputStream?.readBytes()
+            inputStream?.close()
+
+            if (byteArray != null) {
+                updatedPhoto = Base64.encodeToString(byteArray, Base64.NO_WRAP)
+            }
+        }
+
+        // salvar imagem em campo BLOB
+       /* var byteArray: ByteArray? = null
+        if (novaFotoUri != null) {
+            val inputStream = contentResolver.openInputStream(novaFotoUri!!)
+            byteArray = inputStream?.readBytes() // Lê os bytes da imagem
+            inputStream?.close()
+        }*/
+
         val incomeString = salarioCliente.text.toString().replace("R$", "").trim()
         // salvando os dados atuais do cliente
         val updatedClient = Client(
@@ -582,7 +616,8 @@ class ProfileActivity : AppCompatActivity() {
             sexo = if (sexoCliente.text.toString() == getString(R.string.Male)) 'M' else 'F',
             email = emailCLiente.text.toString(),
             senha = senhaCliente.toString(),
-            foto = originalClientData?.foto ?: "", // Mantenha a foto original, caso não tenha mudado
+            //foto = byteArray ?: ByteArray(0), salvar em campo BLOB
+            foto = updatedPhoto,
             cellphones = listOfNotNull(
                 if (isPhoneNumberValid(dddCiente1.text.toString().toIntOrNull() ?: 0, celularCliente1.text.toString())) {
                     Cellphone(dddCiente1.text.toString().toInt(), celularCliente1.text.toString(), tpNumero1)
@@ -668,7 +703,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun openCamera() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (takePictureIntent.resolveActivity(packageManager) != null) {
-            cameraLauncher.launch(takePictureIntent)
+            cameraLauncher.launch(takePictureIntent) // Chama o launcher da câmera
         }
     }
 
@@ -697,6 +732,20 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    private fun getImageUriFromBitmap(bitmap: Bitmap): Uri {
+        val tempFile = File(cacheDir, "profile_image_${System.currentTimeMillis()}.jpg")
+        tempFile.outputStream().use {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+        }
+        return FileProvider.getUriForFile(this, "${packageName}.provider", tempFile)
+    }
+
+    fun base64ToBitmap(base64String: String): Bitmap? {
+        // Remove o prefixo "data:image/png;base64," se necessário
+        val cleanBase64 = base64String.replace("data:image/png;base64,", "")
+        val decodedString = Base64.decode(cleanBase64, Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+    }
 
     // Fecha o Drawer ao pressionar o botão de voltar
     override fun onBackPressed() {
