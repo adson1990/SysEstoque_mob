@@ -28,7 +28,7 @@
     <string name="Male">Masculino</string>
     <string name="Female">Feminino</string>
     <string name="Income">Salário:</string>
-    <string name="sifrao">R$</string>
+    <string name="sifrao">R$ </string>
     <string name="Birth">Data de nascimento:</string>
     <string name="Address">Endereço:</string>
     <string name="Celphone">Telefone:</string>

@@ -3,6 +3,7 @@ package com.example.sysestoque
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -40,6 +41,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
+import com.bumptech.glide.Glide
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Cellphone
 import com.example.sysestoque.backend.Client
@@ -57,6 +59,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -119,8 +123,12 @@ class ProfileActivity : AppCompatActivity() {
     private var idCliente: Long = 0L
     private var loginInfo: LoginInfo? = null
     private var novaFotoUri: Uri? = null
+    private var updatedPhoto: String? = null
 
     private val REQUEST_IMAGE_CAPTURE = 1
+    companion object {
+        private const val REQUEST_CODE = 1
+    }
 
     /*private var redValue = 0
     private var greenValue = 0
@@ -216,11 +224,9 @@ class ProfileActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (isUpdating || isInitializing) return
 
-                val texto = s?.toString() ?: ""
-
-                if (!texto.startsWith(getString(R.string.sifrao))) {
+                if (!s.toString().startsWith(getString(R.string.sifrao))) {
                     isUpdating = true
-                    salarioCliente.setText(getString(R.string.sifrao) + " " + texto.trim())
+                    salarioCliente.setText(getString(R.string.sifrao) + " ")
                     salarioCliente.setSelection(salarioCliente.text.length)
                 }
             }
@@ -268,6 +274,12 @@ class ProfileActivity : AppCompatActivity() {
         seekBarRed.setOnSeekBarChangeListener(seekBarChangeListener)
         seekBarGreen.setOnSeekBarChangeListener(seekBarChangeListener)
         seekBarBlue.setOnSeekBarChangeListener(seekBarChangeListener)
+
+        // bucando dados do cliente
+        loginInfo = dbHelperLogin.getUsuarioLogado()!!
+        idCliente = loginInfo?.idClient ?: 0L
+        var email = loginInfo?.email ?: ""
+        val nome = email.substringBefore("@")
 
         val colors = dbHelper.getColors(idCliente)
         colors?.let { (red, green, blue) ->
@@ -326,12 +338,6 @@ class ProfileActivity : AppCompatActivity() {
             btnToggleCalendar.text = selectedDate
             calendarView.visibility = View.GONE
         }*/
-
-        // bucando dados do cliente
-        loginInfo = dbHelperLogin.getUsuarioLogado()!!
-        idCliente = loginInfo?.idClient ?: 0L
-        var email = loginInfo?.email ?: ""
-        val nome = email.substringBefore("@")
 
         textView.setText(nome)
 
@@ -406,20 +412,23 @@ class ProfileActivity : AppCompatActivity() {
                         val dataCliente = formatarDataParaBrasileiro(cliente?.birthDate.toString())
                         aniversarioCliente.text = dataCliente
 
-                        val fotoUser = cliente?.foto.toString()
-                        val bitmap = base64ToBitmap(fotoUser)
-
-                        if (bitmap != null) {
-                            ftCliente.setImageBitmap(bitmap)
-                        } else {
-                            ftCliente.setImageResource(R.mipmap.user_icon)
+                        val fotoUser = cliente?.foto?.takeIf { it.isNotEmpty() }
+                        if (!fotoUser.isNullOrEmpty()) {
+                            val bitmap = base64ToBitmap(fotoUser)
+                            if (bitmap != null) {
+                                ftCliente.setImageBitmap(bitmap)
+                            }
+                        }else {
+                            val dbhelperLogin = dbHelperLogin.getUsuarioLogado()
+                            val photoUser = dbhelperLogin?.foto ?: ""
+                            if (photoUser.isNotEmpty()) {
+                                Glide.with(this@ProfileActivity)
+                                    .load(photoUser)
+                                    .into(ftCliente)
+                            } else {
+                                ftCliente.setImageResource(R.mipmap.user_icon) // imagem padrão caso não tenha nem no DB online nem no Android
+                            }
                         }
-
-                        /*cliente?.foto?.let {
-                            Glide.with(this@ProfileActivity)
-                                .load(it)
-                                .into(ftCliente)
-                        }*/
 
                         val endereco = cliente?.enderecos?.firstOrNull()
                         val countryFromDB = endereco?.country ?: ""
@@ -585,17 +594,13 @@ class ProfileActivity : AppCompatActivity() {
         val formattedDate = dateFormatOutput.format(datNas)
 
         // foto em capo TEXT no DB, formato BASE64
-        var updatedPhoto: String = originalClientData?.foto ?: ""
+        updatedPhoto = originalClientData?.foto ?: ""
 
         if (novaFotoUri != null) {
-            // A imagem foi atualizada, então converte para Base64
-            val inputStream = contentResolver.openInputStream(novaFotoUri!!)
-            val byteArray = inputStream?.readBytes()
-            inputStream?.close()
-
-            if (byteArray != null) {
-                updatedPhoto = Base64.encodeToString(byteArray, Base64.NO_WRAP)
-            }
+            salvarImagem(novaFotoUri!!)
+        }
+        if(originalClientData!!.email != emailCLiente.text.toString()){
+            dbHelperLogin.atualizaUsuarioLogado(emailCLiente.text.toString())
         }
 
         // salvar imagem em campo BLOB
@@ -617,7 +622,7 @@ class ProfileActivity : AppCompatActivity() {
             email = emailCLiente.text.toString(),
             senha = senhaCliente.toString(),
             //foto = byteArray ?: ByteArray(0), salvar em campo BLOB
-            foto = updatedPhoto,
+            foto = updatedPhoto!!,
             cellphones = listOfNotNull(
                 if (isPhoneNumberValid(dddCiente1.text.toString().toIntOrNull() ?: 0, celularCliente1.text.toString())) {
                     Cellphone(dddCiente1.text.toString().toInt(), celularCliente1.text.toString(), tpNumero1)
@@ -650,6 +655,7 @@ class ProfileActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         println("Cliente atualizado com sucesso")
                         progressBar.visibility = View.GONE
+                        abrirDashboard()
                         finish()
                     } else {
                         println("Erro ao atualizar cliente: ${response.errorBody()?.string()}")
@@ -720,18 +726,6 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    // Tratar a resposta da solicitação de permissões
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                openCamera()
-            } else {
-                funcoes.exibirToast(this@ProfileActivity, R.string.denied_permition,"", 1)
-            }
-        }
-    }
-
     private fun getImageUriFromBitmap(bitmap: Bitmap): Uri {
         val tempFile = File(cacheDir, "profile_image_${System.currentTimeMillis()}.jpg")
         tempFile.outputStream().use {
@@ -745,6 +739,75 @@ class ProfileActivity : AppCompatActivity() {
         val cleanBase64 = base64String.replace("data:image/png;base64,", "")
         val decodedString = Base64.decode(cleanBase64, Base64.DEFAULT)
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+    }
+
+    private fun salvarImagemNaMemoriaInterna(bitmap: Bitmap, context: Context): String? {
+        val nomeArquivo = "imagem_cliente_${System.currentTimeMillis()}.jpg"
+
+        // Diretório de arquivos internos do app
+        val diretorio = context.filesDir
+        val arquivoImagem = File(diretorio, nomeArquivo)
+
+        try {
+            // Salvar a imagem no formato JPEG
+            val outputStream = FileOutputStream(arquivoImagem)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+
+            // Retornar o caminho completo do arquivo salvo
+            return arquivoImagem.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when (requestCode) {
+            REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // A permissão foi concedida, chama o método para salvar a imagem
+                    if (novaFotoUri != null) {
+                        salvarImagem(novaFotoUri!!)
+                    }
+                } else {
+                    // A permissão foi negada, exibe uma mensagem ao usuário
+                    funcoes.exibirToast(this@ProfileActivity,R.string.denied_permition,"", 2)
+                }
+            }
+        }
+    }
+
+    private fun salvarImagem(novaFotoUri: Uri) {
+        // A imagem foi atualizada, então converte para Base64
+        val inputStream = contentResolver.openInputStream(novaFotoUri)
+        val byteArray = inputStream?.readBytes()
+        inputStream?.close()
+
+        if (byteArray != null) {
+            updatedPhoto = Base64.encodeToString(byteArray, Base64.NO_WRAP)
+
+            // Se o caminho foi gerado, convertemos em bitmap para salvar no DB do Android
+            if (!updatedPhoto.isNullOrEmpty()) {
+                val bitmap = base64ToBitmap(updatedPhoto!!)
+                val caminhoImagem = salvarImagemNaMemoriaInterna(bitmap!!, this@ProfileActivity)
+                dbHelperLogin.salvarCaminhoFoto(caminhoImagem.toString())
+            } else {
+                Log.e("ProfileActivity", "Caminho da imagem não gerado.")
+            }
+        }
+    }
+
+    private fun abrirDashboard() {
+        val intent = Intent(this, DashboardActivity::class.java)
+        startActivity(intent)
     }
 
     // Fecha o Drawer ao pressionar o botão de voltar

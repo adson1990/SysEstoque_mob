@@ -102,8 +102,6 @@ class ClientRepository() {
         })
     }
 
-
-
     fun setNewPassword(password: String, id: Long, token: String, callback: Callback<PassResponse>){
 
         val apiEmailWithToken = authRepository.requestToken(token).create(ApiEmail::class.java)
