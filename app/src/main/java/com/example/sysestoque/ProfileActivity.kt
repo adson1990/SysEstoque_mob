@@ -26,6 +26,7 @@ import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -114,6 +115,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
+    private lateinit var radioGroup: RadioGroup
 
     private var activeColor = "red"
     private var originalClientData: Client? = null
@@ -168,6 +170,11 @@ class ProfileActivity : AppCompatActivity() {
         tipoNumero1 = binding.spinnerTipoNumero1
         tipoNumero2 = binding.spinnerTipoNumero2
         tipoNumero3 = binding.spinnerTipoNumero3
+        textView = binding.textView
+        seekBarRed = binding.seekBarRed
+        seekBarGreen = binding.seekBarGreen
+        seekBarBlue = binding.seekBarBlue
+        radioGroup = binding.radioGroup
 
         // persistencia de dados
         authRepository = AuthRepository()
@@ -236,13 +243,50 @@ class ProfileActivity : AppCompatActivity() {
             }
         })
 
-        // Alteração da cor do nome
-        textView = findViewById(R.id.textView)
-        seekBarRed = findViewById(R.id.seekBarRed)
-        seekBarGreen = findViewById(R.id.seekBarGreen)
-        seekBarBlue = findViewById(R.id.seekBarBlue)
+        /*Calendário retrocedia mês a mês não podendo escolher ano
+       o que causava uma experiência ruim em escolher datas muito passadas
+       val calendarView: CalendarView = findViewById(R.id.calendarView)
+       calendarView.visibility = View.GONE*/
+        //CALENDÁRIO RETIRADO DEVIDO FALTA DE USABILIDADE EM RETROCEDER DATAS
+        /*calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
+            val selectedDate = "$dayOfMonth/${month + 1}/$year"
+            btnToggleCalendar.text = selectedDate
+            calendarView.visibility = View.GONE
+        }*/
 
-        val radioGroup = findViewById<RadioGroup>(R.id.radioGroup)
+        // Data de nascimento do cliente
+        val btnToggleCalendar: Button = findViewById(R.id.btnToggleCalendar)
+        val calendar = Calendar.getInstance()
+        btnToggleCalendar.setOnClickListener {
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, year, month, dayOfMonth ->
+                    val selectedDate = "$dayOfMonth/${month + 1}/$year"
+                    btnToggleCalendar.text = selectedDate
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePickerDialog.show()
+        }
+
+        /*17/10/2024 - >A cor do textview mesmo na metade da barra estava muito escura, o textview começava
+   * com a cor preta e demorava a ganha cor a medida que o seekbar avançava.*/
+        /*setupSeekBar(seekBarRed) { value ->
+            redValue = value
+            updateTextViewColor()
+        }
+        setupSeekBar(seekBarGreen) { value ->
+            greenValue = value
+            updateTextViewColor()
+        }
+        setupSeekBar(seekBarBlue) { value ->
+            blueValue = value
+            updateTextViewColor()
+        }*/
+        // Alteração da cor do nome
+
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.btnRed -> {
@@ -293,53 +337,7 @@ class ProfileActivity : AppCompatActivity() {
                 updateTextColor(textView)
             }
         }
-
-        /*17/10/2024 - >A cor do textview mesmo na metade da barra estava muito escura, o textview começava
-        * com a cor preta e demorava a ganha cor a medida que o seekbar avançava.*/
-        /*setupSeekBar(seekBarRed) { value ->
-            redValue = value
-            updateTextViewColor()
-        }
-        setupSeekBar(seekBarGreen) { value ->
-            greenValue = value
-            updateTextViewColor()
-        }
-        setupSeekBar(seekBarBlue) { value ->
-            blueValue = value
-            updateTextViewColor()
-        }*/
-
-        // Data de nascimento do cliente
-        val btnToggleCalendar: Button = findViewById(R.id.btnToggleCalendar)
-        val calendar = Calendar.getInstance()
-
-        /*Calendário retrocedia mês a mês não podendo escolher ano
-        o que causava uma experiência ruim em escolher datas muito passadas
-        val calendarView: CalendarView = findViewById(R.id.calendarView)
-        calendarView.visibility = View.GONE*/
-
-        btnToggleCalendar.setOnClickListener {
-            val datePickerDialog = DatePickerDialog(
-                this,
-                { _, year, month, dayOfMonth ->
-                    val selectedDate = "$dayOfMonth/${month + 1}/$year"
-                    btnToggleCalendar.text = selectedDate
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePickerDialog.show()
-        }
-
-        //CALENDÁRIO RETIRADO DEVIDO FALTA DE USABILIDADE EM RETROCEDER DATAS
-        /*calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
-            val selectedDate = "$dayOfMonth/${month + 1}/$year"
-            btnToggleCalendar.text = selectedDate
-            calendarView.visibility = View.GONE
-        }*/
-
-        textView.setText(nome)
+        textView.text = nome
 
         getAccessToken(idCliente,email)
 
@@ -362,10 +360,23 @@ class ProfileActivity : AppCompatActivity() {
             showImagePickerDialog()
         }
 
+        // Fecha o Drawer ao pressionar o botão de voltar
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    // Se o drawer não estiver aberto, invoca o comportamento padrão
+                    isEnabled = false  // Desativa para permitir o comportamento padrão
+                    onBackPressedDispatcher.onBackPressed()  // Chama a ação padrão
+                }
+            }
+        })
+
         // fim do onCreate
     }
 
-    fun getAccessToken(idCliente: Long, email: String){
+    private fun getAccessToken(idCliente: Long, email: String){
         authRepository.getTokenByEmail(email, object : Callback<TokenResponse>{
             override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
                 if (response.isSuccessful){
@@ -513,7 +524,6 @@ class ProfileActivity : AppCompatActivity() {
         return tiposArray.indexOf(tipoString)
     }
 
-
     private fun toggleSeekBarVisibility(
         visibleSeekBar: SeekBar,
         seekBar2: SeekBar,
@@ -655,7 +665,6 @@ class ProfileActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         println("Cliente atualizado com sucesso")
                         progressBar.visibility = View.GONE
-                        abrirDashboard()
                         finish()
                     } else {
                         println("Erro ao atualizar cliente: ${response.errorBody()?.string()}")
@@ -674,8 +683,8 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    fun isPhoneNumberValid(ddd: Int, number: String): Boolean {
-        return ddd > 0 && number.isNotBlank()
+    private fun isPhoneNumberValid(ddd: Int, number: String): Boolean {
+        return ddd > 9 && number.isNotBlank()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -802,20 +811,6 @@ class ProfileActivity : AppCompatActivity() {
             } else {
                 Log.e("ProfileActivity", "Caminho da imagem não gerado.")
             }
-        }
-    }
-
-    private fun abrirDashboard() {
-        val intent = Intent(this, DashboardActivity::class.java)
-        startActivity(intent)
-    }
-
-    // Fecha o Drawer ao pressionar o botão de voltar
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
         }
     }
 

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/yellow_50"
+    tools:context=".SettingsActivity">
+
+    <TextView
+        android:id="@+id/titleSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_10dp"
+        android:textSize="@dimen/size_20sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/configuracoes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_20dp"
+        android:layout_marginStart="@dimen/size_10dp"
+        android:text="@string/automatic_login"
+        android:textColor="@color/blue_700"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleSettings"/>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchCompras"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_20dp"
+        android:layout_marginStart="@dimen/size_10dp"
+        android:textColor="@color/blue_700"
+        android:text="@string/exibir_ultimas_compras"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchLogin"/>
+
+    <TextView
+        android:id="@+id/tvOrdemCompras"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_10dp"
+        android:textSize="@dimen/size_20sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/ordenacao_compras"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchCompras"/>
+
+    <RadioGroup
+        android:id="@+id/rgRrdemCompras"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/size_25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvOrdemCompras">
+
+
+        <RadioButton
+            android:id="@+id/rbOrdemNome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ordenacao_nome"
+            android:textColor="@color/blue_700"
+            tools:layout_editor_absoluteX="160dp"
+            tools:layout_editor_absoluteY="239dp" />
+
+        <RadioButton
+            android:id="@+id/rbOrdemPreco"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ordenacao_preco"
+            android:textColor="@color/blue_700"
+            tools:layout_editor_absoluteX="160dp"
+            tools:layout_editor_absoluteY="239dp" />
+
+        <RadioButton
+            android:id="@+id/rbOrdemData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ordenacao_data"
+            android:textColor="@color/blue_700"
+            tools:layout_editor_absoluteX="160dp"
+            tools:layout_editor_absoluteY="239dp" />
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tvOrdemItens"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_10dp"
+        android:textSize="@dimen/size_20sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/ordenacao_pesquisa"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rgRrdemCompras"/>
+
+    <RadioGroup
+        android:id="@+id/rgRrdemitens"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/size_25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvOrdemItens">
+
+
+        <RadioButton
+            android:id="@+id/rbOrderRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ordenacao_nome"
+            android:textColor="@color/blue_700"
+            tools:layout_editor_absoluteX="160dp"
+            tools:layout_editor_absoluteY="239dp" />
+
+        <RadioButton
+            android:id="@+id/rbOrderPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ordenacao_avaliacao"
+            android:textColor="@color/blue_700"
+            tools:layout_editor_absoluteX="160dp"
+            tools:layout_editor_absoluteY="239dp" />
+
+    </RadioGroup>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout >

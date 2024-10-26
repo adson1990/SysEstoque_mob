@@ -76,8 +76,8 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     // Dependencia para carregr imagem vinda da web
     implementation(libs.glide)
-    implementation("androidx.room:room-runtime:2.5.0")
-    kapt("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

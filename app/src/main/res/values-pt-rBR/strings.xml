@@ -91,5 +91,13 @@
     <string name="erro_cadastrado">Erro ao cadastrar informação!</string>
     <string name="erro_processamento">Erro ao processar dados!</string>
     <string name="denied_permition">Permissão negada!</string>
+    <string name="automatic_login">Login automático</string>
+    <string name="exibir_ultimas_compras">Exibir últimas compras</string>
+    <string name="ordenacao_compras">Ordem das suas últimas compras</string>
+    <string name="ordenacao_nome">Nome</string>
+    <string name="ordenacao_preco">Preço</string>
+    <string name="ordenacao_data">Data de compra</string>
+    <string name="ordenacao_avaliacao">Avaliação</string>
+    <string name="ordenacao_pesquisa">Ordenação de pesquisa</string>
 
 </resources>

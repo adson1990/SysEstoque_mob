@@ -93,6 +93,14 @@
     <string name="bad_request" translatable="false">Bad request!</string>
     <string name="erro_processamento">Error processing data!</string>
     <string name="denied_permition">Permission Denied!</string>
+    <string name="automatic_login">Automatic login</string>
+    <string name="exibir_ultimas_compras">View latest purchases</string>
+    <string name="ordenacao_compras">Order of your last purchases</string>
+    <string name="ordenacao_nome">Name</string>
+    <string name="ordenacao_preco">Price</string>
+    <string name="ordenacao_data">Date de purchase</string>
+    <string name="ordenacao_avaliacao">Rating</string>
+    <string name="ordenacao_pesquisa">Order search itens</string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>
