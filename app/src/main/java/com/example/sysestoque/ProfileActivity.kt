@@ -70,7 +70,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.Optional
 
 
 class ProfileActivity : AppCompatActivity() {
@@ -127,6 +126,7 @@ class ProfileActivity : AppCompatActivity() {
     private var novaFotoUri: Uri? = null
     private var updatedPhoto: String? = null
 
+    //Constantes
     private val REQUEST_IMAGE_CAPTURE = 1
     companion object {
         private const val REQUEST_CODE = 1
@@ -183,11 +183,11 @@ class ProfileActivity : AppCompatActivity() {
         dbHelper = ColorDatabaseHelper(this)
 
         // menu lateral na tela
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.toolbarProfile)
         setSupportActionBar(toolbar)
 
         drawerLayout = findViewById(R.id.drawer_layout_profile)
-        navigationView = findViewById(R.id.navigation_view)
+        navigationView = findViewById(R.id.navigation_view_profile)
 
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
@@ -205,12 +205,13 @@ class ProfileActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_profile -> {
-                    // permanece na mesma tela
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
 
                 R.id.nav_settings -> {
-                    // Abrir tela de Configurações
+                    abrirSettingsActivity()
+                    funcoes.exibirToast(this@ProfileActivity, R.string.descartar, "", 0)
+                    finish()
                 }
 
                 R.id.nav_exit -> {
@@ -770,6 +771,11 @@ class ProfileActivity : AppCompatActivity() {
             e.printStackTrace()
             return null
         }
+    }
+
+    private fun abrirSettingsActivity() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onRequestPermissionsResult(

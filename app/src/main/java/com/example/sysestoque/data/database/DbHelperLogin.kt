@@ -158,7 +158,6 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         db.close()
         return result != -1L
     }
-
     fun getUsuarioLogado(): LoginInfo? {
         val db = this.readableDatabase
         var loginInfo: LoginInfo? = null
@@ -175,8 +174,6 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
             email = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOGGED))
             rememberMe = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REMEMBER)) == 1
             foto = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO))
-
-            Log.d("Database", "Foto recuperada: $foto")
 
             loginInfo = LoginInfo(rememberMe, idClient, email, foto)
         }
