@@ -8,7 +8,8 @@ data class Client(
     val sexo: Char,
     val email: String,
     val senha: String,
+    //val foto: ByteArray, para salvar em um campo BLOB
     val foto: String,
-    val cellphone: List<Cellphone>,
+    val cellphones: List<Cellphone>,
     val enderecos: List<Enderecos>
 )

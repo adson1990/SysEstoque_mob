@@ -71,14 +71,13 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.activity)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
     implementation("com.google.code.gson:gson:2.10.1")
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    // Dependencia para carregr imagem vinda da web
     implementation(libs.glide)
-    implementation("androidx.room:room-runtime:2.5.0") // Adicione a versão mais recente
-    kapt("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -89,11 +88,8 @@ dependencies {
     // OkHttp para fazer requisições HTTP
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
-
     // Dependência para envio de e-mail através da API
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
-
-
     // para fazer consultas as API's com objetos Json
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")

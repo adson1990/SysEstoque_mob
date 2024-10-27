@@ -25,6 +25,7 @@
     <dimen name="size_140dp">140dp</dimen>
     <dimen name="size_150dp">150dp</dimen>
     <dimen name="size_160dp">160dp</dimen>
+    <dimen name="size_180dp">180dp</dimen>
     <dimen name="size_200dp">200dp</dimen>
 
     <!-- PX -->

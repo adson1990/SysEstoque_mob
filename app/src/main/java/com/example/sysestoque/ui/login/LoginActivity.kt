@@ -15,18 +15,17 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.sysestoque.DashboardActivity
 import com.example.sysestoque.EsqueciSenhaActivity
 import com.example.sysestoque.databinding.ActivityLoginBinding
-
 import com.example.sysestoque.R
 import com.example.sysestoque.RegistroActivity
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.LoginRequest
-import com.example.sysestoque.backend.LoginResponseWithClientData
+import com.example.sysestoque.backend.LoginResponse
 import com.example.sysestoque.data.database.DbHelperLogin
+import com.example.sysestoque.data.utilitarios.Funcoes
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loading: ProgressBar
     private lateinit var remember: CheckBox
     private lateinit var dbHelperLogin: DbHelperLogin
+    private lateinit var funcoes: Funcoes
 
    // @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ClickableViewAccessibility")
@@ -54,6 +54,7 @@ class LoginActivity : AppCompatActivity() {
        }
 
        authRepository = AuthRepository()
+       funcoes = Funcoes()
 
         val username = binding.edtUsername
         val password = binding.edtPassword
@@ -109,7 +110,7 @@ class LoginActivity : AppCompatActivity() {
                loading.visibility = View.VISIBLE
                login(usernameInput, passwordInput)
            } else {
-               Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+               funcoes.exibirToast(this@LoginActivity, R.string.alerta_preencher_campos,"",0)
            }
        }
 
@@ -139,26 +140,21 @@ class LoginActivity : AppCompatActivity() {
 
         Log.d("LoginActivity", "LoginRequest: $loginRequest")
 
-        authRepository.authApi.login2(loginRequest).enqueue(object : Callback<LoginResponseWithClientData> {
-            override fun onResponse(call: Call<LoginResponseWithClientData>, response: Response<LoginResponseWithClientData>) {
+        authRepository.authApi.login(loginRequest).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful) {
                     val token = response.body()?.accessToken ?: ""
                     val sexo = response.body()?.sexo ?: ' '
                     val id = response.body()?.id ?: 0
                     val foto = response.body()?.foto ?: ""
-                    val saudacao = if (sexo == 'M') getString(R.string.welcome_male) else getString(R.string.welcome_female)
+                    val saudacao = if (sexo == 'M') R.string.welcome_male else R.string.welcome_female
 
                     val rememberMe = remember.isChecked
 
                     val user = binding.edtUsername.text.toString()
                     val nome = user.substringBefore("@").uppercase()
 
-
-                    Toast.makeText(
-                        applicationContext,
-                        "$saudacao $nome",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    funcoes.exibirToast(this@LoginActivity, saudacao, nome, 0)
 
                     salvarUsuario(rememberMe, id, username, foto)
                     saveToken(token)
@@ -170,14 +166,13 @@ class LoginActivity : AppCompatActivity() {
                         Log.e("Erro_response", "Erro ao tentar processar resposta do endpoint ", e)
                         "Erro ao processar a resposta"
                     }
-                    Toast.makeText(this@LoginActivity, "Login falhou!", Toast.LENGTH_SHORT).show()
-                    Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_LONG).show()
+                    funcoes.exibirToast(this@LoginActivity, R.string.login_failed, errorMessage,1)
                     loading.visibility = View.GONE
                 }
             }
 
-            override fun onFailure(call: Call<LoginResponseWithClientData>, t: Throwable) {
-                Toast.makeText(this@LoginActivity, "Erro: ${t.message}", Toast.LENGTH_SHORT).show()
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                funcoes.exibirToast(this@LoginActivity,R.string.error, t.message.toString(), 1)
             }
         })
     }

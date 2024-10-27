@@ -3,6 +3,9 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="email">Main email:</string>
+    <string name="erro_email">Invalid mail</string>
+    <string name="email_nao_encontrado">E-mail not found</string>
+    <string name="email_encontrado">E-mail found</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in"><u>Register</u></string>
     <string name="sign_in_new_user"><u>"Register new user"</u></string>
@@ -12,9 +15,11 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="login_sucess">"Login Successfully Completed."</string>
     <string name="remember_user">"Remember user"</string>
     <string name="forgot_pass"><u>"Forgot Password"</u></string>
     <string name="full_name">"Full Name:"</string>
+    <string name="first_name">"First Name"</string>
     <string name="CPF">"CPF:"</string>
     <string name="password">Password:</string>
     <string name="alert_password">Must contain uppercase, lowercase, digit, special character and a minimum of 6 characters</string>
@@ -23,7 +28,7 @@
     <string name="Male">Male</string>
     <string name="Female">Female</string>
     <string name="Income">Income:</string>
-    <string name="sifrao">US$</string>
+    <string name="sifrao">US$ </string>
     <string name="Birth">Date of birth:</string>
     <string name="Address">Address:</string>
     <string name="Celphone">Celphone:</string>
@@ -69,6 +74,33 @@
     <!-- ******************************************************** -->
     <string name="ultimas_compras">Your latest purchases</string>
     <string name="sem_dados">No data to display</string>
+    <string name="data">Select the date</string>
+    <string name="Vermelho">Red</string>
+    <string name="Verde">Green</string>
+    <string name="Azul">Blue</string>
+    <string name="descartar">Discarded data</string>
+    <string name="erro_buscar_cliente">Error searching for customer with ID entered.</string>
+    <string name="erro_conexao_db">Error connecting to DB.</string>
+    <string name="salvar_dados_ok">Successfully saved data!</string>
+    <string name="erro_salvar_dados">Error saving information!</string>
+    <string name="msg_logout">Successful logout</string>
+    <string name="erro_buscar_token">Error obtaining token.</string>
+    <string name="alerta_preencher_campos">Fill in all fields.</string>
+    <string name="doc_valido">Valid document</string>
+    <string name="doc_invalido">Invalid document</string>
+    <string name="cadastrado">Successfully registered!</string>
+    <string name="erro_cadastrado">Error when registering information!</string>
+    <string name="bad_request" translatable="false">Bad request!</string>
+    <string name="erro_processamento">Error processing data!</string>
+    <string name="denied_permition">Permission Denied!</string>
+    <string name="automatic_login">Automatic login</string>
+    <string name="exibir_ultimas_compras">View latest purchases</string>
+    <string name="ordenacao_compras">Order of your last purchases</string>
+    <string name="ordenacao_nome">Name</string>
+    <string name="ordenacao_preco">Price</string>
+    <string name="ordenacao_data">Date de purchase</string>
+    <string name="ordenacao_avaliacao">Rating</string>
+    <string name="ordenacao_pesquisa">Order search itens</string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>

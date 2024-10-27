@@ -96,6 +96,46 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         return loginInfo
     }
 
+    fun atualizaUsuarioLogado(email : String){
+        val db = this.writableDatabase
+
+        val cursor = db.rawQuery("SELECT $COLUMN_USER_LOGGED FROM tb_grava_login",  null)
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            val contentValues = ContentValues().apply {
+                put(COLUMN_USER_LOGGED, email)
+            }
+
+            db.update(TABLE_NAME, contentValues, null, null)
+        }
+        cursor.close()
+        db.close()
+    }
+
+    fun salvarCaminhoFoto(photoPath : String){
+        val db = this.writableDatabase
+
+        val cursor = db.rawQuery("SELECT $COLUMN_PHOTO FROM tb_grava_login",  null)
+
+        if (cursor != null && cursor.moveToFirst()) {
+            //val id = cursor.getLong(1)
+
+            val contentValues = ContentValues().apply {
+                put(COLUMN_PHOTO, photoPath)
+            }
+
+            //val rowsAffected = db.update(TABLE_NAME, contentValues, "$COLUMN_ID = ?", arrayOf(id.toString()))
+
+            val rowsAffected = db.update(TABLE_NAME, contentValues, null, null)
+            Log.d("Database", "Caminho da foto salvo: $photoPath. Linhas afetadas: $rowsAffected")
+
+        }
+
+        cursor.close()
+        db.close()
+    }
+
     fun gravarUsuarioLogin(remember: Boolean, id: Long, email: String, foto: String): Boolean{
         val db = this.writableDatabase
 
@@ -118,6 +158,7 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         db.close()
         return result != -1L
     }
+
     fun getUsuarioLogado(): LoginInfo? {
         val db = this.readableDatabase
         var loginInfo: LoginInfo? = null
@@ -134,6 +175,8 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
             email = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOGGED))
             rememberMe = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REMEMBER)) == 1
             foto = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO))
+
+            Log.d("Database", "Foto recuperada: $foto")
 
             loginInfo = LoginInfo(rememberMe, idClient, email, foto)
         }

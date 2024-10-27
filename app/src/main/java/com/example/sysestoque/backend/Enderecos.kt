@@ -5,6 +5,7 @@ data class Enderecos(
     var rua: String,
     var bairro: String,
     var num: Int,
+    var cidade: String,
     var estado: String,
     var country: String,
     var cep: String
@@ -12,10 +13,18 @@ data class Enderecos(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
+        if (other !is Enderecos) return false
 
-        other as Enderecos
+        return rua == other.rua &&
+                bairro == other.bairro &&
+                num == other.num &&
+                cidade == other.cidade &&
+                estado == other.estado &&
+                country == other.country &&
+                cep == other.cep
+    }
 
-        return true
+    override fun hashCode(): Int {
+        return arrayOf(rua, bairro, num, cidade, estado, country, cep).contentHashCode()
     }
 }
