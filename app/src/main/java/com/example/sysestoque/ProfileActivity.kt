@@ -70,7 +70,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.Optional
 
 
 class ProfileActivity : AppCompatActivity() {
@@ -126,7 +125,9 @@ class ProfileActivity : AppCompatActivity() {
     private var loginInfo: LoginInfo? = null
     private var novaFotoUri: Uri? = null
     private var updatedPhoto: String? = null
+    private var idParametro: Long = 0L
 
+    //Constantes
     private val REQUEST_IMAGE_CAPTURE = 1
     companion object {
         private const val REQUEST_CODE = 1
@@ -183,11 +184,11 @@ class ProfileActivity : AppCompatActivity() {
         dbHelper = ColorDatabaseHelper(this)
 
         // menu lateral na tela
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.toolbarProfile)
         setSupportActionBar(toolbar)
 
         drawerLayout = findViewById(R.id.drawer_layout_profile)
-        navigationView = findViewById(R.id.navigation_view)
+        navigationView = findViewById(R.id.navigation_view_profile)
 
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
@@ -195,6 +196,9 @@ class ProfileActivity : AppCompatActivity() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        // buscando ID do cliente da intent
+        idParametro = intent.getLongExtra("ID_CLIENTE", -1L)
 
         // Lidando com cliques no menu
         navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -205,12 +209,13 @@ class ProfileActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_profile -> {
-                    // permanece na mesma tela
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
 
                 R.id.nav_settings -> {
-                    // Abrir tela de Configurações
+                    abrirSettingsActivity(idParametro)
+                    funcoes.exibirToast(this@ProfileActivity, R.string.descartar, "", 0)
+                    finish()
                 }
 
                 R.id.nav_exit -> {
@@ -320,7 +325,7 @@ class ProfileActivity : AppCompatActivity() {
         seekBarBlue.setOnSeekBarChangeListener(seekBarChangeListener)
 
         // bucando dados do cliente
-        loginInfo = dbHelperLogin.getUsuarioLogado()!!
+        loginInfo = dbHelperLogin.getUsuarioLogado(idParametro)!!
         idCliente = loginInfo?.idClient ?: 0L
         var email = loginInfo?.email ?: ""
         val nome = email.substringBefore("@")
@@ -430,7 +435,7 @@ class ProfileActivity : AppCompatActivity() {
                                 ftCliente.setImageBitmap(bitmap)
                             }
                         }else {
-                            val dbhelperLogin = dbHelperLogin.getUsuarioLogado()
+                            val dbhelperLogin = dbHelperLogin.getUsuarioLogado(idParametro)
                             val photoUser = dbhelperLogin?.foto ?: ""
                             if (photoUser.isNotEmpty()) {
                                 Glide.with(this@ProfileActivity)
@@ -770,6 +775,13 @@ class ProfileActivity : AppCompatActivity() {
             e.printStackTrace()
             return null
         }
+    }
+
+    private fun abrirSettingsActivity(id: Long) {
+        val intent = Intent(this, SettingsActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
+        startActivity(intent)
     }
 
     override fun onRequestPermissionsResult(

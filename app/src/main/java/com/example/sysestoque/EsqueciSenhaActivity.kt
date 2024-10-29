@@ -20,7 +20,7 @@ import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.PassResponse
 import com.example.sysestoque.backend.TokenResponse
-import com.example.sysestoque.data.database.DatabaseHelper
+import com.example.sysestoque.data.database.DbHelperForgotPass
 import com.example.sysestoque.data.utilitarios.Funcoes
 import com.example.sysestoque.databinding.EsqueciSenhaLayoutBinding
 import retrofit2.Callback as RetrofitCallback
@@ -165,7 +165,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
         //verificar código de recuperação
         btn2.setOnClickListener{
             val codResgate = edtCodRec.text.toString()
-            val dbHelper = DatabaseHelper(this)
+            val dbHelper = DbHelperForgotPass(this)
 
             val codResInt = dbHelper.getCodigoRecuperacao()
             val codResString = codResInt.toString()
@@ -251,7 +251,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     }
 
     private fun salvarCodRec(){
-        val dbHelper = DatabaseHelper(this)
+        val dbHelper = DbHelperForgotPass(this)
         val cod: Int = gerarCodRec()
         val success = dbHelper.salvarCodigo(cod)
         if (success) {

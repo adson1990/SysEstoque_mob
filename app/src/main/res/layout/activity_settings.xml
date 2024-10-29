@@ -1,13 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout_config"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/yellow_50"
     tools:context=".SettingsActivity">
+
+    <android.widget.ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/yellow_50">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".SettingsActivity">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarConfig"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <TextView
         android:id="@+id/titleSettings"
@@ -58,7 +80,7 @@
         app:layout_constraintTop_toBottomOf="@+id/switchCompras"/>
 
     <RadioGroup
-        android:id="@+id/rgRrdemCompras"
+        android:id="@+id/rgOrdemCompras"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -108,10 +130,10 @@
         android:text="@string/ordenacao_pesquisa"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rgRrdemCompras"/>
+        app:layout_constraintTop_toBottomOf="@+id/rgOrdemCompras"/>
 
     <RadioGroup
-        android:id="@+id/rgRrdemitens"
+        android:id="@+id/rgOrdemItens"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -122,7 +144,7 @@
 
 
         <RadioButton
-            android:id="@+id/rbOrderRating"
+            android:id="@+id/rbOrderNameSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ordenacao_nome"
@@ -131,7 +153,7 @@
             tools:layout_editor_absoluteY="239dp" />
 
         <RadioButton
-            android:id="@+id/rbOrderPrice"
+            android:id="@+id/rbOrderRating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ordenacao_avaliacao"
@@ -139,7 +161,39 @@
             tools:layout_editor_absoluteX="160dp"
             tools:layout_editor_absoluteY="239dp" />
 
+        <RadioButton
+            android:id="@+id/rbOrderPrecoSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ordenacao_preco"
+            android:textColor="@color/blue_700"
+            tools:layout_editor_absoluteX="160dp"
+            tools:layout_editor_absoluteY="239dp" />
+
     </RadioGroup>
 
+    <Button
+        android:id="@+id/btSalvar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_50dp"
+        android:text="@string/gravar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rgOrdemItens" />
 
-</androidx.constraintlayout.widget.ConstraintLayout >
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </android.widget.ScrollView>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigation_view_config"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="?android:attr/windowBackground"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/drawer_menu" />
+
+
+</androidx.drawerlayout.widget.DrawerLayout >

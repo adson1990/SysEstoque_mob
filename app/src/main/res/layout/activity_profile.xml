@@ -21,7 +21,7 @@
             tools:context=".ProfileActivity">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/toolbarProfile"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
@@ -40,7 +40,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                app:layout_constraintTop_toBottomOf="@+id/toolbarProfile"
                 app:srcCompat="@mipmap/user_icon"
                 tools:ignore="ContentDescription" />
 
@@ -56,7 +56,7 @@
                 android:textSize="@dimen/size_25sp"
                 android:textStyle="bold|italic"
                 app:layout_constraintStart_toEndOf="@+id/ftUsuario"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+                app:layout_constraintTop_toBottomOf="@+id/toolbarProfile" />
 
             <SeekBar
                 android:id="@+id/seekBarRed"
@@ -595,7 +595,7 @@
     </android.widget.ScrollView>
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigation_view"
+        android:id="@+id/navigation_view_profile"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"

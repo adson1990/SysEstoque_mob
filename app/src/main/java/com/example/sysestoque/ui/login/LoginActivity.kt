@@ -25,6 +25,7 @@ import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.LoginRequest
 import com.example.sysestoque.backend.LoginResponse
 import com.example.sysestoque.data.database.DbHelperLogin
+import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.data.utilitarios.Funcoes
 import retrofit2.Call
 import retrofit2.Callback
@@ -49,8 +50,10 @@ class LoginActivity : AppCompatActivity() {
 
        criarTabelas()
 
-       if(loginAutomatico()){
-          abrirDashboardAutomatico(true)
+       val (id, nome) = loginAutomatico()
+
+       if( id > 0){
+          abrirDashboard(id, nome)
        }
 
        authRepository = AuthRepository()
@@ -158,7 +161,7 @@ class LoginActivity : AppCompatActivity() {
 
                     salvarUsuario(rememberMe, id, username, foto)
                     saveToken(token)
-                    abrirDashboard(nome)
+                    abrirDashboard(id, user)
                 } else {
                     val errorMessage = try {
                         response.errorBody()?.string() ?: "Erro desconhecido"
@@ -190,36 +193,32 @@ class LoginActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    private fun abrirDashboard(nome: String) {
+    private fun abrirDashboard(id: Long, nome: String) {
         val intent = Intent(this, DashboardActivity::class.java).apply {
-            putExtra("NOME_USUARIO", nome)
-        }
-        startActivity(intent)
-        finish() // Fecha a LoginActivity para que o usuário não volte ao login
-    }
-
-    private fun abrirDashboardAutomatico(automatico: Boolean){
-        val intent = Intent(this, DashboardActivity::class.java).apply {
-            putExtra("LOGIN_AUTOMATICO", automatico)
+            putExtra("NOME_CLIENTE", nome)
+            putExtra("ID_CLIENTE", id)
         }
         startActivity(intent)
         finish()
     }
 
-    fun abrirRegistroDeCliente(){
+    private fun abrirRegistroDeCliente(){
         val intent = Intent(this, RegistroActivity::class.java)
         startActivity(intent)
     }
-    fun abrirResetPassword(){
+
+    private fun abrirResetPassword(){
         val intent = Intent(this, EsqueciSenhaActivity::class.java)
         startActivity(intent)
     }
 
-    fun loginAutomatico(): Boolean {
+    private fun loginAutomatico(): Pair<Long, String> {
         dbHelperLogin = DbHelperLogin(this)
 
-        return dbHelperLogin.checarLoginAutomatico()?.remember ?: false
-    }
+        val (idUsuario, nomeUsuario) = dbHelperLogin.checarLoginAutomatico()
+
+
+    return Pair(idUsuario, nomeUsuario)
 }
 
 /**
@@ -235,4 +234,5 @@ fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
     })
+    }
 }
