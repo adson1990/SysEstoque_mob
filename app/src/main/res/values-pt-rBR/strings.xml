@@ -62,6 +62,7 @@
     <string name="gravar">Gravar</string>
     <string name="pedidos">Seus pedidos</string>
     <string name="pesquisar">Pesquisar</string>
+    <string name="pesquisar_produtos">Pesquisar produtos</string>
     <!-- Strings used for fragments for navigation -->
     <string name="next">Próximo</string>
     <string name="previous">Anterior</string>

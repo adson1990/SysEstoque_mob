@@ -62,6 +62,7 @@
     <string name="gravar">Record</string>
     <string name="pedidos">Your Orders</string>
     <string name="pesquisar">Search</string>
+    <string name="pesquisar_produtos">Search product</string>
     <!-- Strings used for fragments for navigation -->
     <string name="next">Next</string>
     <string name="previous">Previous</string>
