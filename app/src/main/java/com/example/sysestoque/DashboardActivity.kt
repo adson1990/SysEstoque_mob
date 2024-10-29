@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -27,10 +28,12 @@ import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
+import com.example.sysestoque.data.database.DbHelperConfig
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.data.utilitarios.ActivityManager
 import com.example.sysestoque.data.utilitarios.Funcoes
+import com.example.sysestoque.ui.login.LoginActivity
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
@@ -42,6 +45,7 @@ private lateinit var drawerLayout: DrawerLayout
 private lateinit var navView: NavigationView
 private lateinit var dbHelperLogin: DbHelperLogin
 private lateinit var dbHelper: ColorDatabaseHelper
+private lateinit var dbConfig: DbHelperConfig
 @SuppressLint("StaticFieldLeak")
 private lateinit var tvProductDate1: TextView
 @SuppressLint("StaticFieldLeak")
@@ -66,6 +70,10 @@ private var loginInfo: LoginInfo? = null
 private val clientRepository = ClientRepository()
 private val authRepository = AuthRepository()
 
+private var linearLayoutCompras: LinearLayout = TODO()
+private var idClient: Long = -1L
+private var nameUser: String = ""
+
 
 class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +90,7 @@ class DashboardActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         // Referências das views
-       tvNomeUsuario = findViewById<TextView>(R.id.tvNomeUsuario)
+        tvNomeUsuario = findViewById<TextView>(R.id.tvNomeUsuario)
         progressBar = findViewById<ProgressBar>(R.id.progressBar)
         imageView = findViewById<ImageView>(R.id.ftUsuario)
         tvProductDate1 = findViewById<TextView>(R.id.tvDataCompra1)
@@ -91,6 +99,7 @@ class DashboardActivity : AppCompatActivity() {
         tvProductName2 = findViewById<TextView>(R.id.tvNomeProduto2)
         tvProductDate2 = findViewById<TextView>(R.id.tvDataCompra2)
         tvProductPrice2 = findViewById<TextView>(R.id.tvValorTotal2)
+        linearLayoutCompras = findViewById<LinearLayout>(R.id.linearLayoutCompras)
 
         // Layout do menu lateral
         drawerLayout = findViewById(R.id.drawer_layout_dashboard)
@@ -99,6 +108,7 @@ class DashboardActivity : AppCompatActivity() {
         // persistência de dados
         dbHelper = ColorDatabaseHelper(this)
         dbHelperLogin = DbHelperLogin(this)
+        dbConfig = DbHelperConfig(this)
 
         // Funções de apoio
         funcoes = Funcoes()
@@ -111,6 +121,11 @@ class DashboardActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        // obtendo dados do cliente
+        val (id, nome) = obterDadosUsuario()
+        idClient = id
+        nameUser = nome
+
         // Lidando com cliques no menu
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -118,12 +133,14 @@ class DashboardActivity : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_profile -> {
-                    abrirProfileActivity()
+                    abrirProfileActivity(idClient)
                     drawerLayout.closeDrawers()
                     return@setNavigationItemSelectedListener true
                 }
                 R.id.nav_settings -> {
-                    // Abrir tela de Configurações
+                    abrirSettingsActivity(idClient)
+                    drawerLayout.closeDrawers()
+                    return@setNavigationItemSelectedListener true
                 }
                 R.id.nav_exit -> {
                     funcoes.logout(this@DashboardActivity)
@@ -135,28 +152,28 @@ class DashboardActivity : AppCompatActivity() {
             true
         }
 
-        loginInfo = dbHelperLogin.getUsuarioLogado()
-
-        val emailUsuario = loginInfo?.email ?: ""
-        val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
-
-        loadDataUser(nomeUsuario)
+        salvarIdCliente(idClient)
+        loadDataUser(nameUser, idClient)
 
         // fim do onCreate
     }
 
-    private fun loadDataUser(nomeUsuario: String){
+    private fun loadDataUser(nomeUsuario: String, id: Long){
         tvNomeUsuario.text = nomeUsuario
-        carregaFotoUser()
+        carregaFotoUser(id)
 
-        val idCliente = loginInfo?.idClient ?: 0
-        val username = loginInfo?.email ?: ""
+        val config = dbConfig.getConfiguracoes(id)
 
-        fetchTokenAndCompras(idCliente, username)
+            if(config != null && config.ultimasCompras){
+                fetchTokenAndCompras(id, nomeUsuario)
+            }else if(!config!!.ultimasCompras) {
+                linearLayoutCompras.visibility = View.GONE
+            }
+
 
         mostrarDadosDB()
 
-        val colors = dbHelper.getColors(idCliente)
+        val colors = dbHelper.getColors(id)
         if(colors != null) {
             colors.let { (red, green, blue) ->
                 val hsv = FloatArray(3)
@@ -176,11 +193,10 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    private fun carregaFotoUser(){
+    private fun carregaFotoUser(id: Long){
        // val urlComTimestamp = "$imageUrl?timestamp=${System.currentTimeMillis()}"
 
-        loginInfo = dbHelperLogin.getUsuarioLogado()
-        val imageUrl = loginInfo?.foto ?: ""
+        val imageUrl = dbHelperLogin.getFotoUsuario(id)
 
         Glide.with(this)
             .load(imageUrl)
@@ -281,6 +297,31 @@ class DashboardActivity : AppCompatActivity() {
         dbHelperLogin.logarConteudoTabela()
     }
 
+    private fun obterDadosUsuario(): Pair<Long, String> {
+        val idUsuario = intent.getLongExtra("ID_CLIENTE", -1L)
+        val nomeUsuario = intent.getStringExtra("NOME_CLIENTE")
+
+        return if (idUsuario != -1L && nomeUsuario != null) {
+            Pair(idUsuario, nomeUsuario)
+        } else (if(idUsuario != -1L) {
+            buscarDadosDoSQLite(idUsuario)
+        } else {
+            funcoes.exibirToast(this@DashboardActivity, R.string.login_failed,"",1)
+            abrirLoginActivity()
+            finish()
+            null
+        })!!
+    }
+
+    private fun buscarDadosDoSQLite(idUsuario: Long): Pair<Long, String> {
+        loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
+        val id = loginInfo?.idClient ?: -1L
+        val emailUsuario = loginInfo?.email ?: ""
+        val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
+
+        return Pair(id, nomeUsuario)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         ActivityManager.removeActivity(this)
@@ -289,14 +330,50 @@ class DashboardActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val emailUsuario = loginInfo?.email ?: ""
-        val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
+        val idUsuario = obterIdCliente()
 
-       loadDataUser(nomeUsuario)
+        if (idUsuario != null) {
+            loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
+            val id = loginInfo?.idClient ?: -1L
+            val emailUsuario = loginInfo?.email ?: ""
+            val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
+
+            loadDataUser(nomeUsuario, id)
+        }else {
+            funcoes.exibirToast(this@DashboardActivity,R.string.login_failed,". Favor refaça o login no sistema", 1)
+            abrirLoginActivity()
+            finish()
+        }
     }
 
-    private fun abrirProfileActivity() {
-        val intent = Intent(this, ProfileActivity::class.java)
+    private fun salvarIdCliente(idCliente: Long) {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putLong("ID_CLIENTE", idCliente)
+        editor.apply()
+    }
+
+    private fun obterIdCliente(): Long {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        return prefs.getLong("ID_CLIENTE", -1L)
+    }
+
+    private fun abrirProfileActivity(id: Long) {
+        val intent = Intent(this, ProfileActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
+        startActivity(intent)
+    }
+
+    private fun abrirLoginActivity(){
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun abrirSettingsActivity(id: Long) {
+        val intent = Intent(this, SettingsActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
         startActivity(intent)
     }
 }

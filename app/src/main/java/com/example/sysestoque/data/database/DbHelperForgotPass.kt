@@ -5,7 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, RECUPERACAO_SENHA, null, DATABASE_VERSION) {
+class DbHelperForgotPass(context: Context) : SQLiteOpenHelper(context, RECUPERACAO_SENHA, null, DATABASE_VERSION) {
 
     companion object {
         private const val RECUPERACAO_SENHA = "request_new_password.db"

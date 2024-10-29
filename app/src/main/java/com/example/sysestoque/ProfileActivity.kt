@@ -125,6 +125,7 @@ class ProfileActivity : AppCompatActivity() {
     private var loginInfo: LoginInfo? = null
     private var novaFotoUri: Uri? = null
     private var updatedPhoto: String? = null
+    private var idParametro: Long = 0L
 
     //Constantes
     private val REQUEST_IMAGE_CAPTURE = 1
@@ -196,6 +197,9 @@ class ProfileActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        // buscando ID do cliente da intent
+        idParametro = intent.getLongExtra("ID_CLIENTE", -1L)
+
         // Lidando com cliques no menu
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -209,7 +213,7 @@ class ProfileActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_settings -> {
-                    abrirSettingsActivity()
+                    abrirSettingsActivity(idParametro)
                     funcoes.exibirToast(this@ProfileActivity, R.string.descartar, "", 0)
                     finish()
                 }
@@ -321,7 +325,7 @@ class ProfileActivity : AppCompatActivity() {
         seekBarBlue.setOnSeekBarChangeListener(seekBarChangeListener)
 
         // bucando dados do cliente
-        loginInfo = dbHelperLogin.getUsuarioLogado()!!
+        loginInfo = dbHelperLogin.getUsuarioLogado(idParametro)!!
         idCliente = loginInfo?.idClient ?: 0L
         var email = loginInfo?.email ?: ""
         val nome = email.substringBefore("@")
@@ -431,7 +435,7 @@ class ProfileActivity : AppCompatActivity() {
                                 ftCliente.setImageBitmap(bitmap)
                             }
                         }else {
-                            val dbhelperLogin = dbHelperLogin.getUsuarioLogado()
+                            val dbhelperLogin = dbHelperLogin.getUsuarioLogado(idParametro)
                             val photoUser = dbhelperLogin?.foto ?: ""
                             if (photoUser.isNotEmpty()) {
                                 Glide.with(this@ProfileActivity)
@@ -773,8 +777,10 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun abrirSettingsActivity() {
-        val intent = Intent(this, SettingsActivity::class.java)
+    private fun abrirSettingsActivity(id: Long) {
+        val intent = Intent(this, SettingsActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
         startActivity(intent)
     }
 

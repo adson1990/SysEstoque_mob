@@ -79,21 +79,25 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         return result > 0
     }
 
-    fun checarLoginAutomatico(): LoginInfo? {
+    fun checarLoginAutomatico(): Pair<Long, String> {
         val db = this.readableDatabase
-        var loginInfo: LoginInfo? = null
+        val idClient: Long
+        val nameUser: String
 
-        val cursor = db.rawQuery("SELECT $COLUMN_REMEMBER, $COLUMN_ID_CLIENT, $COLUMN_USER_LOGGED, $COLUMN_PHOTO FROM ${DbHelperLogin.TABLE_NAME}", null)
+        val cursor = db.rawQuery(
+            "SELECT $COLUMN_ID_CLIENT, $COLUMN_USER_LOGGED FROM ${DbHelperLogin.TABLE_NAME} WHERE $COLUMN_REMEMBER = 1",
+            null
+        )
 
         if (cursor.moveToFirst()) {
-            val remember = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REMEMBER)) == 1
-            val idClient = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID_CLIENT))
-            val email = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOGGED))
-            val foto = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO))
-            loginInfo = LoginInfo(remember, idClient, email, foto)
+            idClient = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID_CLIENT))
+            nameUser = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOGGED))
+        } else {
+            idClient = 0L
+            nameUser = "unknown"
         }
         cursor.close()
-        return loginInfo
+        return Pair(idClient, nameUser)
     }
 
     fun atualizaUsuarioLogado(email : String){
@@ -158,16 +162,35 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         db.close()
         return result != -1L
     }
-    fun getUsuarioLogado(): LoginInfo? {
+
+    fun getFotoUsuario(id: Long): String{
+        val db = this.readableDatabase
+        var foto: String? = null
+
+        val cursor = db.query(TABLE_NAME,
+                    arrayOf(COLUMN_PHOTO),
+                    "$COLUMN_ID_CLIENT = ?", arrayOf(id.toString()),
+                    null,null,null)
+
+        if (cursor.moveToFirst()) {
+          foto = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO))
+        }
+        cursor.close()
+
+        return foto!!
+    }
+
+    fun getUsuarioLogado(id: Long): LoginInfo? {
         val db = this.readableDatabase
         var loginInfo: LoginInfo? = null
-        var idClient = 0L
+        var idClient: Long
         var email = ""
         var rememberMe = false
         var foto = ""
 
         val cursor = db.rawQuery("SELECT $COLUMN_USER_LOGGED, $COLUMN_PHOTO, $COLUMN_REMEMBER, $COLUMN_ID_CLIENT " +
-                "FROM ${DbHelperLogin.TABLE_NAME}", null)
+                "FROM ${DbHelperLogin.TABLE_NAME} WHERE $COLUMN_ID_CLIENT = ?", arrayOf(id.toString())
+        )
 
         if (cursor.moveToFirst()) {
             idClient = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID_CLIENT))

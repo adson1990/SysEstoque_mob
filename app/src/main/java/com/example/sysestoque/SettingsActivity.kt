@@ -72,6 +72,8 @@ class SettingsActivity : AppCompatActivity() {
 
         funcoes = Funcoes()
 
+        idCliente = intent.getLongExtra("ID_CLIENTE", -1L)
+
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
@@ -80,7 +82,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_profile -> {
-                    abrirProfileActivity()
+                    abrirProfileActivity(idCliente)
                     finish()
                 }
 
@@ -98,9 +100,8 @@ class SettingsActivity : AppCompatActivity() {
             true
         }
 
-        val clientLogger = dbHelperLogin.checarLoginAutomatico()
-        val remember = clientLogger?.remember ?: false
-        switchLogin.isChecked = remember
+        val user = dbHelperLogin.getUsuarioLogado(idCliente)
+        switchLogin.isChecked = user!!.remember
         /*switchLogin.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 dbHelperLogin.lembrarCliente(true)
@@ -109,7 +110,6 @@ class SettingsActivity : AppCompatActivity() {
             }
         }*/
 
-        idCliente = clientLogger?.idClient!!
         val configData = dbHelperCongif.getConfiguracoes(idCliente)
         val compras = configData?.ultimasCompras ?: true
         switchCompras.isChecked = compras
@@ -137,7 +137,7 @@ class SettingsActivity : AppCompatActivity() {
         // fim do onCreate
     }
 
-    fun salvarConfigs(){
+    private fun salvarConfigs(){
         val lastPurchase = switchCompras.isChecked
         val orderPurchase = when (rgOrderCompras.checkedRadioButtonId) {
             R.id.rbOrdemNome -> "Nome"
@@ -160,8 +160,10 @@ class SettingsActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun abrirProfileActivity() {
-        val intent = Intent(this, ProfileActivity::class.java)
+    private fun abrirProfileActivity(id: Long) {
+        val intent = Intent(this, ProfileActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
         startActivity(intent)
     }
 
