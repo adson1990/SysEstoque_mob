@@ -161,7 +161,7 @@ class LoginActivity : AppCompatActivity() {
 
                     salvarUsuario(rememberMe, id, username, foto)
                     saveToken(token)
-                    abrirDashboard(id, nome)
+                    abrirDashboard(id, user)
                 } else {
                     val errorMessage = try {
                         response.errorBody()?.string() ?: "Erro desconhecido"

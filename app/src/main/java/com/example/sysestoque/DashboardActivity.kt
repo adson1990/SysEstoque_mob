@@ -2,6 +2,7 @@ package com.example.sysestoque
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.util.Base64
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -40,12 +42,15 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 private lateinit var drawerLayout: DrawerLayout
 private lateinit var navView: NavigationView
 private lateinit var dbHelperLogin: DbHelperLogin
 private lateinit var dbHelper: ColorDatabaseHelper
 private lateinit var dbConfig: DbHelperConfig
+@SuppressLint("StaticFieldLeak")
+private lateinit var linearLayoutCompras: LinearLayout
 @SuppressLint("StaticFieldLeak")
 private lateinit var tvProductDate1: TextView
 @SuppressLint("StaticFieldLeak")
@@ -70,7 +75,6 @@ private var loginInfo: LoginInfo? = null
 private val clientRepository = ClientRepository()
 private val authRepository = AuthRepository()
 
-private var linearLayoutCompras: LinearLayout = TODO()
 private var idClient: Long = -1L
 private var nameUser: String = ""
 
@@ -155,22 +159,24 @@ class DashboardActivity : AppCompatActivity() {
         salvarIdCliente(idClient)
         loadDataUser(nameUser, idClient)
 
+
         // fim do onCreate
     }
 
     private fun loadDataUser(nomeUsuario: String, id: Long){
-        tvNomeUsuario.text = nomeUsuario
+        val name = nomeUsuario.substringBefore("@").uppercase()
+        tvNomeUsuario.text = name
         carregaFotoUser(id)
 
         val config = dbConfig.getConfiguracoes(id)
 
-            if(config != null && config.ultimasCompras){
-                fetchTokenAndCompras(id, nomeUsuario)
-            }else if(!config!!.ultimasCompras) {
-                linearLayoutCompras.visibility = View.GONE
-            }
+        if (config != null && !config.ultimasCompras) {
+            linearLayoutCompras.visibility = View.GONE
+        } else{
+            linearLayoutCompras.visibility = View.VISIBLE
+        }
 
-
+        fetchTokenAndCompras(id, nomeUsuario)
         mostrarDadosDB()
 
         val colors = dbHelper.getColors(id)
@@ -193,41 +199,51 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     private fun carregaFotoUser(id: Long){
        // val urlComTimestamp = "$imageUrl?timestamp=${System.currentTimeMillis()}"
 
         val imageUrl = dbHelperLogin.getFotoUsuario(id)
 
-        Glide.with(this)
-            .load(imageUrl)
-            .placeholder(R.mipmap.user_icon)
-            .error(R.mipmap.user_icon)
-            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    progressBar.visibility = View.GONE
-                    return false
-                }
+        if(imageUrl != null && imageUrl != ""){
+            val imageDecode = Base64.decode(imageUrl, Base64.DEFAULT)
+            val decodeByte = BitmapFactory.decodeByteArray(imageDecode,0,imageDecode.size)
+            imageView.setImageBitmap(decodeByte)
+            progressBar.visibility = View.GONE
+        } else {
+            /*Glide.with(this)
+                .load(imageUrl)
+                .placeholder(R.mipmap.user_icon)
+                .error(R.mipmap.user_icon)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        progressBar.visibility = View.GONE
+                        return false
+                    }
 
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: com.bumptech.glide.load.DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    progressBar.visibility = View.GONE
-                    return false
-                }
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        dataSource: com.bumptech.glide.load.DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        progressBar.visibility = View.GONE
+                        return false
+                    }
 
-            })
-            .into(imageView)
+                })
+                .into(imageView)*/
+            imageView.setImageResource(R.mipmap.user_icon)
+            progressBar.visibility = View.GONE
+        }
     }
 
     fun fetchCompras(idCliente: Long, token: String) {
@@ -336,9 +352,8 @@ class DashboardActivity : AppCompatActivity() {
             loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
             val id = loginInfo?.idClient ?: -1L
             val emailUsuario = loginInfo?.email ?: ""
-            val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
 
-            loadDataUser(nomeUsuario, id)
+            loadDataUser(emailUsuario, id)
         }else {
             funcoes.exibirToast(this@DashboardActivity,R.string.login_failed,". Favor refaça o login no sistema", 1)
             abrirLoginActivity()
