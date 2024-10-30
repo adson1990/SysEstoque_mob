@@ -160,7 +160,7 @@ class LoginActivity : AppCompatActivity() {
                     funcoes.exibirToast(this@LoginActivity, saudacao, nome, 0)
 
                     salvarUsuario(rememberMe, id, username, foto)
-                    saveToken(token)
+                    funcoes.saveToken(this@LoginActivity, token)
                     abrirDashboard(id, user)
                 } else {
                     loading.visibility = View.GONE
@@ -187,16 +187,9 @@ class LoginActivity : AppCompatActivity() {
         dbHelperLogin.gravarUsuarioLogin(remenberMe, id, email, foto)
     }
 
-    private fun saveToken(token: String) {
-        val sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("auth_token", token)
-        editor.apply()
-    }
-
-    private fun abrirDashboard(id: Long, nome: String) {
+    private fun abrirDashboard(id: Long, email: String) {
         val intent = Intent(this, DashboardActivity::class.java).apply {
-            putExtra("NOME_CLIENTE", nome)
+            putExtra("EMAIL_CLIENTE", email)
             putExtra("ID_CLIENTE", id)
         }
         startActivity(intent)

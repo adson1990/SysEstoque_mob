@@ -80,7 +80,7 @@ private val clientRepository = ClientRepository()
 private val authRepository = AuthRepository()
 
 private var idClient: Long = -1L
-private var nameUser: String = ""
+private var mailUser: String = ""
 private var isDataLoaded = false
 
 
@@ -131,9 +131,9 @@ class DashboardActivity : AppCompatActivity() {
         toggle.syncState()
 
         // obtendo dados do cliente
-        val (id, nome) = obterDadosUsuario()
+        val (id, email) = obterDadosUsuario()
         idClient = id
-        nameUser = nome
+        mailUser = email
 
         // Lidando com cliques no menu
         navView.setNavigationItemSelectedListener { menuItem ->
@@ -162,7 +162,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         salvarIdCliente(idClient)
-        loadDataUser(nameUser, idClient)
+        loadDataUser(mailUser, idClient)
         isDataLoaded = true
 
         // fim do onCreate
@@ -244,7 +244,7 @@ class DashboardActivity : AppCompatActivity() {
                 .into(imageView)
         }  else {
 
-            val img64 = getAccessToken(id, nameUser)
+            val img64 = getAccessToken(id, mailUser)
 
           if(img64 != "") {
               val imageDecode = Base64.decode(img64, Base64.DEFAULT)
@@ -383,7 +383,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun obterDadosUsuario(): Pair<Long, String> {
         val idUsuario = intent.getLongExtra("ID_CLIENTE", -1L)
-        val nomeUsuario = intent.getStringExtra("NOME_CLIENTE")
+        val nomeUsuario = intent.getStringExtra("EMAIL_CLIENTE")
 
         return if (idUsuario != -1L && nomeUsuario != null) {
             Pair(idUsuario, nomeUsuario)
@@ -401,9 +401,8 @@ class DashboardActivity : AppCompatActivity() {
         loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
         val id = loginInfo?.idClient ?: -1L
         val emailUsuario = loginInfo?.email ?: ""
-        val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
 
-        return Pair(id, nomeUsuario)
+        return Pair(id, emailUsuario)
     }
 
     override fun onDestroy() {
