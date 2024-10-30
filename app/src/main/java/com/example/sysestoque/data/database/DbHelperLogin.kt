@@ -143,24 +143,45 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
     fun gravarUsuarioLogin(remember: Boolean, id: Long, email: String, foto: String): Boolean{
         val db = this.writableDatabase
 
-        db.execSQL("DELETE FROM ${DbHelperLogin.TABLE_NAME}")
-
         val contentValues = ContentValues().apply {
-            put("id", 1)  // Força o ID a ser 1
             put(COLUMN_REMEMBER, if (remember) 1 else 0)
             put(COLUMN_ID_CLIENT, id)
             put(COLUMN_USER_LOGGED, email)
             put(COLUMN_PHOTO, foto)
         }
 
-        val result = db.insertWithOnConflict(
+        val cursor = db.query(
             DbHelperLogin.TABLE_NAME,
+            arrayOf(COLUMN_ID_CLIENT),
+            "$COLUMN_ID_CLIENT = ?",
+            arrayOf(id.toString()),
             null,
-            contentValues,
-            SQLiteDatabase.CONFLICT_REPLACE  // Garante que, se já houver um registro com ID 1, ele será substituído
+            null,
+            null
         )
+
+        val exists = cursor.moveToFirst()
+        cursor.close()
+
+        val result = if (exists) {
+            // Atualiza o registro existente
+            db.update(
+                DbHelperLogin.TABLE_NAME,
+                contentValues,
+                "$COLUMN_ID_CLIENT = ?",
+                arrayOf(id.toString())
+            )
+        } else {
+            // Insere um novo registro
+            db.insert(
+                DbHelperLogin.TABLE_NAME,
+                null,
+                contentValues
+            ).toInt()
+        }
+
         db.close()
-        return result != -1L
+        return result != -1
     }
 
     fun getFotoUsuario(id: Long): String{

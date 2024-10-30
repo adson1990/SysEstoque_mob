@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -12,7 +13,9 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.util.Base64
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -26,6 +29,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.RequestListener
 import com.example.sysestoque.backend.AuthRepository
+import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.ComprasResponse
 import com.example.sysestoque.backend.TokenResponse
@@ -76,7 +80,8 @@ private val clientRepository = ClientRepository()
 private val authRepository = AuthRepository()
 
 private var idClient: Long = -1L
-private var nameUser: String = ""
+private var mailUser: String = ""
+private var isDataLoaded = false
 
 
 class DashboardActivity : AppCompatActivity() {
@@ -126,9 +131,9 @@ class DashboardActivity : AppCompatActivity() {
         toggle.syncState()
 
         // obtendo dados do cliente
-        val (id, nome) = obterDadosUsuario()
+        val (id, email) = obterDadosUsuario()
         idClient = id
-        nameUser = nome
+        mailUser = email
 
         // Lidando com cliques no menu
         navView.setNavigationItemSelectedListener { menuItem ->
@@ -157,8 +162,8 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         salvarIdCliente(idClient)
-        loadDataUser(nameUser, idClient)
-
+        loadDataUser(mailUser, idClient)
+        isDataLoaded = true
 
         // fim do onCreate
     }
@@ -166,7 +171,6 @@ class DashboardActivity : AppCompatActivity() {
     private fun loadDataUser(nomeUsuario: String, id: Long){
         val name = nomeUsuario.substringBefore("@").uppercase()
         tvNomeUsuario.text = name
-        carregaFotoUser(id)
 
         val config = dbConfig.getConfiguracoes(id)
 
@@ -178,6 +182,7 @@ class DashboardActivity : AppCompatActivity() {
 
         fetchTokenAndCompras(id, nomeUsuario)
         mostrarDadosDB()
+        carregaFotoUser(id)
 
         val colors = dbHelper.getColors(id)
         if(colors != null) {
@@ -202,16 +207,12 @@ class DashboardActivity : AppCompatActivity() {
     @OptIn(ExperimentalEncodingApi::class)
     private fun carregaFotoUser(id: Long){
        // val urlComTimestamp = "$imageUrl?timestamp=${System.currentTimeMillis()}"
+        progressBar.visibility = View.VISIBLE
 
         val imageUrl = dbHelperLogin.getFotoUsuario(id)
 
-        if(imageUrl != null && imageUrl != ""){
-            val imageDecode = Base64.decode(imageUrl, Base64.DEFAULT)
-            val decodeByte = BitmapFactory.decodeByteArray(imageDecode,0,imageDecode.size)
-            imageView.setImageBitmap(decodeByte)
-            progressBar.visibility = View.GONE
-        } else {
-            /*Glide.with(this)
+        if(imageUrl != ""){
+            Glide.with(this)
                 .load(imageUrl)
                 .placeholder(R.mipmap.user_icon)
                 .error(R.mipmap.user_icon)
@@ -240,10 +241,69 @@ class DashboardActivity : AppCompatActivity() {
                     }
 
                 })
-                .into(imageView)*/
-            imageView.setImageResource(R.mipmap.user_icon)
-            progressBar.visibility = View.GONE
+                .into(imageView)
+        }  else {
+
+            val img64 = getAccessToken(id, mailUser)
+
+          if(img64 != "") {
+              val imageDecode = Base64.decode(img64, Base64.DEFAULT)
+              val decodeByte = BitmapFactory.decodeByteArray(imageDecode, 0, imageDecode.size)
+
+              if (decodeByte != null) {
+                  imageView.setImageBitmap(decodeByte)
+              } else {
+                  imageView.setImageResource(R.mipmap.user_icon)
+              }
+          } else {
+              imageView.setImageResource(R.mipmap.user_icon)
+          }
         }
+        progressBar.visibility = View.GONE
+    }
+
+    private fun getAccessToken(idCliente: Long, email: String): String{
+        var foto : String = ""
+        authRepository.getTokenByEmail(email, object : Callback<TokenResponse>{
+            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+                if (response.isSuccessful){
+                    val token = response.body()?.accessToken ?: ""
+                    if (!token.isNullOrEmpty()) {
+                        foto = getFotoCliente(idCliente, token)
+                    } else {
+                        funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, "", 1)
+                    }
+                }else {
+                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_cliente, "", 1)
+                }
+            }
+
+            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
+                Log.e("Erro_busca_cliente", "Erro ao tentar recuperar token: ${t.message}")
+            }
+
+        })
+        return foto
+    }
+
+    // Função para buscar o token e depois as compras
+    private fun fetchTokenAndCompras(idCliente: Long, username: String) {
+        authRepository.getTokenByEmail(username, object : Callback<TokenResponse> {
+            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+                if (response.isSuccessful) {
+                    val token = response.body()?.accessToken ?: ""
+                    // Agora com o token, realizar busca pelas compras
+                    fetchCompras(idCliente, token)
+                } else {
+                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, response.message(),0)
+                }
+            }
+
+            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, t.message.toString(),0)
+            }
+        })
     }
 
     fun fetchCompras(idCliente: Long, token: String) {
@@ -281,84 +341,55 @@ class DashboardActivity : AppCompatActivity() {
         })
     }
 
-    // Função para buscar o token e depois as compras
-    private fun fetchTokenAndCompras(idCliente: Long, username: String) {
-        authRepository.getTokenByEmail(username, object : Callback<TokenResponse> {
-            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+    fun getFotoCliente(idCliente: Long, token: String): String {
+        var clientePhoto : String = ""
+
+        clientRepository.getClientById(idCliente, token, object : Callback<Client> {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onResponse(call: Call<Client>, response: Response<Client>) {
                 if (response.isSuccessful) {
-                    val token = response.body()?.accessToken ?: ""
-                    // Agora com o token, realizar busca pelas compras
-                    fetchCompras(idCliente, token)
+                    val cliente = response.body()
+                    if (cliente != null && cliente.foto != "") {
+                        clientePhoto = cliente?.foto?.takeIf { it.isNotEmpty() }!!
+                    }
                 } else {
-                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, response.message(),0)
+                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_cliente,"",1)
                 }
             }
 
-            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, t.message.toString(),0)
+            override fun onFailure(call: Call<Client>, t: Throwable) {
+                funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
+                Log.e(
+                    "Erro_busca_cliente",
+                    "Erro ao tentar recuperar dados do cliente. ${t.message}"
+                )
             }
         })
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(navView)) {
-            drawerLayout.closeDrawer(navView)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    private fun mostrarDadosDB(){
-        val dbHelperLogin = DbHelperLogin(this)
-        dbHelperLogin.logarConteudoTabela()
+        return clientePhoto
     }
 
     private fun obterDadosUsuario(): Pair<Long, String> {
         val idUsuario = intent.getLongExtra("ID_CLIENTE", -1L)
-        val nomeUsuario = intent.getStringExtra("NOME_CLIENTE")
+        val nomeUsuario = intent.getStringExtra("EMAIL_CLIENTE")
 
         return if (idUsuario != -1L && nomeUsuario != null) {
             Pair(idUsuario, nomeUsuario)
-        } else (if(idUsuario != -1L) {
+        } else if(idUsuario != -1L) {
             buscarDadosDoSQLite(idUsuario)
         } else {
             funcoes.exibirToast(this@DashboardActivity, R.string.login_failed,"",1)
             abrirLoginActivity()
             finish()
-            null
-        })!!
+            Pair(-1L, "")
+        }
     }
 
     private fun buscarDadosDoSQLite(idUsuario: Long): Pair<Long, String> {
         loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
         val id = loginInfo?.idClient ?: -1L
         val emailUsuario = loginInfo?.email ?: ""
-        val nomeUsuario = emailUsuario.substringBefore("@").uppercase()
 
-        return Pair(id, nomeUsuario)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        ActivityManager.removeActivity(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        val idUsuario = obterIdCliente()
-
-        if (idUsuario != null) {
-            loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
-            val id = loginInfo?.idClient ?: -1L
-            val emailUsuario = loginInfo?.email ?: ""
-
-            loadDataUser(emailUsuario, id)
-        }else {
-            funcoes.exibirToast(this@DashboardActivity,R.string.login_failed,". Favor refaça o login no sistema", 1)
-            abrirLoginActivity()
-            finish()
-        }
+        return Pair(id, emailUsuario)
     }
 
     private fun salvarIdCliente(idCliente: Long) {
@@ -390,5 +421,48 @@ class DashboardActivity : AppCompatActivity() {
             putExtra("ID_CLIENTE", id)
         }
         startActivity(intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ActivityManager.removeActivity(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (!isDataLoaded) {
+            val idUsuario = obterIdCliente()
+            if (idUsuario != null) {
+                loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
+                val id = loginInfo?.idClient ?: -1L
+                val emailUsuario = loginInfo?.email ?: ""
+
+                loadDataUser(emailUsuario, id)
+            } else {
+                funcoes.exibirToast(
+                    this@DashboardActivity,
+                    R.string.login_failed,
+                    ". Favor refaça o login no sistema",
+                    1
+                )
+                abrirLoginActivity()
+                finish()
+            }
+        }
+        isDataLoaded = false
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(navView)) {
+            drawerLayout.closeDrawer(navView)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun mostrarDadosDB(){
+        val dbHelperLogin = DbHelperLogin(this)
+        dbHelperLogin.logarConteudoTabela()
     }
 }

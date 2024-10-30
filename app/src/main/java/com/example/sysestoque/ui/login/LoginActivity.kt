@@ -83,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
             }
             false
         }
-       edtPassword.addTextChangedListener(object : TextWatcher {
+        edtPassword.addTextChangedListener(object : TextWatcher {
            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -160,9 +160,10 @@ class LoginActivity : AppCompatActivity() {
                     funcoes.exibirToast(this@LoginActivity, saudacao, nome, 0)
 
                     salvarUsuario(rememberMe, id, username, foto)
-                    saveToken(token)
+                    funcoes.saveToken(this@LoginActivity, token)
                     abrirDashboard(id, user)
                 } else {
+                    loading.visibility = View.GONE
                     val errorMessage = try {
                         response.errorBody()?.string() ?: "Erro desconhecido"
                     } catch (e: Exception) {
@@ -186,16 +187,9 @@ class LoginActivity : AppCompatActivity() {
         dbHelperLogin.gravarUsuarioLogin(remenberMe, id, email, foto)
     }
 
-    private fun saveToken(token: String) {
-        val sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("auth_token", token)
-        editor.apply()
-    }
-
-    private fun abrirDashboard(id: Long, nome: String) {
+    private fun abrirDashboard(id: Long, email: String) {
         val intent = Intent(this, DashboardActivity::class.java).apply {
-            putExtra("NOME_CLIENTE", nome)
+            putExtra("EMAIL_CLIENTE", email)
             putExtra("ID_CLIENTE", id)
         }
         startActivity(intent)
