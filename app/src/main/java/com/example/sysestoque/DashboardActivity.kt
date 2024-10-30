@@ -211,7 +211,7 @@ class DashboardActivity : AppCompatActivity() {
 
         val imageUrl = dbHelperLogin.getFotoUsuario(id)
 
-        if(imageUrl != null && imageUrl != ""){
+        if(imageUrl != ""){
             Glide.with(this)
                 .load(imageUrl)
                 .placeholder(R.mipmap.user_icon)
@@ -287,33 +287,6 @@ class DashboardActivity : AppCompatActivity() {
         return foto
     }
 
-    fun getFotoCliente(idCliente: Long, token: String): String {
-        var clientePhoto : String = ""
-
-        clientRepository.getClientById(idCliente, token, object : Callback<Client> {
-            @RequiresApi(Build.VERSION_CODES.O)
-            override fun onResponse(call: Call<Client>, response: Response<Client>) {
-                if (response.isSuccessful) {
-                    val cliente = response.body()
-                    if (cliente != null) {
-                        clientePhoto = cliente?.foto?.takeIf { it.isNotEmpty() }!!
-                    }
-                } else {
-                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_cliente,"",1)
-                }
-            }
-
-            override fun onFailure(call: Call<Client>, t: Throwable) {
-                funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
-                Log.e(
-                    "Erro_busca_cliente",
-                    "Erro ao tentar recuperar dados do cliente. ${t.message}"
-                )
-            }
-        })
-        return clientePhoto
-    }
-
     // Função para buscar o token e depois as compras
     private fun fetchTokenAndCompras(idCliente: Long, username: String) {
         authRepository.getTokenByEmail(username, object : Callback<TokenResponse> {
@@ -368,17 +341,31 @@ class DashboardActivity : AppCompatActivity() {
         })
     }
 
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(navView)) {
-            drawerLayout.closeDrawer(navView)
-        } else {
-            super.onBackPressed()
-        }
-    }
+    fun getFotoCliente(idCliente: Long, token: String): String {
+        var clientePhoto : String = ""
 
-    private fun mostrarDadosDB(){
-        val dbHelperLogin = DbHelperLogin(this)
-        dbHelperLogin.logarConteudoTabela()
+        clientRepository.getClientById(idCliente, token, object : Callback<Client> {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onResponse(call: Call<Client>, response: Response<Client>) {
+                if (response.isSuccessful) {
+                    val cliente = response.body()
+                    if (cliente != null && cliente.foto != "") {
+                        clientePhoto = cliente?.foto?.takeIf { it.isNotEmpty() }!!
+                    }
+                } else {
+                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_cliente,"",1)
+                }
+            }
+
+            override fun onFailure(call: Call<Client>, t: Throwable) {
+                funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
+                Log.e(
+                    "Erro_busca_cliente",
+                    "Erro ao tentar recuperar dados do cliente. ${t.message}"
+                )
+            }
+        })
+        return clientePhoto
     }
 
     private fun obterDadosUsuario(): Pair<Long, String> {
@@ -387,14 +374,14 @@ class DashboardActivity : AppCompatActivity() {
 
         return if (idUsuario != -1L && nomeUsuario != null) {
             Pair(idUsuario, nomeUsuario)
-        } else (if(idUsuario != -1L) {
+        } else if(idUsuario != -1L) {
             buscarDadosDoSQLite(idUsuario)
         } else {
             funcoes.exibirToast(this@DashboardActivity, R.string.login_failed,"",1)
             abrirLoginActivity()
             finish()
-            null
-        })!!
+            Pair(-1L, "")
+        }
     }
 
     private fun buscarDadosDoSQLite(idUsuario: Long): Pair<Long, String> {
@@ -403,6 +390,37 @@ class DashboardActivity : AppCompatActivity() {
         val emailUsuario = loginInfo?.email ?: ""
 
         return Pair(id, emailUsuario)
+    }
+
+    private fun salvarIdCliente(idCliente: Long) {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putLong("ID_CLIENTE", idCliente)
+        editor.apply()
+    }
+
+    private fun obterIdCliente(): Long {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        return prefs.getLong("ID_CLIENTE", -1L)
+    }
+
+    private fun abrirProfileActivity(id: Long) {
+        val intent = Intent(this, ProfileActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
+        startActivity(intent)
+    }
+
+    private fun abrirLoginActivity(){
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun abrirSettingsActivity(id: Long) {
+        val intent = Intent(this, SettingsActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
+        startActivity(intent)
     }
 
     override fun onDestroy() {
@@ -435,34 +453,16 @@ class DashboardActivity : AppCompatActivity() {
         isDataLoaded = false
     }
 
-    private fun salvarIdCliente(idCliente: Long) {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putLong("ID_CLIENTE", idCliente)
-        editor.apply()
-    }
-
-    private fun obterIdCliente(): Long {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        return prefs.getLong("ID_CLIENTE", -1L)
-    }
-
-    private fun abrirProfileActivity(id: Long) {
-        val intent = Intent(this, ProfileActivity::class.java).apply {
-            putExtra("ID_CLIENTE", id)
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(navView)) {
+            drawerLayout.closeDrawer(navView)
+        } else {
+            super.onBackPressed()
         }
-        startActivity(intent)
     }
 
-    private fun abrirLoginActivity(){
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun abrirSettingsActivity(id: Long) {
-        val intent = Intent(this, SettingsActivity::class.java).apply {
-            putExtra("ID_CLIENTE", id)
-        }
-        startActivity(intent)
+    private fun mostrarDadosDB(){
+        val dbHelperLogin = DbHelperLogin(this)
+        dbHelperLogin.logarConteudoTabela()
     }
 }
