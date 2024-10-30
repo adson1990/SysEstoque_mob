@@ -7,9 +7,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import com.example.sysestoque.data.database.DbHelperConfig
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.utilitarios.ActivityManager
@@ -20,7 +18,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var dbHelperLogin: DbHelperLogin
     private lateinit var dbHelperCongif: DbHelperConfig
@@ -137,7 +134,7 @@ class SettingsActivity : AppCompatActivity() {
         // fim do onCreate
     }
 
-    private fun salvarConfigs(){
+    private fun salvarConfigs() {
         val lastPurchase = switchCompras.isChecked
         val orderPurchase = when (rgOrderCompras.checkedRadioButtonId) {
             R.id.rbOrdemNome -> "Nome"
@@ -154,9 +151,9 @@ class SettingsActivity : AppCompatActivity() {
 
         val remember = switchLogin.isChecked
 
-            dbHelperCongif.salvarConfiguracoes(idCliente, lastPurchase, orderPurchase, orderSearch)
-            dbHelperLogin.lembrarCliente(remember)
-        funcoes.exibirToast(this@SettingsActivity,R.string.salvar_dados_ok, "", 0)
+        dbHelperCongif.salvarConfiguracoes(idCliente, lastPurchase, orderPurchase, orderSearch)
+        dbHelperLogin.lembrarCliente(remember)
+        funcoes.exibirToast(this@SettingsActivity, R.string.salvar_dados_ok, "", 0)
         finish()
     }
 
@@ -165,11 +162,5 @@ class SettingsActivity : AppCompatActivity() {
             putExtra("ID_CLIENTE", id)
         }
         startActivity(intent)
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_settings)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
     }
 }

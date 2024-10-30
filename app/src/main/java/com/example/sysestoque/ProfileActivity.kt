@@ -39,9 +39,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import com.bumptech.glide.Glide
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Cellphone
@@ -75,7 +73,6 @@ import java.util.Locale
 class ProfileActivity : AppCompatActivity() {
 
     // Variáveis
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityProfileBinding
     private lateinit var textView: TextView
     private lateinit var seekBarRed: SeekBar
@@ -584,12 +581,6 @@ class ProfileActivity : AppCompatActivity() {
         val color = Color.rgb(redValue, greenValue, blueValue)
         textView.setTextColor(color)
     }*/
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_profile)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun onSaveButtonClicked(view: View) {

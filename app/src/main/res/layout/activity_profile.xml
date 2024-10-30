@@ -588,8 +588,8 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:layout_centerInParent="true"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/linearLayoutPhoneNumbers"/>
+                app:layout_constraintStart_toStartOf="@id/btnCadastrar"
+                app:layout_constraintTop_toBottomOf="@id/btnCadastrar"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </android.widget.ScrollView>
