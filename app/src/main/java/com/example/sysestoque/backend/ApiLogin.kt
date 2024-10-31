@@ -10,6 +10,8 @@ interface ApiLogin {
 
     @POST("token/cliente")
     fun getToken(@Body request: TokenRequest): Call<TokenResponse>
+
+   // fun refreshToken(@Body tokenRefresh: String):
 }
 
 data class TokenRequest(

@@ -289,21 +289,41 @@ class DashboardActivity : AppCompatActivity() {
 
     // Função para buscar o token e depois as compras
     private fun fetchTokenAndCompras(idCliente: Long, username: String) {
-        authRepository.getTokenByEmail(username, object : Callback<TokenResponse> {
-            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
-                if (response.isSuccessful) {
-                    val token = response.body()?.accessToken ?: ""
-                    // Agora com o token, realizar busca pelas compras
-                    fetchCompras(idCliente, token)
-                } else {
-                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, response.message(),0)
-                }
-            }
+        val (token, expiredIn, tokenTimestamp) = funcoes.getToken(this@DashboardActivity)
+        val valido = funcoes.isTokenValid(expiredIn, tokenTimestamp)
 
-            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, t.message.toString(),0)
-            }
-        })
+        if (token != null && valido) {
+            fetchCompras(idCliente, token)
+        } else {
+            authRepository.getTokenByEmail(username, object : Callback<TokenResponse> {
+                override fun onResponse(
+                    call: Call<TokenResponse>,
+                    response: Response<TokenResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val newToken = response.body()?.accessToken ?: ""
+                        // Agora com o token, realizar busca pelas compras
+                        fetchCompras(idCliente, newToken)
+                    } else {
+                        funcoes.exibirToast(
+                            this@DashboardActivity,
+                            R.string.erro_buscar_token,
+                            response.message(),
+                            0
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                    funcoes.exibirToast(
+                        this@DashboardActivity,
+                        R.string.erro_buscar_token,
+                        t.message.toString(),
+                        0
+                    )
+                }
+            })
+        }
     }
 
     fun fetchCompras(idCliente: Long, token: String) {

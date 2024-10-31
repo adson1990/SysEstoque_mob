@@ -147,6 +147,7 @@ class LoginActivity : AppCompatActivity() {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful) {
                     val token = response.body()?.accessToken ?: ""
+                    val expiresIn = response.body()?.expiresIn
                     val sexo = response.body()?.sexo ?: ' '
                     val id = response.body()?.id ?: 0
                     val foto = response.body()?.foto ?: ""
@@ -160,7 +161,7 @@ class LoginActivity : AppCompatActivity() {
                     funcoes.exibirToast(this@LoginActivity, saudacao, nome, 0)
 
                     salvarUsuario(rememberMe, id, username, foto)
-                    funcoes.saveToken(this@LoginActivity, token)
+                    funcoes.saveToken(this@LoginActivity, token, expiresIn!!)
                     abrirDashboard(id, user)
                 } else {
                     loading.visibility = View.GONE
