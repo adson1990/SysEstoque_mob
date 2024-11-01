@@ -11,7 +11,8 @@ interface ApiLogin {
     @POST("token/cliente")
     fun getToken(@Body request: TokenRequest): Call<TokenResponse>
 
-   // fun refreshToken(@Body tokenRefresh: String):
+    @POST("auth/refresh")
+    fun refreshToken(@Body tokenRefresh: TokenRefreshRequest): Call<TokenRefreshResponse>
 }
 
 data class TokenRequest(
@@ -22,9 +23,19 @@ data class TokenResponse(
     val expiresInSeconds: Long
 )
 
+data class TokenRefreshRequest(
+    val tokenRefresh: String
+)
+data class TokenRefreshResponse(
+    val accessToken: String,
+    val expiresIn: Long,
+    val refreshToken: String
+)
+
 data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(val accessToken: String,
                          val expiresIn: Long,
+                         val refreshToken: String,
                          val sexo: Char,
                          val id: Long,
                          val foto: String)

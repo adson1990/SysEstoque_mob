@@ -32,7 +32,7 @@ import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.ComprasResponse
-import com.example.sysestoque.backend.TokenResponse
+import com.example.sysestoque.backend.TokenRefreshResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperConfig
 import com.example.sysestoque.data.database.DbHelperLogin
@@ -180,7 +180,7 @@ class DashboardActivity : AppCompatActivity() {
             linearLayoutCompras.visibility = View.VISIBLE
         }
 
-        fetchTokenAndCompras(id, nomeUsuario)
+        fetchTokenAndCompras(id)
         mostrarDadosDB()
         carregaFotoUser(id)
 
@@ -264,46 +264,80 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun getAccessToken(idCliente: Long, email: String): String{
         var foto : String = ""
-        authRepository.getTokenByEmail(email, object : Callback<TokenResponse>{
-            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
-                if (response.isSuccessful){
-                    val token = response.body()?.accessToken ?: ""
-                    if (!token.isNullOrEmpty()) {
-                        foto = getFotoCliente(idCliente, token)
+        var tokenData = funcoes.getToken(this@DashboardActivity)
+        val accessToken = tokenData.token
+        val refresh = tokenData.refreshToken
+        val expiresIn = tokenData.expiresIn
+        val timeStamp = tokenData.tokenTimestamp
+
+        if(funcoes.isTokenValid(expiresIn, timeStamp)){
+            foto = getFotoCliente(idCliente, accessToken!!)
+        }else {
+            authRepository.getRefreshToken(refresh!!, object : Callback<TokenRefreshResponse> {
+                override fun onResponse(
+                    call: Call<TokenRefreshResponse>,
+                    response: Response<TokenRefreshResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val token = response.body()?.accessToken ?: ""
+                        val expiresIn = response.body()?.expiresIn ?: -1
+                        val refreshToken = response.body()?.refreshToken ?: ""
+                        if (!token.isNullOrEmpty()) {
+                            funcoes.saveToken(this@DashboardActivity, token, expiresIn, refreshToken)
+                            foto = getFotoCliente(idCliente, token)
+                        } else {
+                            funcoes.exibirToast(
+                                this@DashboardActivity,
+                                R.string.erro_buscar_token,
+                                "",
+                                1
+                            )
+                        }
                     } else {
-                        funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_token, "", 1)
+                        funcoes.exibirToast(
+                            this@DashboardActivity,
+                            R.string.erro_buscar_cliente,
+                            "",
+                            1
+                        )
                     }
-                }else {
-                    funcoes.exibirToast(this@DashboardActivity, R.string.erro_buscar_cliente, "", 1)
                 }
-            }
 
-            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
-                Log.e("Erro_busca_cliente", "Erro ao tentar recuperar token: ${t.message}")
-            }
+                override fun onFailure(call: Call<TokenRefreshResponse>, t: Throwable) {
+                    funcoes.exibirToast(
+                        this@DashboardActivity,
+                        R.string.erro_conexao_db,
+                        t.message.toString(),
+                        1
+                    )
+                    Log.e("Erro_busca_cliente", "Erro ao tentar recuperar token: ${t.message}")
+                }
 
-        })
+            })
+        }
         return foto
     }
 
     // Função para buscar o token e depois as compras
-    private fun fetchTokenAndCompras(idCliente: Long, username: String) {
-        val (token, expiredIn, tokenTimestamp) = funcoes.getToken(this@DashboardActivity)
+    private fun fetchTokenAndCompras(idCliente: Long) {
+        val (token, refreshToken, expiredIn, tokenTimestamp) = funcoes.getToken(this@DashboardActivity)
         val valido = funcoes.isTokenValid(expiredIn, tokenTimestamp)
 
         if (token != null && valido) {
             fetchCompras(idCliente, token)
         } else {
-            authRepository.getTokenByEmail(username, object : Callback<TokenResponse> {
+            authRepository.getRefreshToken(refreshToken!!, object : Callback<TokenRefreshResponse> {
                 override fun onResponse(
-                    call: Call<TokenResponse>,
-                    response: Response<TokenResponse>
+                    call: Call<TokenRefreshResponse>,
+                    response: Response<TokenRefreshResponse>
                 ) {
                     if (response.isSuccessful) {
-                        val newToken = response.body()?.accessToken ?: ""
+                        val token = response.body()?.accessToken ?: ""
+                        val expiresIn = response.body()?.expiresIn ?: -1
+                        val refreshToken = response.body()?.refreshToken ?: ""
+                        funcoes.saveToken(this@DashboardActivity, token, expiresIn, refreshToken)
                         // Agora com o token, realizar busca pelas compras
-                        fetchCompras(idCliente, newToken)
+                        fetchCompras(idCliente, token)
                     } else {
                         funcoes.exibirToast(
                             this@DashboardActivity,
@@ -314,7 +348,7 @@ class DashboardActivity : AppCompatActivity() {
                     }
                 }
 
-                override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                override fun onFailure(call: Call<TokenRefreshResponse>, t: Throwable) {
                     funcoes.exibirToast(
                         this@DashboardActivity,
                         R.string.erro_buscar_token,

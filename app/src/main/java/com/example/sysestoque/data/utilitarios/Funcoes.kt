@@ -71,21 +71,23 @@ class Funcoes {
         }
     }
 
-    fun saveToken(context: Context, token: String, expiresIn: Long) {
+    fun saveToken(context: Context, token: String, expiresIn: Long, refreshToken: String) {
         val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString("auth_token", token)
         editor.putLong("expiresIn", expiresIn)
+        editor.putString("refreshToken", refreshToken)
         editor.putLong("tokenTimestamp", System.currentTimeMillis())
         editor.apply()
     }
 
-    fun getToken(context: Context): Triple<String?, Long, Long> {
+    fun getToken(context: Context): TokenData {
         val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val token = sharedPreferences.getString("auth_token", null)
+        val refresh = sharedPreferences.getString("refreshToken", null)
         val expiresIn = sharedPreferences.getLong("expiresIn", 0L)
         val tokenTimestamp =  sharedPreferences.getLong("tokenTimestamp", 0L)
-        return Triple(token, expiresIn, tokenTimestamp)
+        return TokenData(token,refresh,expiresIn,tokenTimestamp)
     }
 
     fun isTokenValid(expiresIn: Long, tokenTimestamp: Long): Boolean {
@@ -95,3 +97,10 @@ class Funcoes {
         return timeElapsed < expiresIn * 1000
     }
 }
+
+data class TokenData(
+    val token: String?,
+    val refreshToken: String?,
+    val expiresIn: Long,
+    val tokenTimestamp: Long
+)

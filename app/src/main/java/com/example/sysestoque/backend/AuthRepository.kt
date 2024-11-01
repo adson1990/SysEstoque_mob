@@ -40,4 +40,10 @@ class AuthRepository {
         val call = authApi.getToken(request)
         call.enqueue(callback)
     }
+
+    fun getRefreshToken(refresh: String, callback: Callback<TokenRefreshResponse>){
+        val request = TokenRefreshRequest(refresh)
+        val call = authApi.refreshToken(request)
+        call.enqueue(callback)
+    }
 }

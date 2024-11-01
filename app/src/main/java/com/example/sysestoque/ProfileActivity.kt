@@ -46,6 +46,7 @@ import com.example.sysestoque.backend.Cellphone
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.Enderecos
+import com.example.sysestoque.backend.TokenRefreshResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperLogin
@@ -378,27 +379,58 @@ class ProfileActivity : AppCompatActivity() {
         // fim do onCreate
     }
 
-    private fun getAccessToken(idCliente: Long, email: String){
-        authRepository.getTokenByEmail(email, object : Callback<TokenResponse>{
-            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
-                if (response.isSuccessful){
-                    val token = response.body()?.accessToken ?: ""
-                    if (!token.isNullOrEmpty()) {
-                        getDadosCliente(idCliente, token)
+    private fun getAccessToken(idCliente: Long, email: String) {
+        var tokenData = funcoes.getToken(this@ProfileActivity)
+        val accessToken = tokenData.token
+        val refresh = tokenData.refreshToken
+        val expiresIn = tokenData.expiresIn
+        val timeStamp = tokenData.tokenTimestamp
+
+        if (funcoes.isTokenValid(expiresIn, timeStamp)) {
+            getDadosCliente(idCliente, accessToken!!)
+        } else {
+            authRepository.getRefreshToken(refresh!!, object : Callback<TokenRefreshResponse> {
+                override fun onResponse(
+                    call: Call<TokenRefreshResponse>,
+                    response: Response<TokenRefreshResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val token = response.body()?.accessToken ?: ""
+                        val expiresIn = response.body()?.expiresIn ?: -1
+                        val refreshToken = response.body()?.refreshToken ?: ""
+                        if (!token.isNullOrEmpty()) {
+                            funcoes.saveToken(this@ProfileActivity, token, expiresIn, refreshToken)
+                            getDadosCliente(idCliente, token!!)
+                        } else {
+                            funcoes.exibirToast(
+                                this@ProfileActivity,
+                                R.string.erro_buscar_token,
+                                "",
+                                1
+                            )
+                        }
                     } else {
-                        funcoes.exibirToast(this@ProfileActivity, R.string.erro_buscar_token, "", 1)
+                        funcoes.exibirToast(
+                            this@ProfileActivity,
+                            R.string.erro_buscar_cliente,
+                            "",
+                            1
+                        )
                     }
-                }else {
-                    funcoes.exibirToast(this@ProfileActivity, R.string.erro_buscar_cliente, "", 1)
                 }
-            }
 
-            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                funcoes.exibirToast(this@ProfileActivity, R.string.erro_conexao_db, t.message.toString(), 1)
-                Log.e("Erro_busca_cliente", "Erro ao tentar recuperar token: ${t.message}")
-            }
+                override fun onFailure(call: Call<TokenRefreshResponse>, t: Throwable) {
+                    funcoes.exibirToast(
+                        this@ProfileActivity,
+                        R.string.erro_conexao_db,
+                        t.message.toString(),
+                        1
+                    )
+                    Log.e("Erro_busca_cliente", "Erro ao tentar recuperar token: ${t.message}")
+                }
 
-        })
+            })
+        }
     }
 
     fun getDadosCliente(idCliente: Long, token: String) {
