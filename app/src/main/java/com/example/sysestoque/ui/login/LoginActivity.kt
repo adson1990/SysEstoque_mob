@@ -112,6 +112,7 @@ class LoginActivity : AppCompatActivity() {
                login.isEnabled = true
                loading.visibility = View.VISIBLE
                login(usernameInput, passwordInput)
+               loading.visibility = View.GONE
            } else {
                funcoes.exibirToast(this@LoginActivity, R.string.alerta_preencher_campos,"",0)
            }
@@ -165,7 +166,6 @@ class LoginActivity : AppCompatActivity() {
                     funcoes.saveToken(this@LoginActivity, token, expiresIn!!, refreshToken!!)
                     abrirDashboard(id, user)
                 } else {
-                    loading.visibility = View.GONE
                     val errorMessage = try {
                         response.errorBody()?.string() ?: "Erro desconhecido"
                     } catch (e: Exception) {
@@ -173,7 +173,6 @@ class LoginActivity : AppCompatActivity() {
                         "Erro ao processar a resposta"
                     }
                     funcoes.exibirToast(this@LoginActivity, R.string.login_failed, errorMessage,1)
-                    loading.visibility = View.GONE
                 }
             }
 

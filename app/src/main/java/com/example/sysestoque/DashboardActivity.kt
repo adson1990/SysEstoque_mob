@@ -32,6 +32,8 @@ import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.ComprasResponse
+import com.example.sysestoque.backend.LoginResponse
+import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.backend.TokenRefreshResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperConfig
@@ -325,7 +327,7 @@ class DashboardActivity : AppCompatActivity() {
 
         if (token != null && valido) {
             fetchCompras(idCliente, token)
-        } else {
+        } else if (token != null) {
             authRepository.getRefreshToken(refreshToken!!, object : Callback<TokenRefreshResponse> {
                 override fun onResponse(
                     call: Call<TokenRefreshResponse>,
@@ -357,6 +359,8 @@ class DashboardActivity : AppCompatActivity() {
                     )
                 }
             })
+        } else { // se não tiver token salvo no sharedPreferences solicitar novo token
+
         }
     }
 

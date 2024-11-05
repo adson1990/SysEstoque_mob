@@ -15,7 +15,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -67,14 +67,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/size_5dp"
                 android:layout_marginTop="@dimen/size_10dp"
-                android:text="Ordem por preço:"
+                android:text="Ordenação:"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/edtNomePesquisa" />
 
             <LinearLayout
                 android:id="@+id/llOrdemPreco"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -89,7 +89,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/size_20dp"
-                        android:text="Cresceste" />
+                        android:text="Preço" />
 
                     <View
                         android:layout_width="0dp"
@@ -100,20 +100,32 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/size_20dp"
-                        android:text="Decrescente" />
+                        android:text="Nome" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/size_20dp"
+                        android:text="Categoria" />
 
                 </RadioGroup>
-
-                <TextView
-                    android:id="@+id/tvPesquisaData"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/size_5dp"
-                    android:layout_marginTop="@dimen/size_10dp"
-                    android:text="Data inclusão"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/llOrdemPreco" />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/size_30dp"
+                android:text="Pesquisar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="parent"/>
 
         </LinearLayout>
 
