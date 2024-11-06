@@ -1,6 +1,7 @@
 package com.example.sysestoque
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -274,7 +275,7 @@ class DashboardActivity : AppCompatActivity() {
 
         if(funcoes.isTokenValid(expiresIn, timeStamp)){
             foto = getFotoCliente(idCliente, accessToken!!)
-        }else {
+        }else if (refresh != null) {
             authRepository.getRefreshToken(refresh!!, object : Callback<TokenRefreshResponse> {
                 override fun onResponse(
                     call: Call<TokenRefreshResponse>,
@@ -317,6 +318,7 @@ class DashboardActivity : AppCompatActivity() {
 
             })
         }
+
         return foto
     }
 
@@ -325,9 +327,9 @@ class DashboardActivity : AppCompatActivity() {
         val (token, refreshToken, expiredIn, tokenTimestamp) = funcoes.getToken(this@DashboardActivity)
         val valido = funcoes.isTokenValid(expiredIn, tokenTimestamp)
 
-        if (token != null && valido) {
+        if (token != null && valido) { // Se token ainda for válido
             fetchCompras(idCliente, token)
-        } else if (token != null) {
+        } else if (token != null) { // se n for
             authRepository.getRefreshToken(refreshToken!!, object : Callback<TokenRefreshResponse> {
                 override fun onResponse(
                     call: Call<TokenRefreshResponse>,
@@ -360,7 +362,40 @@ class DashboardActivity : AppCompatActivity() {
                 }
             })
         } else { // se não tiver token salvo no sharedPreferences solicitar novo token
+            val clientLoged = dbHelperLogin.getUsuarioLogado(idCliente)
+            val email = clientLoged?.email ?: ""
+            authRepository.getTokenByEmail(email, object : Callback<TokenRefreshResponse> {
+                override fun onResponse(
+                    call: Call<TokenRefreshResponse>,
+                    response: Response<TokenRefreshResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val token = response.body()?.accessToken ?: ""
+                        val expiresIn = response.body()?.expiresIn ?: -1
+                        val refreshToken = response.body()?.refreshToken ?: ""
+                        funcoes.saveToken(this@DashboardActivity, token, expiresIn, refreshToken)
+                        // Agora com o token, realizar busca pelas compras
+                        fetchCompras(idCliente, token)
+                    } else {
+                        funcoes.exibirToast(
+                            this@DashboardActivity,
+                            R.string.erro_buscar_token,
+                            response.message(),
+                            0
+                        )
+                    }
+                }
 
+                override fun onFailure(call: Call<TokenRefreshResponse>, t: Throwable) {
+                    funcoes.exibirToast(
+                        this@DashboardActivity,
+                        R.string.erro_buscar_token,
+                        t.message.toString(),
+                        0
+                    )
+                }
+
+            })
         }
     }
 
@@ -483,6 +518,13 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        if (isFinishing && !isChangingConfigurations) {
+            // Limpa o SharedPreferences
+            val sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            sharedPreferences.edit().clear().apply()
+        }
+
         ActivityManager.removeActivity(this)
     }
 

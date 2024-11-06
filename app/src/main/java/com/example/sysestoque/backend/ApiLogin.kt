@@ -1,5 +1,6 @@
 package com.example.sysestoque.backend
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -9,10 +10,13 @@ interface ApiLogin {
     fun login(@Body loginRequest: LoginRequest): Call<LoginResponse>
 
     @POST("token/cliente")
-    fun getToken(@Body request: TokenRequest): Call<TokenResponse>
+    fun getToken(@Body request: TokenRefreshRequest): Call<TokenRefreshResponse>
 
     @POST("auth/refresh")
     fun refreshToken(@Body tokenRefresh: TokenRefreshRequest): Call<TokenRefreshResponse>
+
+    @POST("token/consulta")
+    fun temporaryToken(@Body tokenRequest: TokenRequest): Call<TokenResponse>
 }
 
 data class TokenRequest(
@@ -24,6 +28,7 @@ data class TokenResponse(
 )
 
 data class TokenRefreshRequest(
+    @SerializedName("username")
     val tokenRefresh: String
 )
 data class TokenRefreshResponse(

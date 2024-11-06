@@ -35,8 +35,8 @@ class AuthRepository {
         return retrofitWithToken;
     }
 
-    fun getTokenByEmail(email: String, callback: Callback<TokenResponse>){
-        val request = TokenRequest(email)
+    fun getTokenByEmail(email: String, callback: Callback<TokenRefreshResponse>){
+        val request = TokenRefreshRequest(email)
         val call = authApi.getToken(request)
         call.enqueue(callback)
     }
@@ -44,6 +44,12 @@ class AuthRepository {
     fun getRefreshToken(refresh: String, callback: Callback<TokenRefreshResponse>){
         val request = TokenRefreshRequest(refresh)
         val call = authApi.refreshToken(request)
+        call.enqueue(callback)
+    }
+
+    fun getTemporaryToken(email: String, callback: Callback<TokenResponse>){
+        val request = TokenRequest(email)
+        val call = authApi.temporaryToken(request)
         call.enqueue(callback)
     }
 }

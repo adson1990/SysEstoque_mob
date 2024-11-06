@@ -190,7 +190,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     private fun getToken(username: String, callback: (Pair<String, Long>) -> Unit) {
         val authRepository = AuthRepository()
 
-        authRepository.getTokenByEmail(username, object : RetrofitCallback<TokenResponse> {
+        authRepository.getTemporaryToken(username, object : RetrofitCallback<TokenResponse> {
             override fun onResponse(call: RetrofitCall<TokenResponse>, response: RetrofitResponse<TokenResponse>) {
                 if (response.isSuccessful) {
                     val tokenResponse = response.body()
