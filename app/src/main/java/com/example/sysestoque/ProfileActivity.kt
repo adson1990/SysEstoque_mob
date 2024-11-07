@@ -382,14 +382,14 @@ class ProfileActivity : AppCompatActivity() {
     private fun getAccessToken(idCliente: Long, email: String) {
         var tokenData = funcoes.getToken(this@ProfileActivity)
         val accessToken = tokenData.token
-        val refresh = tokenData.refreshToken
+        val refresh = tokenData.refreshToken ?: ""
         val expiresIn = tokenData.expiresIn
         val timeStamp = tokenData.tokenTimestamp
 
         if (funcoes.isTokenValid(expiresIn, timeStamp)) {
             getDadosCliente(idCliente, accessToken!!)
         } else {
-            authRepository.getRefreshToken(refresh!!, object : Callback<TokenRefreshResponse> {
+            authRepository.getRefreshToken(refresh, object : Callback<TokenRefreshResponse> {
                 override fun onResponse(
                     call: Call<TokenRefreshResponse>,
                     response: Response<TokenRefreshResponse>

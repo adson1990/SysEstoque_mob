@@ -195,7 +195,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val tokenResponse = response.body()
                     token = tokenResponse?.accessToken ?: "invalid_token"
-                    val expiresIn: Long = tokenResponse?.expiresInSeconds ?: 0L
+                    val expiresIn: Long = tokenResponse?.expiresIn ?: 0L
                     callback(Pair(token, expiresIn))
 
                     Log.i(

@@ -364,10 +364,10 @@ class DashboardActivity : AppCompatActivity() {
         } else { // se não tiver token salvo no sharedPreferences solicitar novo token
             val clientLoged = dbHelperLogin.getUsuarioLogado(idCliente)
             val email = clientLoged?.email ?: ""
-            authRepository.getTokenByEmail(email, object : Callback<TokenRefreshResponse> {
+            authRepository.getTokenByEmail(email, object : Callback<TokenResponse> {
                 override fun onResponse(
-                    call: Call<TokenRefreshResponse>,
-                    response: Response<TokenRefreshResponse>
+                    call: Call<TokenResponse>,
+                    response: Response<TokenResponse>
                 ) {
                     if (response.isSuccessful) {
                         val token = response.body()?.accessToken ?: ""
@@ -386,7 +386,7 @@ class DashboardActivity : AppCompatActivity() {
                     }
                 }
 
-                override fun onFailure(call: Call<TokenRefreshResponse>, t: Throwable) {
+                override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
                     funcoes.exibirToast(
                         this@DashboardActivity,
                         R.string.erro_buscar_token,

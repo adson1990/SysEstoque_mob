@@ -77,8 +77,8 @@ class ClientRepository() {
 
     fun updateClient(email: String, id: Long, client: Client, callback: Callback<Client>) {
         // 1. Buscar o token com o e-mail fornecido
-        authRepository.getTokenByEmail(email, object : Callback<TokenRefreshResponse> {
-            override fun onResponse(call: Call<TokenRefreshResponse>, response: Response<TokenRefreshResponse>) {
+        authRepository.getTokenByEmail(email, object : Callback<TokenResponse> {
+            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
                 if (response.isSuccessful) {
                     val token = response.body()?.accessToken
                     if (token != null) {
@@ -96,7 +96,7 @@ class ClientRepository() {
                 }
             }
 
-            override fun onFailure(call: Call<TokenRefreshResponse>, t: Throwable) {
+            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
                 callback.onFailure(null, t)
             }
         })
