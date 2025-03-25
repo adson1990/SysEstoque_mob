@@ -1,7 +1,6 @@
 package com.example.sysestoque.ui.login
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +24,6 @@ import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.LoginRequest
 import com.example.sysestoque.backend.LoginResponse
 import com.example.sysestoque.data.database.DbHelperLogin
-import com.example.sysestoque.data.database.LoginInfo
 import com.example.sysestoque.data.utilitarios.Funcoes
 import retrofit2.Call
 import retrofit2.Callback
@@ -87,7 +85,7 @@ class LoginActivity : AppCompatActivity() {
            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-               login.isEnabled = !s.isNullOrEmpty()
+               login.isEnabled = (!s.isNullOrEmpty() && s.length > 3)
            }
 
            override fun afterTextChanged(s: Editable?) {}
@@ -107,12 +105,22 @@ class LoginActivity : AppCompatActivity() {
        login.setOnClickListener {
            val usernameInput = username.text.toString().trim()
            val passwordInput = password.text.toString().trim()
+           val backgroundColor = ContextCompat.getColor(this, R.color.green_500)
 
            if (usernameInput.isNotEmpty() && passwordInput.isNotEmpty()) {
-               login.isEnabled = true
+               login.text = ""
+               login.setBackgroundColor(backgroundColor)
                loading.visibility = View.VISIBLE
-               login(usernameInput, passwordInput)
-               loading.visibility = View.GONE
+
+               android.os.Handler().postDelayed({
+                   login(usernameInput, passwordInput)
+                   loading.visibility = View.GONE
+                   login.setBackgroundResource(R.drawable.selector_button)
+                   login.text = getString(R.string.action_sign_in_short)  // Restaura o texto do botão
+               }, 3000)
+
+
+
            } else {
                funcoes.exibirToast(this@LoginActivity, R.string.alerta_preencher_campos,"",0)
            }

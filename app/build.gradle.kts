@@ -45,7 +45,7 @@ android {
         viewBinding = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
     packaging {
         resources {
@@ -77,6 +77,7 @@ dependencies {
     // Dependencia para carregr imagem vinda da web
     implementation(libs.glide)
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     kapt("androidx.room:room-compiler:2.6.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

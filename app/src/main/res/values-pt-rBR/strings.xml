@@ -100,5 +100,10 @@
     <string name="ordenacao_data">Data de compra</string>
     <string name="ordenacao_avaliacao">Avaliação</string>
     <string name="ordenacao_pesquisa">Ordenação de pesquisa</string>
+    <string name="filtro_pesquisa">Preencha algum filtro para pesquisa</string>
+    <string name="digite_nome">Digite o nome ou uma parte dele</string>
+    <string name="ordem_preço">Preço</string>
+    <string name="ordem_categoria">Categoria</string>
+    <string name="desc_produto">Descrição</string>
 
 </resources>

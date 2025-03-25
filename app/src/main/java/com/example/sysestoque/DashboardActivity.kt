@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -209,14 +210,17 @@ class DashboardActivity : AppCompatActivity() {
 
     @OptIn(ExperimentalEncodingApi::class)
     private fun carregaFotoUser(id: Long){
-       // val urlComTimestamp = "$imageUrl?timestamp=${System.currentTimeMillis()}"
+        //imageView.setBackgroundColor(ContextCompat.getColor(this, R.color.purple_500))
         progressBar.visibility = View.VISIBLE
 
         val imageUrl = dbHelperLogin.getFotoUsuario(id)
 
-        if(imageUrl != ""){
+        if(imageUrl.isNotEmpty()){
+            val cleanImageUrl = imageUrl.replace("\\s".toRegex(), "")
+            val imageDecode = Base64.decode(cleanImageUrl, Base64.DEFAULT)
+            val bitmap = BitmapFactory.decodeByteArray(imageDecode, 0, imageDecode.size)
             Glide.with(this)
-                .load(imageUrl)
+                .load(bitmap)
                 .placeholder(R.mipmap.user_icon)
                 .error(R.mipmap.user_icon)
                 .skipMemoryCache(true)

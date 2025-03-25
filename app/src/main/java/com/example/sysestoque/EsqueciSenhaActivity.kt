@@ -50,7 +50,6 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     private lateinit var tvNovaSenha: TextView
     private lateinit var btn3: Button
     private lateinit var funcoes: Funcoes
-    private lateinit var username: String
     private var idCliente: Long = 0
     private var token: String = ""
 

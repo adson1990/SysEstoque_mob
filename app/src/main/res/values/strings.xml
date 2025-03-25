@@ -102,6 +102,11 @@
     <string name="ordenacao_data">Date de purchase</string>
     <string name="ordenacao_avaliacao">Rating</string>
     <string name="ordenacao_pesquisa">Order search itens</string>
+    <string name="filtro_pesquisa">Fill in any filter for search</string>
+    <string name="digite_nome">Enter the name or a part of it</string>
+    <string name="ordem_preço">Price</string>
+    <string name="ordem_categoria">Category</string>
+    <string name="desc_produto">Description</string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>
