@@ -152,7 +152,7 @@ class SettingsActivity : AppCompatActivity() {
         val remember = switchLogin.isChecked
 
         dbHelperCongif.salvarConfiguracoes(idCliente, lastPurchase, orderPurchase, orderSearch)
-        dbHelperLogin.lembrarCliente(remember)
+        dbHelperLogin.lembrarCliente(remember, ) // modificar a consulta de usuário logado, adicionar um campo na tabela indicando qual usuário está logado no DB no momento
         funcoes.exibirToast(this@SettingsActivity, R.string.salvar_dados_ok, "", 0)
         finish()
     }

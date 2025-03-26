@@ -48,6 +48,7 @@ import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -213,59 +214,68 @@ class DashboardActivity : AppCompatActivity() {
         //imageView.setBackgroundColor(ContextCompat.getColor(this, R.color.purple_500))
         progressBar.visibility = View.VISIBLE
 
-        val imageUrl = dbHelperLogin.getFotoUsuario(id)
+        val imagePath = dbHelperLogin.getFotoUsuario(id)
 
-        if(imageUrl.isNotEmpty()){
-            val cleanImageUrl = imageUrl.replace("\\s".toRegex(), "")
-            val imageDecode = Base64.decode(cleanImageUrl, Base64.DEFAULT)
-            val bitmap = BitmapFactory.decodeByteArray(imageDecode, 0, imageDecode.size)
-            Glide.with(this)
-                .load(bitmap)
-                .placeholder(R.mipmap.user_icon)
-                .error(R.mipmap.user_icon)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        progressBar.visibility = View.GONE
-                        return false
-                    }
+        if (!imagePath.isNullOrEmpty()) {
+            val file = File(imagePath)
+            if (file.exists()) {
+                // Carregar a imagem diretamente do armazenamento interno
+                Glide.with(this)
+                    .load(file)
+                    .placeholder(R.mipmap.user_icon)
+                    .error(R.mipmap.user_icon)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .listener(object : RequestListener<Drawable> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            progressBar.visibility = View.GONE
+                            return false
+                        }
 
-                    override fun onResourceReady(
-                        resource: Drawable?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        dataSource: com.bumptech.glide.load.DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        progressBar.visibility = View.GONE
-                        return false
-                    }
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: com.bumptech.glide.load.DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            progressBar.visibility = View.GONE
+                            return false
+                        }
+                    })
+                    .into(imageView)
 
-                })
-                .into(imageView)
-        }  else {
-
-            val img64 = getAccessToken(id, mailUser)
-
-          if(img64 != "") {
-              val imageDecode = Base64.decode(img64, Base64.DEFAULT)
-              val decodeByte = BitmapFactory.decodeByteArray(imageDecode, 0, imageDecode.size)
-
-              if (decodeByte != null) {
-                  imageView.setImageBitmap(decodeByte)
-              } else {
-                  imageView.setImageResource(R.mipmap.user_icon)
-              }
-          } else {
-              imageView.setImageResource(R.mipmap.user_icon)
-          }
+                progressBar.visibility = View.GONE
+                return
+            }
         }
+
+        // Caso não tenha imagem no banco local, buscar no repositório online
+        val imgBase64 = getAccessToken(id, mailUser)
+
+        if (!imgBase64.isNullOrEmpty()) {
+            try {
+                val imageDecode = Base64.decode(imgBase64, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(imageDecode, 0, imageDecode.size)
+
+                if (bitmap != null) {
+                    imageView.setImageBitmap(bitmap)
+                } else {
+                    imageView.setImageResource(R.mipmap.user_icon)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                imageView.setImageResource(R.mipmap.user_icon)
+            }
+        } else {
+            imageView.setImageResource(R.mipmap.user_icon)
+        }
+
         progressBar.visibility = View.GONE
     }
 

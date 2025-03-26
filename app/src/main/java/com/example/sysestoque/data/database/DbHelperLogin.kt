@@ -62,7 +62,7 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         return result != -1L
     }
 
-    fun lembrarCliente(remember: Boolean): Boolean{
+    fun lembrarCliente(remember: Boolean, emailUser : String): Boolean{
         val db = this.writableDatabase
 
         val contentValues = ContentValues().apply {
@@ -72,8 +72,8 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         val result = db.update(
             TABLE_NAME,
             contentValues,
-            "id = ?",
-            arrayOf("1")
+            "$COLUMN_USER_LOGGED = ?",
+            arrayOf(emailUser)
         )
         db.close()
         return result > 0
