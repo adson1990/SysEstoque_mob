@@ -62,7 +62,7 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         return result != -1L
     }
 
-    fun lembrarCliente(remember: Boolean, emailUser : String): Boolean{
+    fun lembrarCliente(remember: Boolean): Boolean{
         val db = this.writableDatabase
 
         val contentValues = ContentValues().apply {
@@ -72,8 +72,10 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         val result = db.update(
             TABLE_NAME,
             contentValues,
-            "$COLUMN_USER_LOGGED = ?",
-            arrayOf(emailUser)
+           null,
+           null
+            /*"$COLUMN_USER_LOGGED = ?",
+            arrayOf(emailUser) */
         )
         db.close()
         return result > 0
@@ -82,7 +84,7 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
     fun checarLoginAutomatico(): Pair<Long, String> {
         val db = this.readableDatabase
         val idClient: Long
-        val nameUser: String
+        val mailUser: String
 
         val cursor = db.rawQuery(
             "SELECT $COLUMN_ID_CLIENT, $COLUMN_USER_LOGGED FROM ${DbHelperLogin.TABLE_NAME} WHERE $COLUMN_REMEMBER = 1",
@@ -91,13 +93,13 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
 
         if (cursor.moveToFirst()) {
             idClient = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID_CLIENT))
-            nameUser = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOGGED))
+            mailUser = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOGGED))
         } else {
             idClient = 0L
-            nameUser = "unknown"
+            mailUser = "unknown"
         }
         cursor.close()
-        return Pair(idClient, nameUser)
+        return Pair(idClient, mailUser)
     }
 
     fun atualizaUsuarioLogado(email : String){
@@ -140,8 +142,10 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         db.close()
     }
 
-    fun gravarUsuarioLogin(remember: Boolean, id: Long, email: String, foto: String): Boolean{
+    fun gravarUsuarioLogin(remember: Boolean, id: Long, email: String, foto: String): Boolean {
         val db = this.writableDatabase
+
+        db.delete(DbHelperLogin.TABLE_NAME, "1", null) //Deleta todos os registros da tabela
 
         val contentValues = ContentValues().apply {
             put(COLUMN_REMEMBER, if (remember) 1 else 0)
@@ -150,39 +154,12 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
             put(COLUMN_PHOTO, foto)
         }
 
-        val cursor = db.query(
-            DbHelperLogin.TABLE_NAME,
-            arrayOf(COLUMN_ID_CLIENT),
-            "$COLUMN_ID_CLIENT = ?",
-            arrayOf(id.toString()),
-            null,
-            null,
-            null
-        )
-
-        val exists = cursor.moveToFirst()
-        cursor.close()
-
-        val result = if (exists) {
-            // Atualiza o registro existente
-            db.update(
-                DbHelperLogin.TABLE_NAME,
-                contentValues,
-                "$COLUMN_ID_CLIENT = ?",
-                arrayOf(id.toString())
-            )
-        } else {
-            // Insere um novo registro
-            db.insert(
-                DbHelperLogin.TABLE_NAME,
-                null,
-                contentValues
-            ).toInt()
-        }
+        val result = db.insert(DbHelperLogin.TABLE_NAME, null, contentValues)
 
         db.close()
-        return result != -1
+        return result != -1L
     }
+
 
     fun getFotoUsuario(id: Long): String{
         val db = this.readableDatabase
@@ -201,7 +178,7 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         return foto!!
     }
 
-    fun getUsuarioLogado(id: Long): LoginInfo? {
+    fun getUsuarioLogado(): LoginInfo? {
         val db = this.readableDatabase
         var loginInfo: LoginInfo? = null
         var idClient: Long
@@ -209,9 +186,12 @@ class DbHelperLogin(context: Context) : SQLiteOpenHelper(context, RELEMBRAR_USUA
         var rememberMe = false
         var foto = ""
 
-        val cursor = db.rawQuery("SELECT $COLUMN_USER_LOGGED, $COLUMN_PHOTO, $COLUMN_REMEMBER, $COLUMN_ID_CLIENT " +
-                "FROM ${DbHelperLogin.TABLE_NAME} WHERE $COLUMN_ID_CLIENT = ?", arrayOf(id.toString())
+        val cursor = db.rawQuery(
+            "SELECT $COLUMN_USER_LOGGED, $COLUMN_PHOTO, $COLUMN_REMEMBER, $COLUMN_ID_CLIENT " +
+                    "FROM ${DbHelperLogin.TABLE_NAME} WHERE $COLUMN_ID_CLIENT > 0",
+            null
         )
+
 
         if (cursor.moveToFirst()) {
             idClient = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID_CLIENT))

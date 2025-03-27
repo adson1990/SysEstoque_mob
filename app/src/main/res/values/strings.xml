@@ -107,6 +107,7 @@
     <string name="ordem_preço">Price</string>
     <string name="ordem_categoria">Category</string>
     <string name="desc_produto">Description</string>
+    <string name="produtos">Produtos</string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>

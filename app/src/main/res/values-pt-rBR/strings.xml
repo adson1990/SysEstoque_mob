@@ -105,5 +105,6 @@
     <string name="ordem_preço">Preço</string>
     <string name="ordem_categoria">Categoria</string>
     <string name="desc_produto">Descrição</string>
+    <string name="produtos">Produtos</string>
 
 </resources>

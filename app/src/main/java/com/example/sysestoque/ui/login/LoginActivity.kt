@@ -48,10 +48,10 @@ class LoginActivity : AppCompatActivity() {
 
        criarTabelas()
 
-       val (id, nome) = loginAutomatico()
+       val (id, email) = loginAutomatico()
 
        if( id > 0){
-          abrirDashboard(id, nome)
+          abrirDashboard(id, email)
        }
 
        authRepository = AuthRepository()
@@ -218,10 +218,10 @@ class LoginActivity : AppCompatActivity() {
     private fun loginAutomatico(): Pair<Long, String> {
         dbHelperLogin = DbHelperLogin(this)
 
-        val (idUsuario, nomeUsuario) = dbHelperLogin.checarLoginAutomatico()
+        val (idUsuario, emailUsuario) = dbHelperLogin.checarLoginAutomatico()
 
 
-    return Pair(idUsuario, nomeUsuario)
+    return Pair(idUsuario, emailUsuario)
 }
 
 /**

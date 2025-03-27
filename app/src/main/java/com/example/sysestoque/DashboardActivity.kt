@@ -20,7 +20,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -34,7 +33,6 @@ import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.ComprasResponse
-import com.example.sysestoque.backend.LoginResponse
 import com.example.sysestoque.backend.TokenResponse
 import com.example.sysestoque.backend.TokenRefreshResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
@@ -79,6 +77,8 @@ private lateinit var imageView: ImageView
 @SuppressLint("StaticFieldLeak")
 private lateinit var tvNomeUsuario: TextView
 private lateinit var funcoes: Funcoes
+@SuppressLint("StaticFieldLeak")
+private lateinit var imgCompras : ImageView
 
 private var loginInfo: LoginInfo? = null
 private val clientRepository = ClientRepository()
@@ -114,6 +114,7 @@ class DashboardActivity : AppCompatActivity() {
         tvProductDate2 = findViewById<TextView>(R.id.tvDataCompra2)
         tvProductPrice2 = findViewById<TextView>(R.id.tvValorTotal2)
         linearLayoutCompras = findViewById<LinearLayout>(R.id.linearLayoutCompras)
+        imgCompras = findViewById<ImageView>(R.id.imageView1)
 
         // Layout do menu lateral
         drawerLayout = findViewById(R.id.drawer_layout_dashboard)
@@ -139,6 +140,11 @@ class DashboardActivity : AppCompatActivity() {
         val (id, email) = obterDadosUsuario()
         idClient = id
         mailUser = email
+
+        imgCompras.setOnClickListener {
+            val idCliente = idClient
+            abrirComprasActivity(idCliente)
+        }
 
         // Lidando com cliques no menu
         navView.setNavigationItemSelectedListener { menuItem ->
@@ -376,7 +382,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
             })
         } else { // se não tiver token salvo no sharedPreferences solicitar novo token
-            val clientLoged = dbHelperLogin.getUsuarioLogado(idCliente)
+            val clientLoged = dbHelperLogin.getUsuarioLogado()
             val email = clientLoged?.email ?: ""
             authRepository.getTokenByEmail(email, object : Callback<TokenResponse> {
                 override fun onResponse(
@@ -420,6 +426,10 @@ class DashboardActivity : AppCompatActivity() {
                     val comprasList = response.body()?.content ?: emptyList()
 
                     if (comprasList.isNotEmpty()) {
+                        if (linearLayoutCompras.visibility == View.GONE) {
+                            linearLayoutCompras.visibility = View.VISIBLE
+                        }
+
                         val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
                         // Preencher a primeira compra
@@ -436,6 +446,9 @@ class DashboardActivity : AppCompatActivity() {
                             tvProductPrice2.text = compra2.valor.toString()
                             tvProductDate2.text = formatter.format(compra2.dataVenda)
                         }
+                    }
+                    else {
+                        linearLayoutCompras.visibility = View.GONE
                     }
                 } else {
                     funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, response.message(), 1)
@@ -476,23 +489,30 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun obterDadosUsuario(): Pair<Long, String> {
-        val idUsuario = intent.getLongExtra("ID_CLIENTE", -1L)
-        val nomeUsuario = intent.getStringExtra("EMAIL_CLIENTE")
+        var idUsuario = intent.getLongExtra("ID_CLIENTE", -1L)
+        var emailUsuario = intent.getStringExtra("EMAIL_CLIENTE")
 
-        return if (idUsuario != -1L && nomeUsuario != null) {
-            Pair(idUsuario, nomeUsuario)
-        } else if(idUsuario != -1L) {
-            buscarDadosDoSQLite(idUsuario)
-        } else {
-            funcoes.exibirToast(this@DashboardActivity, R.string.login_failed,"",1)
-            abrirLoginActivity()
-            finish()
-            Pair(-1L, "")
+        if (idUsuario == -1L || emailUsuario.isNullOrEmpty()) {
+            // Se não conseguiu obter da Intent, tenta buscar do banco de dados
+            val (idBanco, emailBanco) = buscarDadosDoSQLite()
+
+            if (idBanco > 0) {
+                idUsuario = idBanco
+                emailUsuario = emailBanco
+            } else {
+                // Se não conseguiu obter o usuário logado das 2 maneiras anteriores redireciona para tela de login
+                funcoes.exibirToast(this@DashboardActivity, R.string.login_failed, "", 1)
+                abrirLoginActivity()
+                finish()
+                return Pair(-1L, "")
+            }
         }
+
+        return Pair(idUsuario, emailUsuario ?: "")
     }
 
-    private fun buscarDadosDoSQLite(idUsuario: Long): Pair<Long, String> {
-        loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
+    private fun buscarDadosDoSQLite(): Pair<Long, String> {
+        loginInfo = dbHelperLogin.getUsuarioLogado()
         val id = loginInfo?.idClient ?: -1L
         val emailUsuario = loginInfo?.email ?: ""
 
@@ -530,6 +550,13 @@ class DashboardActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun abrirComprasActivity(id : Long){
+        val intent = Intent(this, ComprasActivity::class.java).apply {
+            putExtra("ID_CLIENTE", id)
+        }
+        startActivity(intent)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
@@ -548,7 +575,7 @@ class DashboardActivity : AppCompatActivity() {
         if (!isDataLoaded) {
             val idUsuario = obterIdCliente()
             if (idUsuario != null) {
-                loginInfo = dbHelperLogin.getUsuarioLogado(idUsuario)
+                loginInfo = dbHelperLogin.getUsuarioLogado()
                 val id = loginInfo?.idClient ?: -1L
                 val emailUsuario = loginInfo?.email ?: ""
 

@@ -323,7 +323,7 @@ class ProfileActivity : AppCompatActivity() {
         seekBarBlue.setOnSeekBarChangeListener(seekBarChangeListener)
 
         // bucando dados do cliente
-        loginInfo = dbHelperLogin.getUsuarioLogado(idParametro)!!
+        loginInfo = dbHelperLogin.getUsuarioLogado()!!
         idCliente = loginInfo?.idClient ?: 0L
         var email = loginInfo?.email ?: ""
         val nome = email.substringBefore("@")
@@ -464,7 +464,7 @@ class ProfileActivity : AppCompatActivity() {
                                 ftCliente.setImageBitmap(bitmap)
                             }
                         }else {
-                            val dbhelperLogin = dbHelperLogin.getUsuarioLogado(idParametro)
+                            val dbhelperLogin = dbHelperLogin.getUsuarioLogado()
                             val photoUser = dbhelperLogin?.foto ?: ""
                             if (photoUser.isNotEmpty()) {
                                 Glide.with(this@ProfileActivity)
@@ -709,6 +709,7 @@ class ProfileActivity : AppCompatActivity() {
             // Se não houver mudanças, apenas encerre a activity
             finish()
         }
+        progressBar.visibility = View.GONE
     }
 
     private fun isPhoneNumberValid(ddd: Int, number: String): Boolean {
