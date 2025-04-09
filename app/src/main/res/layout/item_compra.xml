@@ -1,0 +1,65 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/txtCodPrd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cod_prd"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtNomePrd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/name_prd" />
+
+        <TextView
+            android:id="@+id/txtCodCli"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cod_cli" />
+
+        <TextView
+            android:id="@+id/txtQtd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/qtd" />
+
+        <TextView
+            android:id="@+id/txtDataCompra"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dt_compra"/>
+
+        <TextView
+            android:id="@+id/txtTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/total" />
+
+        <TextView
+            android:id="@+id/txtPrcUnitario"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/prc_uni" />
+
+        <TextView
+            android:id="@+id/txtPrdCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/prd_category" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
