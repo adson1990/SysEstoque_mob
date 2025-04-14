@@ -9,7 +9,3 @@ interface ApiCompra {
     @GET("compras/cliente/{id}")
     suspend fun getComprasPorCliente(@Path("id") id: Long): Response<List<Compras>>
 }
-
-data class ComprasResponse(
-    val content: List<Compras>
-)

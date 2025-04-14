@@ -12,7 +12,7 @@
         android:id="@+id/tvNomePrd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/nome_cli"
+        android:text="@string/name_prd"
         android:textSize="16sp"
         android:textStyle="bold"
         tools:ignore="HardcodedText" />

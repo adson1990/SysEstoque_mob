@@ -15,5 +15,5 @@ data class ItensCompra(
     val prcUnitario: Double,
 
     @SerializedName("categoryNames")
-    val categorias: String // Agora é String, separada por vírgulas
+    val categorias: String // String, separada por vírgulas
 )

@@ -28,6 +28,7 @@ class ComprasActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false) // omitir o título do projeto na toolbar da activity
 
         // Configurar RecyclerView
         comprasList = mutableListOf()

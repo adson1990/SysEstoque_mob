@@ -1,10 +1,9 @@
-<LinearLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
-    android:orientation="horizontal"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
@@ -14,32 +13,44 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Nome do Cliente -->
         <TextView
             android:id="@+id/tvNomeCli"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/nome_cli"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/black" />
 
+        <!-- Data da Compra -->
         <TextView
             android:id="@+id/tvDatCompra"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dt_compra" />
+            android:text="@string/dt_compra"
+            android:textSize="14sp"
+            android:textColor="@color/gray_600"
+            android:layout_marginTop="4dp" />
 
+        <!-- Valor Total -->
         <TextView
             android:id="@+id/tvValorTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/valor_total" />
+            android:text="@string/valor_total"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp" />
+
+        <!-- RecyclerView para os Itens da Compra -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvItensCompra"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:layout_marginTop="8dp" />
+
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvItensCompra"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginTop="8dp" />
-
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

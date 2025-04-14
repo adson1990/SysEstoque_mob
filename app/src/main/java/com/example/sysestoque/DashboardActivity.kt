@@ -32,7 +32,6 @@ import com.bumptech.glide.request.RequestListener
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
-import com.example.sysestoque.backend.retrofit.ComprasResponse
 import com.example.sysestoque.backend.retrofit.TokenResponse
 import com.example.sysestoque.backend.retrofit.TokenRefreshResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
