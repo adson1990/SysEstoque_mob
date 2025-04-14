@@ -21,8 +21,8 @@ import com.example.sysestoque.databinding.ActivityLoginBinding
 import com.example.sysestoque.R
 import com.example.sysestoque.RegistroActivity
 import com.example.sysestoque.backend.AuthRepository
-import com.example.sysestoque.backend.LoginRequest
-import com.example.sysestoque.backend.LoginResponse
+import com.example.sysestoque.backend.retrofit.LoginRequest
+import com.example.sysestoque.backend.retrofit.LoginResponse
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.utilitarios.Funcoes
 import retrofit2.Call

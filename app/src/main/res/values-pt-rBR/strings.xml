@@ -95,15 +95,15 @@
     <string name="automatic_login">Login automático</string>
     <string name="exibir_ultimas_compras">Exibir últimas compras</string>
     <string name="ordenacao_compras">Ordem das suas últimas compras</string>
-    <string name="ordenacao_nome">Nome</string>
-    <string name="ordenacao_preco">Preço</string>
+    <string name="ordenacao_nome">Nome:</string>
+    <string name="ordenacao_preco">Preço:</string>
     <string name="ordenacao_data">Data de compra</string>
     <string name="ordenacao_avaliacao">Avaliação</string>
     <string name="ordenacao_pesquisa">Ordenação de pesquisa</string>
     <string name="filtro_pesquisa">Preencha algum filtro para pesquisa</string>
     <string name="digite_nome">Digite o nome ou uma parte dele</string>
     <string name="ordem_categoria">Categoria</string>
-    <string name="desc_produto">Descrição</string>
+    <string name="desc_produto">Descrição:</string>
     <string name="list_compras">Lista de compras</string>
     <string name="cod_prd">Código do produto: </string>
     <string name="name_prd">Nome do produto: </string>
@@ -113,5 +113,9 @@
     <string name="total">Total: </string>
     <string name="prc_uni">Preço unitário: </string>
     <string name="prd_category">Categoria: </string>
+    <string name="nome_cli">Nome cliente: </string>
+    <string name="valor_total">Valor Total: </string>
+    <string name="id_invalido">ID do cliente inválido </string>
+    <string name="erro_compras">Erro ao buscar compras </string>
 
 </resources>

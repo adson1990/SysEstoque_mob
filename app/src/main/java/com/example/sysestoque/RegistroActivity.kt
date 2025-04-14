@@ -275,7 +275,7 @@ class RegistroActivity : AppCompatActivity() {
             }
         }
 
-        clientRepository = ClientRepository()
+        clientRepository = ClientRepository(this)
         progressBar = findViewById(R.id.requestLogin)
 
         val btnRegistrar: Button = findViewById(R.id.btnCadastrar)

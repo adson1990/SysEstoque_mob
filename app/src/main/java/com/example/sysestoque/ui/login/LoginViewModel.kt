@@ -3,13 +3,11 @@ package com.example.sysestoque.ui.login
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.sysestoque.data.LoginRepository
-import com.example.sysestoque.data.Result
 
 import com.example.sysestoque.R
 import com.example.sysestoque.backend.AuthRepository
-import com.example.sysestoque.backend.LoginRequest
-import com.example.sysestoque.backend.LoginResponse
+import com.example.sysestoque.backend.retrofit.LoginRequest
+import com.example.sysestoque.backend.retrofit.LoginResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

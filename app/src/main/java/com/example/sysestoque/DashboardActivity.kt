@@ -32,9 +32,9 @@ import com.bumptech.glide.request.RequestListener
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
-import com.example.sysestoque.backend.ComprasResponse
-import com.example.sysestoque.backend.TokenResponse
-import com.example.sysestoque.backend.TokenRefreshResponse
+import com.example.sysestoque.backend.retrofit.ComprasResponse
+import com.example.sysestoque.backend.retrofit.TokenResponse
+import com.example.sysestoque.backend.retrofit.TokenRefreshResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperConfig
 import com.example.sysestoque.data.database.DbHelperLogin
@@ -80,8 +80,8 @@ private lateinit var funcoes: Funcoes
 @SuppressLint("StaticFieldLeak")
 private lateinit var imgCompras : ImageView
 
+
 private var loginInfo: LoginInfo? = null
-private val clientRepository = ClientRepository()
 private val authRepository = AuthRepository()
 
 private var idClient: Long = -1L
@@ -90,6 +90,7 @@ private var isDataLoaded = false
 
 
 class DashboardActivity : AppCompatActivity() {
+    private val clientRepository by lazy { ClientRepository(this@DashboardActivity) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -102,6 +103,7 @@ class DashboardActivity : AppCompatActivity() {
         ActivityManager.addActivity(this)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+
 
         // Referências das views
         tvNomeUsuario = findViewById<TextView>(R.id.tvNomeUsuario)
@@ -191,7 +193,7 @@ class DashboardActivity : AppCompatActivity() {
             linearLayoutCompras.visibility = View.VISIBLE
         }
 
-        fetchTokenAndCompras(id)
+       // fetchTokenAndCompras(id)
         mostrarDadosDB()
         carregaFotoUser(id)
 
@@ -343,7 +345,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     // Função para buscar o token e depois as compras
-    private fun fetchTokenAndCompras(idCliente: Long) {
+  /*  private fun fetchTokenAndCompras(idCliente: Long) {
         val (token, refreshToken, expiredIn, tokenTimestamp) = funcoes.getToken(this@DashboardActivity)
         val valido = funcoes.isTokenValid(expiredIn, tokenTimestamp)
 
@@ -459,7 +461,7 @@ class DashboardActivity : AppCompatActivity() {
                 funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
             }
         })
-    }
+    } */
 
     fun getFotoCliente(idCliente: Long, token: String): String {
         var clientePhoto : String = ""

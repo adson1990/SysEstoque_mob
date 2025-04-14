@@ -1,65 +1,50 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@color/gray_400"
+    android:layout_marginBottom="8dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvNomePrd"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:text="@string/nome_cli"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
-        <TextView
-            android:id="@+id/txtCodPrd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cod_prd"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/tvDescPrd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/desc_produto"
+        android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/txtNomePrd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/name_prd" />
+    <TextView
+        android:id="@+id/tvValorProduto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/prc_uni"
+        android:textSize="14sp"
+        android:textColor="@color/black" />
 
-        <TextView
-            android:id="@+id/txtCodCli"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cod_cli" />
+    <TextView
+        android:id="@+id/tvQuantidade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/qtd"
+        android:textSize="14sp"
+        android:textColor="@color/black" />
 
-        <TextView
-            android:id="@+id/txtQtd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/qtd" />
-
-        <TextView
-            android:id="@+id/txtDataCompra"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/dt_compra"/>
-
-        <TextView
-            android:id="@+id/txtTotal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/total" />
-
-        <TextView
-            android:id="@+id/txtPrcUnitario"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/prc_uni" />
-
-        <TextView
-            android:id="@+id/txtPrdCategory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/prd_category" />
-    </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/tvCategoriaPrd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/prd_category"
+        android:textSize="14sp"
+        android:textColor="@color/black" />
+</LinearLayout>

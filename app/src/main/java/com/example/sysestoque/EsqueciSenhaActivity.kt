@@ -18,8 +18,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.ClientRepository
-import com.example.sysestoque.backend.PassResponse
-import com.example.sysestoque.backend.TokenResponse
+import com.example.sysestoque.backend.retrofit.PassResponse
+import com.example.sysestoque.backend.retrofit.TokenResponse
 import com.example.sysestoque.data.database.DbHelperForgotPass
 import com.example.sysestoque.data.utilitarios.Funcoes
 import com.example.sysestoque.databinding.EsqueciSenhaLayoutBinding
@@ -216,7 +216,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     }
 
     private fun validarEmail(token: String, email: String){
-        val clientRepository = ClientRepository()
+        val clientRepository = ClientRepository(this)
 
         clientRepository.validaEmail(email, token, object : RetrofitCallback<Long> {
             override fun onResponse(call: RetrofitCall<Long>, response: RetrofitResponse<Long>){
@@ -329,7 +329,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
     }
 
     private fun mudarSenha(newPassword: String, id: Long, token: String) {
-        val clientRepository = ClientRepository()
+        val clientRepository = ClientRepository(this)
 
         clientRepository.setNewPassword(newPassword, id, token, object : RetrofitCallback<PassResponse> {
 

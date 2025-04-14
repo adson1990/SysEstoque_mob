@@ -39,15 +39,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.ui.AppBarConfiguration
 import com.bumptech.glide.Glide
 import com.example.sysestoque.backend.AuthRepository
 import com.example.sysestoque.backend.Cellphone
 import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.Enderecos
-import com.example.sysestoque.backend.TokenRefreshResponse
-import com.example.sysestoque.backend.TokenResponse
+import com.example.sysestoque.backend.retrofit.TokenRefreshResponse
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperLogin
 import com.example.sysestoque.data.database.LoginInfo
@@ -177,7 +175,7 @@ class ProfileActivity : AppCompatActivity() {
 
         // persistencia de dados
         authRepository = AuthRepository()
-        clientRepository = ClientRepository()
+        clientRepository = ClientRepository(this)
         dbHelperLogin = DbHelperLogin(this)
         dbHelper = ColorDatabaseHelper(this)
 
@@ -631,7 +629,7 @@ class ProfileActivity : AppCompatActivity() {
         val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.getDefault())
         val formattedDate = dateFormatOutput.format(datNas)
 
-        // foto em capo TEXT no DB, formato BASE64
+        // foto em campo TEXT no DB, formato BASE64
         updatedPhoto = originalClientData?.foto ?: ""
 
         if (novaFotoUri != null) {

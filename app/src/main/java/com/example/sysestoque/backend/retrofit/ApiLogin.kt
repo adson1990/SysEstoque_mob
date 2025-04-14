@@ -1,4 +1,4 @@
-package com.example.sysestoque.backend
+package com.example.sysestoque.backend.retrofit
 
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call

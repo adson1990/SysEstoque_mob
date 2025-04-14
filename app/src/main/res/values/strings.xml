@@ -97,16 +97,16 @@
     <string name="automatic_login">Automatic login</string>
     <string name="exibir_ultimas_compras">View latest purchases</string>
     <string name="ordenacao_compras">Order of your last purchases</string>
-    <string name="ordenacao_nome">Name</string>
-    <string name="ordenacao_preco">Price</string>
+    <string name="ordenacao_nome">Name:</string>
+    <string name="ordenacao_preco">Price:</string>
     <string name="ordenacao_data">Date de purchase</string>
     <string name="ordenacao_avaliacao">Rating</string>
     <string name="ordenacao_pesquisa">Order search itens</string>
     <string name="filtro_pesquisa">Fill in any filter for search</string>
     <string name="digite_nome">Enter the name or a part of it</string>
     <string name="ordem_categoria">Category</string>
-    <string name="desc_produto">Description</string>
-    <string name="list_compras">Produtos</string>
+    <string name="desc_produto">Description:</string>
+    <string name="list_compras">Products</string>
     <string name="cod_prd">Product Code: </string>
     <string name="name_prd">Product Name: </string>
     <string name="cod_cli">Client Code: </string>
@@ -115,6 +115,10 @@
     <string name="total">Total: </string>
     <string name="prc_uni">unit price: </string>
     <string name="prd_category">Category: </string>
+    <string name="nome_cli">Client Name: </string>
+    <string name="valor_total">Total price: </string>
+    <string name="id_invalido">Invalid client ID </string>
+    <string name="erro_compras">Error when searching for purchases </string>
 
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>
