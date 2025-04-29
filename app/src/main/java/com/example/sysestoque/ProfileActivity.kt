@@ -684,30 +684,63 @@ class ProfileActivity : AppCompatActivity() {
         )
         // Compara os dados atuais com os originais
         if (updatedClient != originalClientData) {
-
-            // Se houver mudanças, envie os dados para o endpoint
-            clientRepository.updateClient(originalClientData!!.email, loginInfo!!.idClient, updatedClient, object : Callback<Client> {
-                override fun onResponse(call: Call<Client>, response: Response<Client>) {
-                    if (response.isSuccessful) {
-                        println("Cliente atualizado com sucesso")
-                        progressBar.visibility = View.GONE
-                        finish()
-                    } else {
-                        println("Erro ao atualizar cliente: ${response.errorBody()?.string()}")
-                        progressBar.visibility = View.GONE
+            val (token, refreshToken, expiredIn, tokenTimestamp) = funcoes.getToken(this@ProfileActivity)
+            val valido = funcoes.isTokenValid(expiredIn, tokenTimestamp)
+            if (token != null && valido) {atualizaCliente(updatedClient, token)}
+            else if(!valido){
+                authRepository.getRefreshToken(refreshToken!!, object : Callback<TokenRefreshResponse> {
+                    override fun onResponse(
+                        call: Call<TokenRefreshResponse>,
+                        response: Response<TokenRefreshResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            val token = response.body()?.accessToken ?: ""
+                            val expiresIn = response.body()?.expiresIn ?: -1
+                            val refreshToken = response.body()?.refreshToken ?: ""
+                            funcoes.saveToken(this@ProfileActivity, token, expiresIn, refreshToken)
+                            // Agora com o token, realizar atualização
+                            atualizaCliente(updatedClient, token)
+                        } else {
+                            funcoes.exibirToast(
+                                this@ProfileActivity,R.string.erro_buscar_token,response.message(),0)
+                        }
                     }
-                }
 
-                override fun onFailure(call: Call<Client>?, t: Throwable) {
-                    println("Erro na requisição: ${t.message}")
-                    progressBar.visibility = View.GONE
-                }
-            })
+                    override fun onFailure(call: Call<TokenRefreshResponse>, t: Throwable) {
+                        funcoes.exibirToast(
+                            this@ProfileActivity,
+                            R.string.erro_buscar_token,
+                            t.message.toString(),
+                            0
+                        )
+                    }
+                })
+            }
         } else {
             // Se não houver mudanças, apenas encerre a activity
             finish()
         }
         progressBar.visibility = View.GONE
+    }
+
+    private fun atualizaCliente(updatedClient: Client, token: String){
+        clientRepository.updateClient(originalClientData!!.email, loginInfo!!.idClient, updatedClient, token, object : Callback<Client> {
+            override fun onResponse(call: Call<Client>, response: Response<Client>) {
+                if (response.isSuccessful) {
+                    println("Cliente atualizado com sucesso")
+                    progressBar.visibility = View.GONE
+                    finish()
+                } else {
+                    println("Erro ao atualizar cliente: ${response.errorBody()?.string()}")
+                    progressBar.visibility = View.GONE
+                }
+            }
+
+            override fun onFailure(call: Call<Client>?, t: Throwable) {
+                println("Erro na requisição: ${t.message}")
+                progressBar.visibility = View.GONE
+            }
+        })
     }
 
     private fun isPhoneNumberValid(ddd: Int, number: String): Boolean {

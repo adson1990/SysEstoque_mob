@@ -148,8 +148,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
         // Realizar a consulta
         //------------------------------------------------------------------------------------------------------
         btn1.setOnClickListener {
-            if (btn1.isEnabled) {
-                // Chama o método getToken e lida com o resultado no callback
+           // if (btn1.isEnabled) { // verificação desnecessária
                 getToken(edtEmail.text.toString()) { (token, expiresIn) ->
                     if (token != "invalid_token") {
                         validarEmail(token, edtEmail.text.toString())
@@ -158,7 +157,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
                         funcoes.exibirToast(this@EsqueciSenhaActivity, R.string.erro_buscar_token, "", 1)
                     }
                 }
-            }
+            //}
         }
 
         //verificar código de recuperação
@@ -217,7 +216,6 @@ class EsqueciSenhaActivity : AppCompatActivity() {
 
     private fun validarEmail(token: String, email: String){
         val clientRepository = ClientRepository(this)
-
         clientRepository.validaEmail(email, token, object : RetrofitCallback<Long> {
             override fun onResponse(call: RetrofitCall<Long>, response: RetrofitResponse<Long>){
                 if(response.isSuccessful && response.body() != null){

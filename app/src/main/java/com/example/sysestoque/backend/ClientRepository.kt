@@ -8,6 +8,8 @@ import com.example.sysestoque.backend.retrofit.ApiEmail
 import com.example.sysestoque.backend.retrofit.PassRequest
 import com.example.sysestoque.backend.retrofit.PassResponse
 import com.example.sysestoque.backend.retrofit.TokenResponse
+import com.example.sysestoque.backend.retrofit.UltimaCompra
+import com.example.sysestoque.data.database.DbHelperConfig
 import com.example.sysestoque.data.utilitarios.Funcoes
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -20,8 +22,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class ClientRepository(private val context: Context) {
 
+    private val dbHelperCongif: DbHelperConfig = DbHelperConfig(context)
     private val funcoes: Funcoes = Funcoes()
-
     private val apiCompra: ApiCompra
     private val apiClient: ApiClient
     private val authRepository: AuthRepository = AuthRepository()
@@ -70,6 +72,16 @@ class ClientRepository(private val context: Context) {
         }
     }
 
+    fun getUltimasCompras(id: Long, token: String, callback: Callback<List<UltimaCompra>>) {
+        val authHeader = "Bearer $token"
+
+        val compras = dbHelperCongif.getConfiguracoes(id)
+        val ordemCompra = compras?.ordemCompras
+
+        if (ordemCompra.equals("Data")) {apiCompra.getUltimasCompras(id, authHeader).enqueue(callback)}
+        else {apiCompra.getUltimasComprasPorValor(id, authHeader).enqueue(callback)}
+    }
+
     fun registerClient(cliente: Client, callback: Callback<Client>) {
         val call = apiClient.registerClient(cliente)
         call.enqueue(callback)
@@ -77,7 +89,7 @@ class ClientRepository(private val context: Context) {
 
     fun validaEmail(email: String, token: String, callback: Callback<Long>) {
         // retrofit personalizado para esta requisição, já que o token precisa ir junto
-        val retrofitWithToken = authRepository.requestToken(token)
+        val retrofitWithToken = authRepository.requestToken(token) // Cria a requisição retrofit2 com o Token no cabeçalho
 
         val apiEmailWithToken = retrofitWithToken.create(ApiEmail::class.java)
 
@@ -94,16 +106,23 @@ class ClientRepository(private val context: Context) {
         })
     }
 
-    fun updateClient(email: String, id: Long, client: Client, callback: Callback<Client>) {
+    fun updateClient(email: String, id: Long, client: Client, token: String, callback: Callback<Client>) {
+        if (token != "") {
+            apiClient.updateClientWithToken(id, client, "Bearer $token")
+                .enqueue(callback)
+        } else {
         // 1. Buscar o token com o e-mail fornecido
         authRepository.getTokenByEmail(email, object : Callback<TokenResponse> {
             override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
                 if (response.isSuccessful) {
-                    val token = response.body()?.accessToken
+                    val token = response.body()?.accessToken ?: ""
+                    val expiresIn = response.body()?.expiresIn ?: -1
+                    val refreshToken = response.body()?.refreshToken ?: ""
+                    funcoes.saveToken(context, token, expiresIn, refreshToken)
                     if (token != null) {
                         // 2. Chamar o metodo PATCH com o token no cabeçalho
                         apiClient.updateClientWithToken(id, client, "Bearer $token")
-                            .enqueue(callback) // 3. Enfileira a chamada e processa a resposta
+                            .enqueue(callback)
                     } else {
                         callback.onFailure(
                             null,
@@ -119,6 +138,7 @@ class ClientRepository(private val context: Context) {
                 callback.onFailure(null, t)
             }
         })
+      }
     }
 
     fun setNewPassword(password: String, id: Long, token: String, callback: Callback<PassResponse>){

@@ -528,11 +528,11 @@ class RegistroActivity : AppCompatActivity() {
         * o Json estava com o campo de data vazio devido a uma má conversão de formato. */
         val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Como desejo formatar a data
         val localDate = LocalDate.parse(findViewById<EditText>(R.id.edtNascimento).text.toString(),
-                                        dateFormatter) //linkando o campo formatando com meu dateFormatter
+                                        dateFormatter) //Converte a data do EditText em String e depois em LocalDate, uso o dateFormatter para entender como deve ler a data
         val zonedDateTime =
             localDate.atStartOfDay(ZoneId.systemDefault()) //retornar o LocalDate como ZoneDateTime com hora 00:00, systemDefault fuso padrão de onde o sistema está rodando
-        val datNas = Date.from(zonedDateTime.toInstant()) //convertendo o resultado obtido em tipo Instant
-        val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.getDefault()) //variável que irá formatar a saída da data no modelo que o BD aceita
+        val datNas = Date.from(zonedDateTime.toInstant()) //convertendo o resultado obtido em tipo Date do Java
+        val dateFormatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.getDefault()) //Cria um formatador para transformar um objeto Date em uma string no formato ISO 8601
         val formattedDate = dateFormatOutput.format(datNas) // Data sendo formatada
 
         val rua = findViewById<EditText>(R.id.edtEndereco).text.toString()

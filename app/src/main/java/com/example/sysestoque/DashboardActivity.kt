@@ -34,6 +34,7 @@ import com.example.sysestoque.backend.Client
 import com.example.sysestoque.backend.ClientRepository
 import com.example.sysestoque.backend.retrofit.TokenResponse
 import com.example.sysestoque.backend.retrofit.TokenRefreshResponse
+import com.example.sysestoque.backend.retrofit.UltimaCompra
 import com.example.sysestoque.data.database.ColorDatabaseHelper
 import com.example.sysestoque.data.database.DbHelperConfig
 import com.example.sysestoque.data.database.DbHelperLogin
@@ -60,13 +61,9 @@ private lateinit var linearLayoutCompras: LinearLayout
 @SuppressLint("StaticFieldLeak")
 private lateinit var tvProductDate1: TextView
 @SuppressLint("StaticFieldLeak")
-private lateinit var tvProductName1: TextView
-@SuppressLint("StaticFieldLeak")
 private lateinit var tvProductPrice1: TextView
 @SuppressLint("StaticFieldLeak")
 private lateinit var tvProductDate2: TextView
-@SuppressLint("StaticFieldLeak")
-private lateinit var tvProductName2: TextView
 @SuppressLint("StaticFieldLeak")
 private lateinit var tvProductPrice2: TextView
 @SuppressLint("StaticFieldLeak")
@@ -109,9 +106,7 @@ class DashboardActivity : AppCompatActivity() {
         progressBar = findViewById<ProgressBar>(R.id.progressBar)
         imageView = findViewById<ImageView>(R.id.ftUsuario)
         tvProductDate1 = findViewById<TextView>(R.id.tvDataCompra1)
-        tvProductName1 = findViewById<TextView>(R.id.tvNomeProduto1)
         tvProductPrice1 = findViewById<TextView>(R.id.tvValorTotal1)
-        tvProductName2 = findViewById<TextView>(R.id.tvNomeProduto2)
         tvProductDate2 = findViewById<TextView>(R.id.tvDataCompra2)
         tvProductPrice2 = findViewById<TextView>(R.id.tvValorTotal2)
         linearLayoutCompras = findViewById<LinearLayout>(R.id.linearLayoutCompras)
@@ -192,7 +187,7 @@ class DashboardActivity : AppCompatActivity() {
             linearLayoutCompras.visibility = View.VISIBLE
         }
 
-       // fetchTokenAndCompras(id)
+        fetchTokenAndCompras(id)
         mostrarDadosDB()
         carregaFotoUser(id)
 
@@ -344,7 +339,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     // Função para buscar o token e depois as compras
-  /*  private fun fetchTokenAndCompras(idCliente: Long) {
+    private fun fetchTokenAndCompras(idCliente: Long) {
         val (token, refreshToken, expiredIn, tokenTimestamp) = funcoes.getToken(this@DashboardActivity)
         val valido = funcoes.isTokenValid(expiredIn, tokenTimestamp)
 
@@ -370,6 +365,7 @@ class DashboardActivity : AppCompatActivity() {
                             response.message(),
                             0
                         )
+                        abrirLoginActivity();
                     }
                 }
 
@@ -421,11 +417,10 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     fun fetchCompras(idCliente: Long, token: String) {
-        clientRepository.getComprasPorIdCliente(idCliente, token, object : Callback<ComprasResponse> {
-            override fun onResponse(call: Call<ComprasResponse>, response: Response<ComprasResponse>) {
+        clientRepository.getUltimasCompras(idCliente, token, object : Callback<List<UltimaCompra>> {
+            override fun onResponse(call: Call<List<UltimaCompra>>, response: Response<List<UltimaCompra>>) {
                 if (response.isSuccessful) {
-                    val comprasList = response.body()?.content ?: emptyList()
-
+                    val comprasList = response.body() ?: emptyList()
                     if (comprasList.isNotEmpty()) {
                         if (linearLayoutCompras.visibility == View.GONE) {
                             linearLayoutCompras.visibility = View.VISIBLE
@@ -436,14 +431,12 @@ class DashboardActivity : AppCompatActivity() {
                         // Preencher a primeira compra
                         if (comprasList.isNotEmpty()) {
                             val compra1 = comprasList[0]
-                            tvProductName1.text = compra1.name
                             tvProductPrice1.text = compra1.valor.toString()
                             tvProductDate1.text = formatter.format(compra1.dataVenda)
                         }
 
                         if (comprasList.size > 1) {
                             val compra2 = comprasList[1]
-                            tvProductName2.text = compra2.name
                             tvProductPrice2.text = compra2.valor.toString()
                             tvProductDate2.text = formatter.format(compra2.dataVenda)
                         }
@@ -456,11 +449,11 @@ class DashboardActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<ComprasResponse>, t: Throwable) {
+            override fun onFailure(call: Call<List<UltimaCompra>>, t: Throwable) {
                 funcoes.exibirToast(this@DashboardActivity, R.string.erro_conexao_db, t.message.toString(), 1)
             }
         })
-    } */
+    }
 
     fun getFotoCliente(idCliente: Long, token: String): String {
         var clientePhoto : String = ""

@@ -20,7 +20,7 @@ interface ApiLogin {
 }
 
 data class TokenRequest(
-    val username: String
+    val emailClient: String
 )
 data class TokenResponse(
     val accessToken: String,
